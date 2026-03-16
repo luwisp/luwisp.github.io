@@ -1,0 +1,14 @@
+-rootPath
+/mnt/d/Code/code/front-end/homepage
+-cmake-output
+-output-file
+/mnt/d/Code/code/front-end/homepage/build/.qt/qml_imports/apphomepage_conf.cmake
+-importPath
+/mnt/d/Code/code/front-end/homepage/build
+-importPath
+/mnt/d/Code/code/front-end/homepage/build/homepage
+-importPath
+/usr/lib64/qt6/qml
+-qrcFiles
+/mnt/d/Code/code/front-end/homepage/build/.qt/rcc/qmake_homepage.qrc
+/mnt/d/Code/code/front-end/homepage/build/.qt/rcc/apphomepage_raw_qml_0.qrc

@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/homepage">
+    <file alias="qmldir">/mnt/d/Code/code/front-end/homepage/build/homepage/qmldir</file>
+  </qresource>
+</RCC>
+

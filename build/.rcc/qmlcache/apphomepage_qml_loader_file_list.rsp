@@ -1,0 +1,6 @@
+--resource
+/mnt/d/Code/code/front-end/homepage/build/.qt/rcc/qmake_homepage.qrc
+--resource
+/mnt/d/Code/code/front-end/homepage/build/.qt/rcc/apphomepage_raw_qml_0.qrc
+/homepage/qml/main.qml
+/homepage/qml/TreeNode.qml

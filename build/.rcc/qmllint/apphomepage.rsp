@@ -1,0 +1,15 @@
+--bare
+-I
+/mnt/d/Code/code/front-end/homepage/build
+-I
+/mnt/d/Code/code/front-end/homepage/build/homepage
+-I
+/mnt/d/Code/code/front-end/homepage/build
+-I
+/usr/lib64/qt6/qml
+--resource
+/mnt/d/Code/code/front-end/homepage/build/.qt/rcc/qmake_homepage.qrc
+--resource
+/mnt/d/Code/code/front-end/homepage/build/.qt/rcc/apphomepage_raw_qml_0.qrc
+/mnt/d/Code/code/front-end/homepage/qml/main.qml
+/mnt/d/Code/code/front-end/homepage/qml/TreeNode.qml
