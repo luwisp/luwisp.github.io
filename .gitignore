@@ -2,3 +2,5 @@ REQUIRE.md
 PROGRESS.md
 .vscode/
 .claude/
+.qtcreator/
+build/

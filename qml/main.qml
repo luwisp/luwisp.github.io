@@ -26,7 +26,8 @@ Window {
     property string targetExpandedTag: ""
     BlogManager {
         id: blogManager
-        baseUrl: "file:///mnt/d/Code/code/front-end/homepage/assert"
+        // 自动识别平台：如果编译为WebAssembly则走远端GitHub，否则走本地路径
+        baseUrl: Qt.platform.os === "wasm" ? "https://raw.githubusercontent.com/luoronger/luoronger.github.io/main/assert" : "file:///mnt/d/Code/code/front-end/homepage/assert"
         Component.onCompleted: loadData()
         
         onArticleLoaded: function(title, content, date, tags) {
@@ -498,7 +499,7 @@ Window {
                             anchors.centerIn: parent
                             spacing: 15
                             Text { text: "Personal Info"; color: "#ffffff"; font.pixelSize: 24; font.bold: true; anchors.horizontalCenter: parent.horizontalCenter }
-                            Text { text: "ID: LU0R0NG\n\n南软大二在读"; color: "#bbbbbb"; font.pixelSize: 16; horizontalAlignment: Text.AlignHCenter; anchors.horizontalCenter: parent.horizontalCenter }
+                            Text { text: "ID: luoronger\n\n南软大二在读"; color: "#bbbbbb"; font.pixelSize: 16; horizontalAlignment: Text.AlignHCenter; anchors.horizontalCenter: parent.horizontalCenter }
                         }
                     }
                     
@@ -542,7 +543,7 @@ Window {
                                 hoverEnabled: true
                                 onEntered: parent.color = "#444444"
                                 onExited: parent.color = "#333333"
-                                onClicked: Qt.openUrlExternally("https://github.com/LU0R0NG") // Placeholder GitHub URL
+                                onClicked: Qt.openUrlExternally("https://github.com/luoronger") // Placeholder GitHub URL
                             }
                         }
                         

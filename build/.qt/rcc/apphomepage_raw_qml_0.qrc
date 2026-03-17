@@ -1,7 +1,0 @@
-<RCC>
-  <qresource prefix="/homepage/">
-    <file alias="qml/main.qml">/mnt/d/Code/code/front-end/homepage/qml/main.qml</file>
-    <file alias="qml/TreeNode.qml">/mnt/d/Code/code/front-end/homepage/qml/TreeNode.qml</file>
-  </qresource>
-</RCC>
-

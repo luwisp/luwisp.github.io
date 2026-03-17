@@ -14,11 +14,23 @@ qt_add_executable(apphomepage
     src/blogmanager.h
 )
 
-qt_add_qml_module(apphomepage
-    URI homepage
-    VERSION 1.0
-    QML_FILES qml/main.qml qml/TreeNode.qml
-)
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    # For WASM build, include the font explicitly
+    qt_add_qml_module(apphomepage
+        URI homepage
+        VERSION 1.0
+        QML_FILES qml/main.qml qml/TreeNode.qml
+        RESOURCES fonts/NotoSansCJK-Regular.ttc
+    )
+else()
+    # For local Linux build, don't bundle the huge font file
+    # to save compile time and binary size
+    qt_add_qml_module(apphomepage
+        URI homepage
+        VERSION 1.0
+        QML_FILES qml/main.qml qml/TreeNode.qml
+    )
+endif()
 
 # Qt for WebAssembly deployment requires special steps but CMake handles the basics automatically
 set_target_properties(apphomepage PROPERTIES
