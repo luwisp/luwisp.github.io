@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/">
+    <file alias="/homepage">/mnt/d/Code/code/front-end/homepage/build/wasm/homepage</file>
+
+  </qresource>
+</RCC>

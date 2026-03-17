@@ -1,0 +1,1 @@
+/mnt/d/Code/code/front-end/homepage/build/wasm/apphomepage_autogen/include/../UVLADIE3JM/moc_blogmanager.cpp.json

@@ -1,0 +1,6 @@
+module homepage
+typeinfo apphomepage.qmltypes
+prefer :/homepage/
+TreeNode 1.0 qml/TreeNode.qml
+depends QtQuick
+
