@@ -38,6 +38,11 @@ set_target_properties(apphomepage PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    # Tell WebAssembly to output as index.html / index.js / index.wasm instead of apphomepage.*
+    set_target_properties(apphomepage PROPERTIES OUTPUT_NAME "index")
+endif()
+
 target_link_libraries(apphomepage
     PRIVATE Qt6::Quick Qt6::Network
 )

@@ -16,9 +16,20 @@ wasm:
 	cd build/wasm && \
 	$(QT_CMAKE) ../.. -DCMAKE_BUILD_TYPE=Release && \
 	cmake --build . -j $$(nproc)
-	
+clean-wasm:
+	rm -rf build/wasm	
+clean-linux:
+	rm -rf build/linux
 clean:
 	rm -rf build
+
+deploy:
+	make wasm
+	rm -rf docs/*
+	cp -r build/wasm/* docs/
+	git add docs
+	git commit -m "Deploy wasm"
+	git push
 
 run-linux:
 	$(CURDIR)/build/linux/apphomepage

@@ -107,9 +107,6 @@ Window {
         onPaint: {
             if (gridReady) return;
             var ctx = getContext("2d");
-            var dpr = Screen.devicePixelRatio || 1;
-            ctx.resetTransform();
-            ctx.scale(dpr, dpr);
             ctx.clearRect(0, 0, width, height);
 
             ctx.strokeStyle = "#e5e5e5";
@@ -152,9 +149,6 @@ Window {
 
         onPaint: {
             var ctx = getContext("2d");
-            var dpr = Screen.devicePixelRatio || 1;
-            ctx.resetTransform();
-            ctx.scale(dpr, dpr);
             ctx.clearRect(0, 0, width, height);
 
             var centerY = height / 2;
