@@ -12,6 +12,7 @@ Window {
 
     property bool isDrawerOpen: false
     property real time: 0
+    property int targetFps: 60
     property real baseCoordX: Math.random() * 100 - 50
     property real baseCoordY: Math.random() * 100 - 50
 
@@ -98,90 +99,147 @@ Window {
     Canvas {
         id: gridCanvas
         anchors.fill: parent
+        renderTarget: Canvas.FramebufferObject
         opacity: isDrawerOpen ? 0.0 : 1.0
         Behavior on opacity { NumberAnimation { duration: 600 } }
 
+        property bool gridReady: false
         onPaint: {
-            var ctx = getContext("2d")
-            ctx.clearRect(0, 0, width, height)
-            ctx.strokeStyle = "#e5e5e5"
-            ctx.lineWidth = 1
+            if (gridReady) return;
+            var ctx = getContext("2d");
+            var dpr = Screen.devicePixelRatio || 1;
+            ctx.resetTransform();
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
 
+            ctx.strokeStyle = "#e5e5e5";
+            ctx.lineWidth = 1;
             for (var x = 0; x < width; x += 50) {
-                ctx.beginPath()
-                ctx.moveTo(x, 0)
-                ctx.lineTo(x, height)
-                ctx.stroke()
+                ctx.beginPath();
+                ctx.moveTo(x + 0.5, 0);
+                ctx.lineTo(x + 0.5, height);
+                ctx.stroke();
             }
             for (var y = 0; y < height; y += 50) {
-                ctx.beginPath()
-                ctx.moveTo(0, y)
-                ctx.lineTo(width, y)
-                ctx.stroke()
+                ctx.beginPath();
+                ctx.moveTo(0, y + 0.5);
+                ctx.lineTo(width, y + 0.5);
+                ctx.stroke();
             }
+            gridReady = true;
         }
+        Component.onCompleted: requestPaint()
+        onWidthChanged: { gridReady = false; requestPaint() }
+        onHeightChanged: { gridReady = false; requestPaint() }
     }
 
     // Dynamic wave shapes and central broken line
     Canvas {
         id: waveCanvas
         anchors.fill: parent
+        renderTarget: Canvas.FramebufferObject
         opacity: isDrawerOpen ? 0.1 : 1.0  // Becomes dim/gray in dark mode
         Behavior on opacity { NumberAnimation { duration: 800 } }
 
+        property int step: 4
+        property real amplitude1: 100
+        property real amplitude2: 120
+        property real freq1: 0.005
+        property real freq2: 0.004
+        property var sineTable: []
+        property int lastWidth: 0
+        property bool tableReady: false
+
         onPaint: {
-            var ctx = getContext("2d")
-            ctx.clearRect(0, 0, width, height)
+            var ctx = getContext("2d");
+            var dpr = Screen.devicePixelRatio || 1;
+            ctx.resetTransform();
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
 
-            var centerY = height / 2
+            var centerY = height / 2;
 
-            // Draw center horizontal line with gap in the middle for LUORONG text
-            ctx.strokeStyle = isDrawerOpen ? "#555555" : "#000000"
-            ctx.lineWidth = 1.5
-            ctx.beginPath()
-            var gapStart = width/2 - 160
-            var gapEnd = width/2 + 150
-            ctx.moveTo(0, centerY)
-            ctx.lineTo(gapStart, centerY)
-            ctx.stroke()
+            ctx.strokeStyle = isDrawerOpen ? "#555555" : "#000000";
+            ctx.lineWidth = 1.5;
+            var gapStart = width/2 - 160;
+            var gapEnd = width/2 + 150;
 
-            ctx.beginPath()
-            ctx.moveTo(gapEnd, centerY)
-            ctx.lineTo(width, centerY)
-            ctx.stroke()
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(gapStart, centerY);
+            ctx.stroke();
 
-            // Draw the two intersecting sine waves
-            var drawWave = function(offset, amplitude, frequency, phase, color, isFill) {
-                ctx.beginPath()
-                ctx.moveTo(0, centerY + Math.sin(phase) * amplitude)
-                for (var x = 0; x <= width; x += 5) {
-                    var y = centerY + Math.sin(x * frequency + phase) * amplitude
-                    ctx.lineTo(x, y)
-                }
-                
-                if (isFill) {
-                    ctx.lineTo(width, height)
-                    ctx.lineTo(0, height)
-                    ctx.closePath()
-                    var gradient = ctx.createLinearGradient(0, centerY, 0, height)
-                    gradient.addColorStop(0, "rgba(200, 200, 200, 0.3)")
-                    gradient.addColorStop(1, "rgba(255, 255, 255, 0.0)")
-                    ctx.fillStyle = gradient
-                    ctx.fill()
-                } else {
-                    ctx.strokeStyle = color
-                    ctx.lineWidth = 2
-                    ctx.stroke()
-                }
+            ctx.beginPath();
+            ctx.moveTo(gapEnd, centerY);
+            ctx.lineTo(width, centerY);
+            ctx.stroke();
+
+            if (!tableReady || lastWidth !== width) {
+                prepareSineTable(width, step);
             }
 
-            // Draw shadow/gradients first
-            drawWave(0, 100, 0.005, time, "", true)
-            drawWave(0, 120, 0.004, -time * 0.8, "", true)
+            var drawWave = function(amplitude, freq, phase, color, isFill, gradientTopColor, gradientBottomColor) {
+                ctx.beginPath();
+                var y0 = centerY + sineAt(0, freq, phase) * amplitude;
+                ctx.moveTo(0, y0);
+                for (var x = 0; x <= width; x += step) {
+                    var y = centerY + sineAt(x, freq, phase) * amplitude;
+                    ctx.lineTo(x, y);
+                }
 
-            // Draw solid wave lines
-            drawWave(0, 100, 0.005, time, isDrawerOpen ? "#555555" : "#000000", false)
-            drawWave(0, 120, 0.004, -time * 0.8, isDrawerOpen ? "#444444" : "#888888", false)
+                if (isFill) {
+                    ctx.lineTo(width, height);
+                    ctx.lineTo(0, height);
+                    ctx.closePath();
+                    var grad = ctx.createLinearGradient(0, centerY, 0, height);
+                    grad.addColorStop(0, gradientTopColor);
+                    grad.addColorStop(1, gradientBottomColor);
+                    ctx.fillStyle = grad;
+                    ctx.fill();
+                } else {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            };
+
+            drawWave(amplitude1, freq1, time, "", true, "rgba(200, 200, 200, 0.3)", "rgba(255, 255, 255, 0.0)");
+            drawWave(amplitude2, freq2, -time * 0.8, "", true, "rgba(200, 200, 200, 0.3)", "rgba(255, 255, 255, 0.0)");
+            drawWave(amplitude1, freq1, time, isDrawerOpen ? "#555555" : "#000000", false, "", "");
+            drawWave(amplitude2, freq2, -time * 0.8, isDrawerOpen ? "#444444" : "#888888", false, "", "");
+        }
+
+        function prepareSineTable(w, step) {
+            var newTable = [];
+            var len = Math.ceil(w / step) + 2;
+            for (var i = 0; i < len; ++i) {
+                newTable[i] = Math.sin(i * step);
+            }
+            sineTable = newTable;
+            lastWidth = w;
+            tableReady = true;
+        }
+
+        function sineAt(x, freq, phase) {
+            var idx = Math.round(x / step);
+            if (idx < 0) idx = 0;
+            if (idx >= sineTable.length) idx = sineTable.length - 1;
+            return Math.sin(x * freq + phase);
+        }
+
+        Component.onCompleted: prepareSineTable(width, step)
+        onWidthChanged: { tableReady = false; requestPaint() }
+        onHeightChanged: requestPaint()
+    }
+
+    // Timer for wave and points animations
+    Timer {
+        interval: Math.round(1000 / window.targetFps)
+        running: true
+        repeat: true
+        onTriggered: {
+            time += 0.06
+            waveCanvas.requestPaint()
         }
     }
 
