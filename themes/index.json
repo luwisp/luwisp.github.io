@@ -1,0 +1,12 @@
+{
+  "defaultLight": "catppuccin-latte",
+  "defaultDark": "everforest-dark",
+  "files": [
+    "./themes/catppuccin-latte.json",
+    "./themes/catppuccin-frappe.json",
+    "./themes/catppuccin-macchiato.json",
+    "./themes/catppuccin-mocha.json",
+    "./themes/everforest-dark.json",
+    "./themes/solarized-light.json"
+  ]
+}

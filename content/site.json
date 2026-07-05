@@ -1,0 +1,29 @@
+{
+  "site": {
+    "title": "Luorong Notes",
+    "subtitle": "personal desktop blog",
+    "domain": "luorong.blog",
+    "wallpaper": "./public/background/145464450_p000_5760x3240.png"
+  },
+  "profile": {
+    "name": "Luorong",
+    "displayName": "Luorong Notes",
+    "avatarText": "良",
+    "tagline": "把文章、主题和日常实验放在同一个桌面里。",
+    "bio": "这里记录前端、Linux 桌面、工具链和一点点生活观察。界面像个人工作台，内容仍然按博客的方式归档。",
+    "location": "Asia/Shanghai",
+    "githubUser": "luorong",
+    "links": [
+      {
+        "label": "GitHub",
+        "icon": "github",
+        "url": "https://github.com/luorong"
+      },
+      {
+        "label": "Email",
+        "icon": "mail",
+        "url": "mailto:hello@example.com"
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "catppuccin-frappe",
+  "name": "Catppuccin Frappé",
+  "family": "Catppuccin",
+  "type": "dark",
+  "source": "catpuccin.md",
+  "swatches": ["#303446", "#ca9ee6", "#81c8be", "#a6d189"],
+  "tokens": {
+    "colorScheme": "dark",
+    "--wallpaper-dim": "rgba(35, 38, 52, 0.34)",
+    "--panel": "#303446",
+    "--panel-strong": "#232634",
+    "--panel-soft": "#414559",
+    "--surface": "#292c3c",
+    "--surface-raised": "#303446",
+    "--surface-muted": "#232634",
+    "--text": "#c6d0f5",
+    "--muted": "#b5bfe2",
+    "--subtle": "#838ba7",
+    "--border": "rgba(198, 208, 245, 0.16)",
+    "--accent": "#ca9ee6",
+    "--accent-2": "#81c8be",
+    "--accent-text": "#232634",
+    "--good": "#a6d189",
+    "--warning": "#e5c890",
+    "--danger": "#e78284",
+    "--shadow": "rgba(20, 22, 30, 0.5)"
+  }
+}

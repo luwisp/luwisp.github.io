@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1e2326" />
+    <title>Luorong Notes</title>
+    <link rel="stylesheet" href="./assets/css/blog.css" />
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [
+            ["\\(", "\\)"],
+            ["$", "$"]
+          ],
+          displayMath: [
+            ["\\[", "\\]"],
+            ["$$", "$$"]
+          ],
+          processEscapes: true
+        },
+        svg: {
+          fontCache: "global"
+        }
+      };
+    </script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
+    ></script>
+    <script src="./assets/js/app.js" defer></script>
+  </head>
+  <body>
+    <div class="wallpaper" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <button
+          class="icon-button menu-button"
+          type="button"
+          data-action="toggle-menu"
+          aria-label="展开导航"
+          aria-expanded="false"
+        >
+          <span data-icon="menu"></span>
+        </button>
+        <a class="topbar-brand" href="#/home" aria-label="返回首页">
+          <span class="status-light" aria-hidden="true"></span>
+          <span id="topbarTitle">Luorong Notes</span>
+        </a>
+      </div>
+      <div class="topbar-right">
+        <time id="topbarClock" datetime=""></time>
+      </div>
+    </header>
+
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar" aria-label="博客导航">
+        <nav class="nav-list" aria-label="主要页面">
+          <a class="nav-link" href="#/home" data-route="home">
+            <span class="nav-icon" data-icon="home"></span>
+            <span class="nav-label">主页</span>
+            <span class="nav-count" id="homeCount">0</span>
+          </a>
+          <a class="nav-link" href="#/archive" data-route="archive">
+            <span class="nav-icon" data-icon="archive"></span>
+            <span class="nav-label">归档</span>
+            <span class="nav-count" id="archiveCount">0</span>
+          </a>
+          <a class="nav-link" href="#/categories" data-route="categories">
+            <span class="nav-icon" data-icon="folder"></span>
+            <span class="nav-label">分类</span>
+            <span class="nav-count" id="categoryCount">0</span>
+          </a>
+        </nav>
+
+        <section class="theme-dock" aria-label="主题设置">
+          <button
+            class="theme-mode-button"
+            type="button"
+            data-action="toggle-theme-mode"
+            aria-label="切换明暗主题"
+            title="切换明暗主题"
+          >
+            <span class="theme-current-swatch" id="currentSwatch"></span>
+          </button>
+          <button class="theme-library-link" type="button" data-action="toggle-theme-library">
+            主题
+          </button>
+        </section>
+
+        <section class="theme-library" aria-label="主题库">
+          <div class="theme-library-title">
+            <div>
+              <strong>主题</strong>
+              <span>亮色 / 暗色</span>
+            </div>
+            <button
+              class="icon-button compact-icon"
+              type="button"
+              data-action="toggle-theme-library"
+              aria-label="关闭主题库"
+              title="关闭主题库"
+            >
+              <span data-icon="x"></span>
+            </button>
+          </div>
+          <div class="theme-library-grid" id="themeLibrary"></div>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <section class="window-shell">
+          <header class="workspace-header">
+            <div>
+              <p class="page-kicker" id="pageKicker">Dashboard</p>
+              <h1 id="pageTitle">主页</h1>
+            </div>
+            <div class="header-actions">
+              <label class="search-box" aria-label="搜索文章">
+                <span data-icon="search"></span>
+                <input
+                  id="searchInput"
+                  type="search"
+                  autocomplete="off"
+                  placeholder="搜索标题、摘要或标签"
+                />
+              </label>
+              <button
+                class="icon-button"
+                type="button"
+                data-action="random-theme"
+                aria-label="随机切换主题"
+                title="随机切换主题"
+              >
+                <span data-icon="shuffle"></span>
+              </button>
+            </div>
+          </header>
+
+          <section class="workspace-content" id="appContent" aria-live="polite">
+            <div class="loading-state">
+              <span class="loader"></span>
+              <span>Loading desktop...</span>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

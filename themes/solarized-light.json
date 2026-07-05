@@ -1,0 +1,29 @@
+{
+  "id": "solarized-light",
+  "name": "Solarized Light",
+  "family": "Solarized",
+  "type": "light",
+  "source": "solizedlight.md",
+  "swatches": ["#fdf6e3", "#b58900", "#268bd2", "#859900"],
+  "tokens": {
+    "colorScheme": "light",
+    "--wallpaper-dim": "rgba(253, 246, 227, 0.26)",
+    "--panel": "#eee8d5",
+    "--panel-strong": "#fdf6e3",
+    "--panel-soft": "#e3dcc8",
+    "--surface": "#fdf6e3",
+    "--surface-raised": "#eee8d5",
+    "--surface-muted": "#e3dcc8",
+    "--text": "#586e75",
+    "--muted": "#657b83",
+    "--subtle": "#839496",
+    "--border": "rgba(88, 110, 117, 0.2)",
+    "--accent": "#b58900",
+    "--accent-2": "#268bd2",
+    "--accent-text": "#fdf6e3",
+    "--good": "#859900",
+    "--warning": "#cb4b16",
+    "--danger": "#dc322f",
+    "--shadow": "rgba(0, 43, 54, 0.18)"
+  }
+}

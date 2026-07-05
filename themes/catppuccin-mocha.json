@@ -1,0 +1,29 @@
+{
+  "id": "catppuccin-mocha",
+  "name": "Catppuccin Mocha",
+  "family": "Catppuccin",
+  "type": "dark",
+  "source": "catpuccin.md",
+  "swatches": ["#1e1e2e", "#cba6f7", "#94e2d5", "#a6e3a1"],
+  "tokens": {
+    "colorScheme": "dark",
+    "--wallpaper-dim": "rgba(17, 17, 27, 0.36)",
+    "--panel": "#1e1e2e",
+    "--panel-strong": "#11111b",
+    "--panel-soft": "#313244",
+    "--surface": "#181825",
+    "--surface-raised": "#1e1e2e",
+    "--surface-muted": "#11111b",
+    "--text": "#cdd6f4",
+    "--muted": "#bac2de",
+    "--subtle": "#7f849c",
+    "--border": "rgba(205, 214, 244, 0.16)",
+    "--accent": "#cba6f7",
+    "--accent-2": "#94e2d5",
+    "--accent-text": "#11111b",
+    "--good": "#a6e3a1",
+    "--warning": "#f9e2af",
+    "--danger": "#f38ba8",
+    "--shadow": "rgba(8, 8, 12, 0.56)"
+  }
+}
