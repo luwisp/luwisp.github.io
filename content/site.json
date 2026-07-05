@@ -1,0 +1,30 @@
+{
+  "site": {
+    "title": "Luorong Notes",
+    "subtitle": "personal desktop blog",
+    "domain": "luorong.blog",
+    "wallpaper": "./public/background/145464450_p000_5760x3240.png"
+  },
+  "profile": {
+    "name": "Luorong",
+    "displayName": "Luorong Notes",
+    "avatar": "./public/avatar.png",
+    "avatarText": "L",
+    "tagline": "随便做的一个博客。",
+    "bio": "随便逛一下吧，虽然暂时什么都没有。",
+    "location": "Asia/Shanghai",
+    "githubUser": "luoronger",
+    "links": [
+      {
+        "label": "GitHub",
+        "icon": "github",
+        "url": "https://github.com/luoronger"
+      },
+      {
+        "label": "Email",
+        "icon": "mail",
+        "url": "mailto:hello@example.com"
+      }
+    ]
+  }
+}

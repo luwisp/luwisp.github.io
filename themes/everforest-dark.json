@@ -1,0 +1,29 @@
+{
+  "id": "everforest-dark",
+  "name": "Everforest Dark",
+  "family": "Everforest",
+  "type": "dark",
+  "source": "everforest.md",
+  "swatches": ["#272e33", "#a7c080", "#7fbbb3", "#d699b6"],
+  "tokens": {
+    "colorScheme": "dark",
+    "--wallpaper-dim": "rgba(30, 35, 38, 0.32)",
+    "--panel": "#272e33",
+    "--panel-strong": "#1e2326",
+    "--panel-soft": "#374145",
+    "--surface": "#2e383c",
+    "--surface-raised": "#374145",
+    "--surface-muted": "#1e2326",
+    "--text": "#d3c6aa",
+    "--muted": "#bdc3af",
+    "--subtle": "#859289",
+    "--border": "rgba(211, 198, 170, 0.16)",
+    "--accent": "#a7c080",
+    "--accent-2": "#7fbbb3",
+    "--accent-text": "#1e2326",
+    "--good": "#83c092",
+    "--warning": "#dbbc7f",
+    "--danger": "#e67e80",
+    "--shadow": "rgba(10, 13, 14, 0.5)"
+  }
+}

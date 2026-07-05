@@ -1,0 +1,13 @@
+[
+  {
+    "id": "start",
+    "title": "新博客随便写点东西",
+    "date": "2026-07-05",
+    "category": "随便写的",
+    "tags": ["test"],
+    "summary": "放个文章上来看看",
+    "minutes": 6,
+    "featured": true,
+    "markdown": "./content/articles/start.md"
+  }
+]

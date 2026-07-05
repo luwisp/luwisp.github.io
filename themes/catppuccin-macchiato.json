@@ -1,0 +1,29 @@
+{
+  "id": "catppuccin-macchiato",
+  "name": "Catppuccin Macchiato",
+  "family": "Catppuccin",
+  "type": "dark",
+  "source": "catpuccin.md",
+  "swatches": ["#24273a", "#c6a0f6", "#8bd5ca", "#a6da95"],
+  "tokens": {
+    "colorScheme": "dark",
+    "--wallpaper-dim": "rgba(24, 25, 38, 0.34)",
+    "--panel": "#24273a",
+    "--panel-strong": "#181926",
+    "--panel-soft": "#363a4f",
+    "--surface": "#1e2030",
+    "--surface-raised": "#24273a",
+    "--surface-muted": "#181926",
+    "--text": "#cad3f5",
+    "--muted": "#b8c0e0",
+    "--subtle": "#8087a2",
+    "--border": "rgba(202, 211, 245, 0.16)",
+    "--accent": "#c6a0f6",
+    "--accent-2": "#8bd5ca",
+    "--accent-text": "#181926",
+    "--good": "#a6da95",
+    "--warning": "#eed49f",
+    "--danger": "#ed8796",
+    "--shadow": "rgba(12, 13, 20, 0.52)"
+  }
+}
