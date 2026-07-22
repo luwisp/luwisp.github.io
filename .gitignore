@@ -1,3 +1,7 @@
 example/
 .agents
 .codex
+.astro/
+.superpowers/
+dist/
+node_modules/

@@ -1,0 +1,63 @@
+---
+import siteData from "../../content/site.json";
+import quotes from "../../content/quotes.json";
+import ContributionGrid from "../components/ContributionGrid.astro";
+import Icon from "../components/Icon.astro";
+import PostCard from "../components/PostCard.astro";
+import { uiConfig } from "../config/site";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getPosts } from "../lib/content";
+import { publicAsset } from "../lib/paths";
+
+const posts = await getPosts();
+const recentPosts = posts.slice(0, uiConfig.recentPostCount);
+const profile = siteData.profile;
+const avatar = publicAsset(profile.avatar);
+---
+
+<BaseLayout activePage="home">
+  <div class="home-dashboard">
+    <section class="profile-widget" aria-labelledby="profile-title">
+      <div class="profile-copy">
+        <p class="profile-copy__eyebrow">Personal Notes</p>
+        <h1 id="profile-title">{profile.name}'s blog</h1>
+        <div class="profile-copy__rule" aria-hidden="true"></div>
+        <p class="profile-copy__tagline">想到哪写到哪的博客</p>
+      </div>
+      <div class="profile-avatar">
+        <img src={avatar} alt={profile.displayName} width="420" height="420" />
+      </div>
+    </section>
+
+    <section class="clock-links-widget" aria-label="时间与相关链接">
+      <time class="large-clock" data-clock>--:--:--</time>
+      <span class="clock-date" data-clock-date>正在读取日期</span>
+      {profile.links.length > 0 && (
+        <nav class="social-links" aria-label="相关链接">
+          {profile.links.map((link) => (
+            <a class="social-link" href={link.url} target={link.url.startsWith("http") ? "_blank" : undefined} rel="noreferrer" aria-label={link.label} title={link.label}>
+              <Icon name={link.icon} />
+            </a>
+          ))}
+        </nav>
+      )}
+    </section>
+
+    <div class="home-solid-flow">
+      <ContributionGrid />
+      <section class="recent-section" aria-labelledby="recent-title">
+        <div class="recent-heading">
+          <h2 id="recent-title">最近文章</h2>
+          <span>最新 {recentPosts.length} 篇</span>
+        </div>
+        <div class="post-list">
+          {recentPosts.map((post) => <PostCard post={post} />)}
+        </div>
+      </section>
+    </div>
+
+    <section class="quote-widget" aria-label="随机标语">
+      <blockquote data-random-quote data-quotes={JSON.stringify(quotes)}>{quotes[0]}</blockquote>
+    </section>
+  </div>
+</BaseLayout>

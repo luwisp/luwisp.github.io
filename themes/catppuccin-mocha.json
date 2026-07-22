@@ -16,7 +16,7 @@
     "--surface-muted": "#11111b",
     "--text": "#cdd6f4",
     "--muted": "#bac2de",
-    "--subtle": "#7f849c",
+    "--subtle": "#81869f",
     "--border": "rgba(205, 214, 244, 0.16)",
     "--accent": "#cba6f7",
     "--accent-2": "#94e2d5",

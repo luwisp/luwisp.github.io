@@ -1,0 +1,97 @@
+---
+import type { ThemeDefinition } from "../lib/themes";
+import Icon from "./Icon.astro";
+
+interface Props {
+  activePage: "home" | "archive" | "categories" | "post";
+  postCount: number;
+  categoryCount: number;
+  themes: ThemeDefinition[];
+  defaultLight: string;
+  defaultDark: string;
+}
+
+const { activePage, postCount, categoryCount, themes, defaultLight, defaultDark } = Astro.props;
+const navItems = [
+  { id: "home", label: "主页", href: "/", icon: "home", count: Math.min(postCount, 99) },
+  { id: "archive", label: "归档", href: "/archive/", icon: "archive", count: postCount },
+  { id: "categories", label: "分类", href: "/categories/", icon: "folder", count: categoryCount }
+] as const;
+const groupedThemes = {
+  light: themes.filter((theme) => theme.type === "light"),
+  dark: themes.filter((theme) => theme.type === "dark")
+};
+---
+
+<aside
+  class="desktop-sidebar"
+  aria-label="博客导航"
+  data-sidebar
+  data-default-light={defaultLight}
+  data-default-dark={defaultDark}
+>
+  <nav class="primary-nav" aria-label="主要页面">
+    {navItems.map((item) => {
+      const isActive = item.id === activePage || (activePage === "post" && item.id === "archive");
+      return (
+        <a
+          class:list={["nav-item", { "is-active": isActive }]}
+          href={item.href}
+          aria-current={isActive ? "page" : undefined}
+          data-internal-link
+        >
+          <span class="nav-item__icon"><Icon name={item.icon} /></span>
+          <span class="nav-item__label">{item.label}</span>
+          <span class="nav-item__count">{String(item.count).padStart(2, "0")}</span>
+        </a>
+      );
+    })}
+  </nav>
+
+  <section class="theme-dock" aria-label="主题设置">
+    <button class="theme-mode-control" type="button" aria-label="切换明暗主题" data-theme-toggle>
+      <span class="theme-mode-control__swatch" data-current-swatch></span>
+      <span class="theme-mode-control__label">切换明暗</span>
+    </button>
+    <button class="theme-library-trigger" type="button" data-theme-library-toggle>选择画风</button>
+  </section>
+
+  <section class="theme-library" aria-label="主题库" data-theme-library>
+    <div class="theme-library__header">
+      <div>
+        <strong>选择画风</strong>
+        <span>为亮色和暗色各选一种</span>
+      </div>
+      <button class="icon-control" type="button" aria-label="关闭主题库" data-theme-library-toggle>
+        <Icon name="x" size={17} />
+      </button>
+    </div>
+
+    {(["light", "dark"] as const).map((mode) => (
+      <div class="theme-group">
+        <h2>{mode === "light" ? "亮色主题" : "暗色主题"}</h2>
+        <div class="theme-options">
+          {groupedThemes[mode].map((theme) => (
+            <button
+              class="theme-option"
+              type="button"
+              data-theme-option
+              data-theme-id={theme.id}
+              data-theme-mode={theme.type}
+              data-theme-tokens={JSON.stringify(theme.tokens)}
+              data-theme-swatches={JSON.stringify(theme.swatches)}
+            >
+              <span class="theme-option__colors" aria-hidden="true">
+                {theme.swatches.slice(0, 3).map((color) => <i style={`--swatch:${color}`}></i>)}
+              </span>
+              <span>
+                <strong>{theme.name}</strong>
+                <small>{theme.family}</small>
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    ))}
+  </section>
+</aside>

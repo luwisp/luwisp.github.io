@@ -1,0 +1,26 @@
+{
+  "name": "luorong-notes",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
+    "sync-data": "node scripts/fetch-github-contributions.mjs",
+    "build": "npm run sync-data && ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "build:site": "ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "check": "ASTRO_TELEMETRY_DISABLED=1 astro check",
+    "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "^7.2.1",
+    "astro": "latest",
+    "katex": "latest",
+    "lucide-astro": "latest",
+    "rehype-katex": "latest",
+    "remark-math": "latest"
+  },
+  "devDependencies": {
+    "@astrojs/check": "latest",
+    "typescript": "latest"
+  }
+}

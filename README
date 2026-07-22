@@ -1,4 +1,72 @@
-# 伪|需求规格说明书
+# Luorong Notes
+
+使用 Astro 和 TypeScript 构建的静态个人博客。开发阶段采用组件和内容集合，`npm run build` 最终输出可直接部署到 GitHub Pages 的 `dist/` 静态目录。
+
+## 本地开发
+
+要求 Node.js 22 或更高版本。
+
+```bash
+npm install
+npm run dev
+```
+
+常用命令：
+
+```bash
+npm run check      # Astro 和 TypeScript 检查
+npm run build      # 同步可用的 GitHub 数据并构建静态站
+npm run preview    # 预览 dist 构建结果
+```
+
+## 内容管理
+
+- 文章：`content/articles/*.md`，元信息写在 Markdown frontmatter 中。
+- 站点与个人资料：`content/site.json`。
+- 随机标语：`content/quotes.json`。
+- 主题清单：`themes/index.json` 与 `themes/*.json`。
+- 页面数量、归档分页及实验功能：`src/config/site.ts`。
+
+旧的 `content/posts.json` 暂时保留用于迁移参考，新站实际以 Markdown frontmatter 为准。
+
+## 页面切换动画
+
+动画总开关位于 `src/config/site.ts`：
+
+```ts
+pageTransition: {
+  enabled: false,
+  durationMs: 380
+}
+```
+
+将 `enabled` 改为 `false` 即可完全关闭客户端路由和页面动画。转场使用 Astro `ClientRouter` 与浏览器 View Transition 快照，样式集中在 `src/styles/global.css` 的 `page-leave`、`page-enter` 区域。移动端和系统启用“减少动态效果”时始终不播放。
+
+## GitHub 热力图
+
+`scripts/fetch-github-contributions.mjs` 在构建阶段读取 GitHub GraphQL 的贡献日历，并写入 `src/data/contributions.json`。令牌不会进入浏览器产物。
+
+本地临时同步：
+
+```bash
+GH_CONTRIBUTIONS_TOKEN=your_token npm run sync-data
+```
+
+GitHub 仓库中需要添加 Actions Secret：`GH_CONTRIBUTIONS_TOKEN`。部署工作流会在推送、手动执行以及每天北京时间约 10:20 运行。没有配置令牌时，构建会继续使用仓库中的现有快照。
+
+## GitHub Pages
+
+工作流位于 `.github/workflows/deploy-pages.yml`。在仓库 Settings → Pages 中将 Source 设为 GitHub Actions，然后把分支合并到 `master` 即可触发部署。
+
+当前站点按自定义域名 `luorong.blog` 配置，域名文件位于 `public/CNAME`，Astro 的 `site` 地址位于 `astro.config.mjs`。若改用 `*.github.io/<repo>/` 项目地址，需要同时删除 `public/CNAME` 并设置 Astro 的 `site` 和 `base`。
+
+## 设计规范
+
+完整视觉与交互基线见 `docs/reproducible-design.md`。
+
+---
+
+# 原始需求记录
 
 ## overview
 
@@ -22,6 +90,8 @@
 3c. 时间小组件
 3d. 一个随机变化博客主题的组件
 3e. 按照时间排序最近发的文章【在所有组件最下方】
+
+
 
 
 4. 风格调整

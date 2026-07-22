@@ -45,13 +45,14 @@ const fallbackSite = {
     wallpaper: "./public/background/145464450_p000_5760x3240.png"
   },
   profile: {
-    name: "Luorong",
+    name: "luoronger",
     displayName: "Luorong Notes",
+    avatar: "./public/avatar.png",
     avatarText: "L",
-    tagline: "A personal desktop blog.",
-    bio: "Frontend notes and small personal systems.",
+    tagline: "一个简单的博客尝试.",
+    bio: "请输入文本.",
     location: "Asia/Shanghai",
-    githubUser: "luorong",
+    githubUser: "luoronger",
     links: []
   }
 };
@@ -521,7 +522,13 @@ function renderHomeView() {
   return `
     <div class="home-grid">
       <article class="widget profile-widget">
-        <div class="profile-avatar">${escapeHtml(profile.avatarText || profile.name?.slice(0, 1) || "L")}</div>
+        <div class="profile-avatar">
+          ${
+            profile.avatar
+              ? `<img src="${escapeAttr(profile.avatar)}" alt="${escapeAttr(profile.displayName || profile.name || "avatar")}" />`
+              : escapeHtml(profile.avatarText || profile.name?.slice(0, 1) || "L")
+          }
+        </div>
         <div>
           <p class="page-kicker">${escapeHtml(profile.name || "Profile")}</p>
           <h2>${escapeHtml(profile.displayName || "Personal Blog")}</h2>

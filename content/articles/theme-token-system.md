@@ -1,4 +1,11 @@
-# 用主题 Token 管理配色
+---
+title: 用主题 Token 管理个人博客配色
+date: 2026-06-29
+category: 前端工程
+tags: [css, theme, json]
+summary: 把 Catppuccin、Everforest、Solarized 等配色抽成 JSON token，展示端动态加载并保存明暗偏好。
+minutes: 8
+---
 
 主题文件放在 `themes` 目录，每个文件只描述名字、类型、色板和 CSS 变量。展示端不关心主题来自哪里，只把 token 写入 `documentElement`。
 

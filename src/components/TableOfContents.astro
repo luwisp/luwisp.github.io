@@ -1,0 +1,41 @@
+---
+import type { MarkdownHeading } from "astro";
+import Icon from "./Icon.astro";
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+const items = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 4);
+---
+
+{items.length > 0 && (
+  <>
+    <aside class="toc-widget toc-desktop" aria-label="文章大纲">
+      <h2>文章大纲</h2>
+      <nav>
+        {items.map((heading) => (
+          <a class="toc-link" data-level={heading.depth} href={`#${heading.slug}`}>
+            {heading.text}
+          </a>
+        ))}
+      </nav>
+    </aside>
+    <aside class="toc-mobile" aria-label="文章大纲">
+      <details>
+        <summary>
+          <span>文章大纲</span>
+          <Icon name="chevron" size={17} />
+        </summary>
+        <nav>
+          {items.map((heading) => (
+            <a class="toc-link" data-level={heading.depth} href={`#${heading.slug}`}>
+              {heading.text}
+            </a>
+          ))}
+        </nav>
+      </details>
+    </aside>
+  </>
+)}

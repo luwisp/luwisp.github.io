@@ -1,0 +1,26 @@
+---
+import type { PostEntry } from "../lib/content";
+
+interface Props {
+  post: PostEntry;
+}
+
+const { post } = Astro.props;
+const date = new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit"
+}).format(post.data.date);
+---
+
+<a class="post-card" href={`/posts/${post.id}/`} data-internal-link>
+  <div class="post-card__meta">
+    <span>{post.data.category}</span>
+    <time datetime={post.data.date.toISOString()}>{date}</time>
+  </div>
+  <h2>{post.data.title}</h2>
+  <p>{post.data.summary}</p>
+  <div class="post-card__tags" aria-label="标签">
+    {post.data.tags.slice(0, 3).map((tag) => <span>{tag}</span>)}
+  </div>
+</a>

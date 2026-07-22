@@ -1,4 +1,11 @@
-# GitHub Pages 上的轻量内容层
+---
+title: GitHub Pages 上的轻量内容层
+date: 2026-06-18
+category: 前端工程
+tags: [github-pages, static, content]
+summary: 没有后端时，静态 JSON 依然可以承担博客的数据源，并让后续管理端保持简单。
+minutes: 5
+---
 
 对个人博客来说，很多时候不需要数据库。文章列表、站点设置和主题配置都可以是静态文件，提交到仓库后由 GitHub Pages 直接托管。
 

@@ -1,0 +1,58 @@
+---
+import contributions from "../data/contributions.json";
+
+interface ContributionDay {
+  date: string;
+  contributionCount: number;
+  contributionLevel: string;
+  color: string;
+  weekday: number;
+}
+
+interface ContributionWeek {
+  firstDay: string;
+  contributionDays: ContributionDay[];
+}
+
+const levelMap: Record<string, number> = {
+  NONE: 0,
+  FIRST_QUARTILE: 1,
+  SECOND_QUARTILE: 2,
+  THIRD_QUARTILE: 3,
+  FOURTH_QUARTILE: 4
+};
+const weeks = contributions.weeks as ContributionWeek[];
+const days = weeks.flatMap((week) => week.contributionDays);
+---
+
+<section class="contribution-widget solid-widget" aria-labelledby="contribution-title">
+  <div class="widget-heading">
+    <div>
+      <p>GitHub Activity</p>
+      <h2 id="contribution-title">最近提交</h2>
+    </div>
+    <a href={`https://github.com/${contributions.username}`} target="_blank" rel="noreferrer">
+      @{contributions.username}
+    </a>
+  </div>
+
+  {contributions.status === "ready" && days.length > 0 ? (
+    <>
+      <div class="contribution-grid" aria-label={`过去一年的 ${contributions.totalContributions} 次贡献`}>
+        {days.map((day) => (
+          <span
+            class="contribution-day"
+            data-level={levelMap[day.contributionLevel] ?? 0}
+            title={`${day.date}: ${day.contributionCount}`}
+          ></span>
+        ))}
+      </div>
+      <p class="widget-note">过去一年共 {contributions.totalContributions} 次公开贡献</p>
+    </>
+  ) : (
+    <div class="contribution-empty">
+      <p>尚未同步 GitHub 活动。</p>
+      <span>配置构建令牌后，定时任务会在这里生成真实热力图。</span>
+    </div>
+  )}
+</section>

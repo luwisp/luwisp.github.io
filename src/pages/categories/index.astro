@@ -1,0 +1,40 @@
+---
+import PageHeading from "../../components/PageHeading.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCategories, getPosts } from "../../lib/content";
+
+const posts = await getPosts();
+const categories = getCategories(posts);
+const dateFormatter = new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" });
+---
+
+<BaseLayout activePage="categories" title="分类" description="按主题浏览全部文章">
+  <PageHeading eyebrow="Categories" title="文章分类" description="按内容主题直接扫视全部文章。" />
+  {categories.length > 0 ? (
+    <div class="category-layout">
+      {categories.map((category) => {
+        const categoryPosts = posts.filter((post) => post.data.category === category);
+        return (
+          <section class="category-group">
+            <header class="category-group__heading">
+              <h2>{category}</h2>
+              <span>{categoryPosts.length} 篇</span>
+            </header>
+            <ul>
+              {categoryPosts.map((post) => (
+                <li>
+                  <a href={`/posts/${post.id}/`} data-internal-link>
+                    <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
+                    <strong>{post.data.title}</strong>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
+    </div>
+  ) : (
+    <section class="empty-state"><h1>暂无分类</h1><p>文章发布后会自动生成分类。</p></section>
+  )}
+</BaseLayout>

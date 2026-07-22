@@ -1,0 +1,35 @@
+---
+import PageHeading from "../../components/PageHeading.astro";
+import { uiConfig } from "../../config/site";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getPosts } from "../../lib/content";
+
+const posts = await getPosts();
+const pageCount = Math.ceil(posts.length / uiConfig.archivePageSize);
+const dateFormatter = new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" });
+---
+
+<BaseLayout activePage="archive" title="归档" description="按时间浏览全部文章">
+  <PageHeading eyebrow="Archive" title="文章归档" description="沿时间线查看所有写作记录。" />
+  {posts.length > 0 ? (
+    <>
+      <div class="archive-layout" data-archive data-page-size={uiConfig.archivePageSize}>
+        {posts.map((post) => (
+          <a class="archive-entry" href={`/posts/${post.id}/`} data-archive-entry data-internal-link>
+            <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
+            <h2>{post.data.title}</h2>
+          </a>
+        ))}
+      </div>
+      {pageCount > 1 && (
+        <nav class="pagination" aria-label="归档分页">
+          {Array.from({ length: pageCount }, (_, index) => index + 1).map((page) => (
+            <button type="button" data-archive-page={page} aria-label={`第 ${page} 页`}>{page}</button>
+          ))}
+        </nav>
+      )}
+    </>
+  ) : (
+    <section class="empty-state"><h1>暂无文章</h1><p>第一篇文章发布后会出现在这里。</p></section>
+  )}
+</BaseLayout>

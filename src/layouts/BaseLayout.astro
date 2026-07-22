@@ -1,0 +1,92 @@
+---
+import "katex/dist/katex.min.css";
+import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import siteData from "../../content/site.json";
+import MobileTopbar from "../components/MobileTopbar.astro";
+import Sidebar from "../components/Sidebar.astro";
+import { uiConfig } from "../config/site";
+import { getCategories, getPosts } from "../lib/content";
+import { publicAsset } from "../lib/paths";
+import { themeDefaults, themes } from "../lib/themes";
+
+interface Props {
+  title?: string;
+  description?: string;
+  activePage: "home" | "archive" | "categories" | "post";
+}
+
+const { title, description = siteData.site.subtitle, activePage } = Astro.props;
+const posts = await getPosts();
+const categories = getCategories(posts);
+const pageTitle = title ? `${title} · ${siteData.site.title}` : siteData.site.title;
+const wallpaper = publicAsset(siteData.site.wallpaper);
+const initialThemePayload = JSON.stringify({ themes, defaults: themeDefaults });
+const navigationRestoreKey = "luorong.notes.navigation-expanded";
+---
+
+<!doctype html>
+<html
+  lang="zh-CN"
+  data-theme-mode="dark"
+  style={`--page-transition-duration:${uiConfig.pageTransition.durationMs}ms`}
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#1e2326" />
+    <title>{pageTitle}</title>
+    {uiConfig.pageTransition.enabled && <ClientRouter fallback="swap" />}
+    <script is:inline define:vars={{ initialThemePayload, navigationRestoreKey, mobileBreakpoint: uiConfig.mobileBreakpoint }}>
+      (() => {
+        try {
+          const payload = JSON.parse(initialThemePayload);
+          const saved = JSON.parse(localStorage.getItem("luorong.notes.theme") || "{}");
+          const mode = saved.mode || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+          const selectedId = saved[mode] || payload.defaults[mode];
+          const theme = payload.themes.find((item) => item.id === selectedId) || payload.themes.find((item) => item.type === mode);
+          if (!theme) return;
+          document.documentElement.dataset.themeMode = mode;
+          document.documentElement.dataset.theme = theme.id;
+          Object.entries(theme.tokens).forEach(([key, value]) => {
+            if (key === "colorScheme") document.documentElement.style.colorScheme = value;
+            else document.documentElement.style.setProperty(key, value);
+          });
+        } catch {}
+
+        try {
+          const restoreNavigation =
+            innerWidth > mobileBreakpoint && sessionStorage.getItem(navigationRestoreKey) === "1";
+          if (restoreNavigation) document.documentElement.classList.add("navigation-restore");
+          sessionStorage.removeItem(navigationRestoreKey);
+        } catch {}
+
+      })();
+    </script>
+  </head>
+  <body
+    style={`--wallpaper-image:url("${wallpaper}")`}
+    data-active-page={activePage}
+    data-clock-zone={siteData.profile.location}
+  >
+    <div class="wallpaper" aria-hidden="true"></div>
+    <MobileTopbar title={siteData.site.title} />
+    <Sidebar
+      activePage={activePage}
+      postCount={posts.length}
+      categoryCount={categories.length}
+      themes={themes}
+      defaultLight={themeDefaults.light}
+      defaultDark={themeDefaults.dark}
+    />
+    <main class="main-panel" id="main-content" data-main-panel>
+      <div class="page-frame">
+        <slot />
+      </div>
+    </main>
+    <script>
+      import "../scripts/ui";
+    </script>
+  </body>
+</html>

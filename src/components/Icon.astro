@@ -1,0 +1,45 @@
+---
+import {
+  Archive,
+  ArrowLeft,
+  ChevronDown,
+  Clock3,
+  ExternalLink,
+  Folder,
+  Github,
+  Home,
+  Mail,
+  Menu,
+  MoonStar,
+  Palette,
+  Sun,
+  X
+} from "lucide-astro";
+
+interface Props {
+  name: string;
+  size?: number;
+  strokeWidth?: number;
+}
+
+const { name, size = 19, strokeWidth = 1.8 } = Astro.props;
+const iconMap = {
+  archive: Archive,
+  back: ArrowLeft,
+  chevron: ChevronDown,
+  clock: Clock3,
+  external: ExternalLink,
+  folder: Folder,
+  github: Github,
+  home: Home,
+  mail: Mail,
+  menu: Menu,
+  moon: MoonStar,
+  palette: Palette,
+  sun: Sun,
+  x: X
+};
+const IconComponent = iconMap[name as keyof typeof iconMap] ?? ExternalLink;
+---
+
+<IconComponent size={size} stroke-width={strokeWidth} aria-hidden="true" />
