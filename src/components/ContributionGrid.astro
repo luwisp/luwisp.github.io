@@ -33,8 +33,8 @@ const { placementStyle } = Astro.props;
 <section class="desktop-widget widget-contributions" aria-labelledby="contribution-title" style={placementStyle}>
   <header class="widget-header">
     <div>
-      <p>GitHub Activity</p>
       <h2 id="contribution-title">最近提交</h2>
+      <p>过去一年的公开活动</p>
     </div>
     <a href={`https://github.com/${contributions.username}`} target="_blank" rel="noreferrer">
       @{contributions.username}

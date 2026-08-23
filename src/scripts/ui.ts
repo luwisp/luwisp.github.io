@@ -1,7 +1,10 @@
-import { getAppOrder } from "../config/apps";
+import { navigate } from "astro:transitions/client";
+import { getAppOrder, readerApp } from "../config/apps";
+import { uiConfig } from "../config/site";
 
 const themeStorageKey = "luorong.notes.theme";
 const readerStorageKey = "luorong.notes.open-reader";
+const readerClosingKey = "luorong.notes.reader-closing";
 
 interface ThemePreference {
   mode?: "light" | "dark";
@@ -68,6 +71,14 @@ function applyTheme(id: string, mode: "light" | "dark", persist = true) {
     item.classList.toggle("is-selected", selected);
     item.setAttribute("aria-pressed", String(selected));
   });
+  document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]").forEach((toggle) => {
+    const darkMode = mode === "dark";
+    toggle.setAttribute("aria-pressed", String(darkMode));
+    toggle.setAttribute(
+      "aria-label",
+      darkMode ? "当前为深色模式，切换为浅色模式" : "当前为浅色模式，切换为深色模式"
+    );
+  });
 
   if (persist) {
     const preference = getThemePreference();
@@ -120,6 +131,41 @@ function getStoredReader() {
   }
 }
 
+function syncReaderDock(
+  reader: OpenReader | null,
+  root: ParentNode = document,
+  readerActive = document.body.dataset.activeApp === "reader"
+) {
+  root.querySelectorAll<HTMLAnchorElement>("[data-dynamic-app]").forEach((anchor) => {
+    anchor.hidden = !reader;
+    const active = Boolean(reader && readerActive);
+    anchor.classList.toggle("is-active", active);
+    if (active) anchor.setAttribute("aria-current", "page");
+    else anchor.removeAttribute("aria-current");
+    if (reader) {
+      anchor.href = reader.href;
+      anchor.dataset.readerTitle = reader.title;
+      anchor.dataset.readerHref = reader.href;
+      anchor.setAttribute("aria-label", `阅读器 · ${reader.title}`);
+    } else {
+      anchor.href = readerApp.href;
+      delete anchor.dataset.readerTitle;
+      delete anchor.dataset.readerHref;
+      anchor.setAttribute("aria-label", readerApp.label);
+    }
+  });
+  root.querySelectorAll<HTMLElement>("[data-reader-separator]").forEach((separator) => {
+    separator.hidden = !reader;
+  });
+}
+
+function clearReaderState() {
+  sessionStorage.setItem(readerClosingKey, "1");
+  sessionStorage.removeItem(readerStorageKey);
+  sessionStorage.removeItem("luorong.notes.restore-reader-scroll");
+  syncReaderDock(null);
+}
+
 function initializeDynamicReader() {
   const currentTitle = document.body.dataset.readerTitle;
   const currentHref = document.body.dataset.readerHref;
@@ -133,17 +179,7 @@ function initializeDynamicReader() {
   }
   const reader = current ?? getStoredReader();
 
-  document.querySelectorAll<HTMLAnchorElement>("[data-dynamic-app]").forEach((anchor) => {
-    anchor.hidden = !reader;
-    if (!reader) return;
-    anchor.href = reader.href;
-    anchor.dataset.readerTitle = reader.title;
-    anchor.dataset.readerHref = reader.href;
-    anchor.setAttribute("aria-label", `阅读器 · ${reader.title}`);
-  });
-  document.querySelectorAll<HTMLElement>("[data-reader-separator]").forEach((separator) => {
-    separator.hidden = !reader;
-  });
+  syncReaderDock(reader);
 }
 
 let clockTimer = 0;
@@ -249,7 +285,8 @@ function initializeHomePager() {
 function setTransitionDirection(event: Event) {
   const transition = event as AstroBeforePreparationEvent;
   const reader = getStoredReader();
-  if (document.body.dataset.activeApp === "reader" && reader) {
+  const readerClosing = sessionStorage.getItem(readerClosingKey) === "1";
+  if (!readerClosing && document.body.dataset.activeApp === "reader" && reader) {
     const scrollTop = document.querySelector<HTMLElement>("[data-app-content]")?.scrollTop ?? 0;
     sessionStorage.setItem(readerStorageKey, JSON.stringify({ ...reader, scrollTop }));
   }
@@ -280,16 +317,19 @@ function preserveDocumentState(event: Event) {
   const nextActiveApp = nextDocument.body.dataset.activeApp;
   const nextReaderTitle = nextDocument.body.dataset.readerTitle;
   const nextReaderHref = nextDocument.body.dataset.readerHref;
-  const previousReader = getStoredReader();
-  const nextReader = nextReaderTitle && nextReaderHref
+  const readerClosing = sessionStorage.getItem(readerClosingKey) === "1";
+  const previousReader = readerClosing ? null : getStoredReader();
+  const nextReader = !readerClosing && nextReaderTitle && nextReaderHref
     ? {
         title: nextReaderTitle,
         href: nextReaderHref,
         scrollTop: previousReader?.href === nextReaderHref ? previousReader.scrollTop : 0
       }
     : previousReader;
-  if (nextReaderTitle && nextReaderHref) {
+  if (nextReader) {
     sessionStorage.setItem(readerStorageKey, JSON.stringify(nextReader));
+  } else {
+    sessionStorage.removeItem(readerStorageKey);
   }
 
   const dock = document.querySelector<HTMLElement>("[data-app-dock]");
@@ -299,18 +339,7 @@ function preserveDocumentState(event: Event) {
     if (active) anchor.setAttribute("aria-current", "page");
     else anchor.removeAttribute("aria-current");
   });
-  const dynamicApp = dock?.querySelector<HTMLAnchorElement>("[data-dynamic-app]");
-  if (dynamicApp) {
-    dynamicApp.hidden = !nextReader;
-    if (nextReader) {
-      dynamicApp.href = nextReader.href;
-      dynamicApp.dataset.readerTitle = nextReader.title;
-      dynamicApp.dataset.readerHref = nextReader.href;
-      dynamicApp.setAttribute("aria-label", `阅读器 · ${nextReader.title}`);
-    }
-  }
-  const separator = dock?.querySelector<HTMLElement>("[data-reader-separator]");
-  if (separator) separator.hidden = !nextReader;
+  if (dock) syncReaderDock(nextReader, dock, nextActiveApp === "reader");
   document.querySelector<HTMLDialogElement>("[data-theme-dialog]")?.close();
 }
 
@@ -336,6 +365,7 @@ function initializePage() {
     });
   }
   sessionStorage.removeItem("luorong.notes.restore-reader-scroll");
+  sessionStorage.removeItem(readerClosingKey);
 }
 
 const runtimeWindow = window as Window & { __luorongSystemEvents?: boolean };
@@ -345,6 +375,23 @@ if (!runtimeWindow.__luorongSystemEvents) {
   document.addEventListener("astro:before-swap", preserveDocumentState);
   document.addEventListener("click", (event) => {
     if (!(event instanceof MouseEvent) || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const readerClose = event.target instanceof Element
+      ? event.target.closest<HTMLAnchorElement>("a[data-reader-close]")
+      : null;
+    if (readerClose) {
+      event.preventDefault();
+      clearReaderState();
+      const restoreReader = () => {
+        sessionStorage.removeItem(readerClosingKey);
+        initializeDynamicReader();
+      };
+      if (uiConfig.pageTransition.enabled) {
+        void navigate(readerClose.href, { history: "replace", sourceElement: readerClose }).catch(restoreReader);
+      } else {
+        location.replace(readerClose.href);
+      }
+      return;
+    }
     const target = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[data-internal-link]") : null;
     if (!target) return;
     const destination = new URL(target.href, location.href);

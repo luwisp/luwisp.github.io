@@ -25,56 +25,85 @@ const formattedWords = new Intl.NumberFormat("zh-CN", {
   notation: "compact",
   maximumFractionDigits: 1
 }).format(stats.totalWords);
+const desktopLink = id === "github"
+  ? profile.links.find((link) => link.icon === "github")
+  : id === "email"
+    ? profile.links.find((link) => link.icon === "mail")
+    : undefined;
 const placementStyle = widgetPlacementStyle(id);
 ---
 
 {id === "clock" && (
   <section class="desktop-widget widget-clock" aria-label="当前时间" style={placementStyle}>
-    <div class="widget-label"><Icon name="clock" size={15} /><span>Asia / Shanghai</span></div>
+    <div class="widget-clock__header">
+      <span class="clock-date" data-clock-date>正在读取日期</span>
+      <Icon name="clock" size={16} />
+    </div>
     <time class="large-clock" data-clock data-clock-format="adaptive">--:--:--</time>
-    <span class="clock-date" data-clock-date>正在读取日期</span>
-  </section>
-)}
-
-{id === "avatar" && (
-  <section class="desktop-widget widget-avatar" aria-label="用户头像" style={placementStyle}>
-    <img src={avatar} alt={profile.displayName} width="420" height="420" />
+    <span class="clock-zone">上海</span>
   </section>
 )}
 
 {id === "user" && (
   <section class="desktop-widget widget-user" aria-labelledby="profile-title" style={placementStyle}>
-    <div class="widget-label"><Icon name="user" size={15} /><span>当前用户</span></div>
     <div class="widget-user__copy">
+      <p>欢迎回来</p>
       <h1 id="profile-title">{profile.name}</h1>
-      <p>{profile.bio}</p>
+      <span>{profile.bio}</span>
     </div>
-    <span class="widget-user__status"><i aria-hidden="true"></i> online</span>
+    <span class="widget-user__status"><i aria-hidden="true"></i>在线</span>
+  </section>
+)}
+
+{id === "avatar" && (
+  <section class="desktop-app desktop-app--avatar" aria-label={profile.displayName} style={placementStyle}>
+    <span class="desktop-app__icon desktop-app__icon--avatar">
+      <img src={avatar} alt="" width="420" height="420" />
+    </span>
+    <span class="desktop-app__label">{profile.name}</span>
   </section>
 )}
 
 {id === "theme" && (
-  <section class="desktop-widget widget-theme" aria-label="主题控制" style={placementStyle}>
-    <button class="theme-quick-toggle" type="button" aria-label="切换明暗主题" data-theme-toggle>
-      <span class="theme-quick-toggle__swatch" data-current-swatch></span>
-      <span class="theme-quick-toggle__icons" aria-hidden="true">
-        <Icon name="sun" size={19} />
-        <Icon name="moon" size={19} />
+  <button
+    class="desktop-app"
+    type="button"
+    aria-label="切换明暗主题"
+    style={placementStyle}
+    data-theme-toggle
+  >
+    <span class="desktop-app__icon desktop-app__icon--theme" data-current-swatch>
+      <span class="desktop-app__theme-symbol" aria-hidden="true">
+        <Icon name="sun" size={27} />
+        <Icon name="moon" size={27} />
       </span>
-      <strong>明暗</strong>
-    </button>
-    <button class="widget-corner-action" type="button" aria-label="选择主题配色" data-theme-dialog-open>
-      <Icon name="palette" size={16} />
-    </button>
-  </section>
+    </span>
+    <span class="desktop-app__label">明暗模式</span>
+  </button>
+)}
+
+{id === "appearance" && (
+  <button
+    class="desktop-app"
+    type="button"
+    aria-label="打开主题与外观设置"
+    style={placementStyle}
+    data-theme-dialog-open
+  >
+    <span class="desktop-app__icon desktop-app__icon--appearance">
+      <Icon name="palette" size={28} />
+      <span class="appearance-swatches" aria-hidden="true"><i></i><i></i><i></i></span>
+    </span>
+    <span class="desktop-app__label">外观</span>
+  </button>
 )}
 
 {id === "recent" && (
   <section class="desktop-widget widget-recent" aria-labelledby="recent-title" style={placementStyle}>
     <header class="widget-header">
       <div>
-        <p>Recent Files</p>
         <h2 id="recent-title">最近文章</h2>
+        <p>{recentPosts.length} 篇最近更新</p>
       </div>
       <a href="/archive/" aria-label="打开全部归档" data-internal-link data-app-order="1">
         <Icon name="archive" size={17} />
@@ -99,39 +128,31 @@ const placementStyle = widgetPlacementStyle(id);
 
 {id === "stats" && (
   <section class="desktop-widget widget-stats" aria-labelledby="stats-title" style={placementStyle}>
-    <header class="widget-header">
-      <div>
-        <p>System Info</p>
-        <h2 id="stats-title">博客信息</h2>
-      </div>
-      <Icon name="info" size={18} />
+    <header class="widget-header widget-header--compact">
+      <div><h2 id="stats-title">博客信息</h2></div>
+      <Icon name="info" size={17} />
     </header>
     <dl class="stats-grid">
       <div><dt>文章</dt><dd>{stats.postCount}</dd></div>
       <div><dt>分类</dt><dd>{stats.categoryCount}</dd></div>
-      <div><dt>总字数</dt><dd>{formattedWords}</dd></div>
-      <div><dt>最近更新</dt><dd>{latestDate}</dd></div>
+      <div><dt>字数</dt><dd>{formattedWords}</dd></div>
+      <div><dt>更新</dt><dd>{latestDate}</dd></div>
     </dl>
   </section>
 )}
 
-{id === "links" && (
-  <section class="desktop-widget widget-links" aria-labelledby="links-title" style={placementStyle}>
-    <header class="widget-header widget-header--compact">
-      <div><p>Connect</p><h2 id="links-title">相关链接</h2></div>
-    </header>
-    <nav class="social-links" aria-label="相关链接">
-      {profile.links.map((link) => (
-        <a
-          href={link.url}
-          target={link.url.startsWith("http") ? "_blank" : undefined}
-          rel="noreferrer"
-          aria-label={link.label}
-          title={link.label}
-        >
-          <Icon name={link.icon} size={20} />
-        </a>
-      ))}
-    </nav>
-  </section>
+{desktopLink && (
+  <a
+    class:list={["desktop-app", `desktop-app--${id}`]}
+    href={desktopLink.url}
+    target={desktopLink.url.startsWith("http") ? "_blank" : undefined}
+    rel="noreferrer"
+    aria-label={desktopLink.label}
+    style={placementStyle}
+  >
+    <span class:list={["desktop-app__icon", `desktop-app__icon--${id}`]}>
+      <Icon name={desktopLink.icon} size={30} />
+    </span>
+    <span class="desktop-app__label">{desktopLink.label}</span>
+  </a>
 )}
