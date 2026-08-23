@@ -30,7 +30,7 @@ const days = weeks.flatMap((week) => week.contributionDays);
 const { placementStyle } = Astro.props;
 ---
 
-<section class="desktop-widget widget-contributions" aria-labelledby="contribution-title" style={placementStyle}>
+<section class="desktop-widget widget-contributions" aria-labelledby="contribution-title" style={placementStyle} data-home-object="contributions">
   <header class="widget-header">
     <div>
       <h2 id="contribution-title">最近提交</h2>

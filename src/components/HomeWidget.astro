@@ -34,7 +34,7 @@ const placementStyle = widgetPlacementStyle(id);
 ---
 
 {id === "clock" && (
-  <section class="desktop-widget widget-clock" aria-label="当前时间" style={placementStyle}>
+  <section class="desktop-widget widget-clock" aria-label="当前时间" style={placementStyle} data-home-object={id}>
     <div class="widget-clock__header">
       <span class="clock-date" data-clock-date>正在读取日期</span>
       <Icon name="clock" size={16} />
@@ -45,7 +45,7 @@ const placementStyle = widgetPlacementStyle(id);
 )}
 
 {id === "user" && (
-  <section class="desktop-widget widget-user" aria-labelledby="profile-title" style={placementStyle}>
+  <section class="desktop-widget widget-user" aria-labelledby="profile-title" style={placementStyle} data-home-object={id}>
     <div class="widget-user__copy">
       <p>欢迎回来</p>
       <h1 id="profile-title">{profile.name}</h1>
@@ -56,7 +56,7 @@ const placementStyle = widgetPlacementStyle(id);
 )}
 
 {id === "avatar" && (
-  <section class="desktop-app desktop-app--avatar" aria-label={profile.displayName} style={placementStyle}>
+  <section class="desktop-app desktop-app--avatar" aria-label={profile.displayName} style={placementStyle} data-home-object={id}>
     <span class="desktop-app__icon desktop-app__icon--avatar">
       <img src={avatar} alt="" width="420" height="420" />
     </span>
@@ -71,6 +71,7 @@ const placementStyle = widgetPlacementStyle(id);
     aria-label="切换明暗主题"
     style={placementStyle}
     data-theme-toggle
+    data-home-object={id}
   >
     <span class="desktop-app__icon desktop-app__icon--theme" data-current-swatch>
       <span class="desktop-app__theme-symbol" aria-hidden="true">
@@ -89,6 +90,7 @@ const placementStyle = widgetPlacementStyle(id);
     aria-label="打开主题与外观设置"
     style={placementStyle}
     data-theme-dialog-open
+    data-home-object={id}
   >
     <span class="desktop-app__icon desktop-app__icon--appearance">
       <Icon name="palette" size={28} />
@@ -99,7 +101,7 @@ const placementStyle = widgetPlacementStyle(id);
 )}
 
 {id === "recent" && (
-  <section class="desktop-widget widget-recent" aria-labelledby="recent-title" style={placementStyle}>
+  <section class="desktop-widget widget-recent" aria-labelledby="recent-title" style={placementStyle} data-home-object={id}>
     <header class="widget-header">
       <div>
         <h2 id="recent-title">最近文章</h2>
@@ -127,7 +129,7 @@ const placementStyle = widgetPlacementStyle(id);
 {id === "contributions" && <ContributionGrid placementStyle={placementStyle} />}
 
 {id === "stats" && (
-  <section class="desktop-widget widget-stats" aria-labelledby="stats-title" style={placementStyle}>
+  <section class="desktop-widget widget-stats" aria-labelledby="stats-title" style={placementStyle} data-home-object={id}>
     <header class="widget-header widget-header--compact">
       <div><h2 id="stats-title">博客信息</h2></div>
       <Icon name="info" size={17} />
@@ -149,6 +151,7 @@ const placementStyle = widgetPlacementStyle(id);
     rel="noreferrer"
     aria-label={desktopLink.label}
     style={placementStyle}
+    data-home-object={id}
   >
     <span class:list={["desktop-app__icon", `desktop-app__icon--${id}`]}>
       <Icon name={desktopLink.icon} size={30} />
