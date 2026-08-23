@@ -1,0 +1,64 @@
+---
+import type { ThemeDefinition } from "../lib/themes";
+import Icon from "./Icon.astro";
+
+interface Props {
+  themes: ThemeDefinition[];
+  defaultLight: string;
+  defaultDark: string;
+}
+
+const { themes, defaultLight, defaultDark } = Astro.props;
+const groupedThemes = {
+  light: themes.filter((theme) => theme.type === "light"),
+  dark: themes.filter((theme) => theme.type === "dark")
+};
+---
+
+<dialog
+  class="theme-panel"
+  aria-labelledby="theme-panel-title"
+  data-theme-dialog
+  data-default-light={defaultLight}
+  data-default-dark={defaultDark}
+>
+  <header class="theme-panel__header">
+    <div>
+      <p>Appearance</p>
+      <h2 id="theme-panel-title">主题与配色</h2>
+    </div>
+    <button class="icon-control" type="button" aria-label="关闭主题面板" data-theme-dialog-close>
+      <Icon name="x" size={18} />
+    </button>
+  </header>
+
+  <div class="theme-panel__groups">
+    {(["light", "dark"] as const).map((mode) => (
+      <section class="theme-group" aria-labelledby={`theme-${mode}`}>
+        <h3 id={`theme-${mode}`}>{mode === "light" ? "亮色主题" : "暗色主题"}</h3>
+        <div class="theme-options">
+          {groupedThemes[mode].map((theme) => (
+            <button
+              class="theme-option"
+              type="button"
+              aria-pressed={theme.id === (mode === "light" ? defaultLight : defaultDark)}
+              data-theme-option
+              data-theme-id={theme.id}
+              data-theme-mode={theme.type}
+              data-theme-tokens={JSON.stringify(theme.tokens)}
+              data-theme-swatches={JSON.stringify(theme.swatches)}
+            >
+              <span class="theme-option__colors" aria-hidden="true">
+                {theme.swatches.slice(0, 3).map((color) => <i style={`--swatch:${color}`}></i>)}
+              </span>
+              <span class="theme-option__copy">
+                <strong>{theme.name}</strong>
+                <small>{theme.family}</small>
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</dialog>

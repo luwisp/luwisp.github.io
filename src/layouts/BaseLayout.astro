@@ -3,8 +3,10 @@ import "katex/dist/katex.min.css";
 import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
 import siteData from "../../content/site.json";
-import MobileTopbar from "../components/MobileTopbar.astro";
-import Sidebar from "../components/Sidebar.astro";
+import AppDock from "../components/AppDock.astro";
+import Icon from "../components/Icon.astro";
+import ThemePanel from "../components/ThemePanel.astro";
+import { getAppOrder, type AppId } from "../config/apps";
 import { uiConfig } from "../config/site";
 import { getCategories, getPosts } from "../lib/content";
 import { publicAsset } from "../lib/paths";
@@ -22,7 +24,16 @@ const categories = getCategories(posts);
 const pageTitle = title ? `${title} · ${siteData.site.title}` : siteData.site.title;
 const wallpaper = publicAsset(siteData.site.wallpaper);
 const initialThemePayload = JSON.stringify({ themes, defaults: themeDefaults });
-const navigationRestoreKey = "luorong.notes.navigation-expanded";
+const activeApp = (activePage === "post" ? "reader" : activePage) as AppId;
+const appOrder = getAppOrder(Astro.url.pathname);
+const appChrome = {
+  home: { label: "桌面", detail: siteData.site.title, icon: "home" },
+  archive: { label: "归档", detail: `${posts.length} 篇文章`, icon: "archive" },
+  categories: { label: "分类", detail: `${categories.length} 个主题`, icon: "folder" },
+  post: { label: "阅读器", detail: title ?? "文章", icon: "book-open" }
+}[activePage];
+const readerTitle = activePage === "post" ? title : undefined;
+const readerHref = activePage === "post" ? Astro.url.pathname : undefined;
 ---
 
 <!doctype html>
@@ -38,7 +49,7 @@ const navigationRestoreKey = "luorong.notes.navigation-expanded";
     <meta name="theme-color" content="#1e2326" />
     <title>{pageTitle}</title>
     {uiConfig.pageTransition.enabled && <ClientRouter fallback="swap" />}
-    <script is:inline define:vars={{ initialThemePayload, navigationRestoreKey, mobileBreakpoint: uiConfig.mobileBreakpoint }}>
+    <script is:inline define:vars={{ initialThemePayload }}>
       (() => {
         try {
           const payload = JSON.parse(initialThemePayload);
@@ -55,36 +66,49 @@ const navigationRestoreKey = "luorong.notes.navigation-expanded";
           });
         } catch {}
 
-        try {
-          const restoreNavigation =
-            innerWidth > mobileBreakpoint && sessionStorage.getItem(navigationRestoreKey) === "1";
-          if (restoreNavigation) document.documentElement.classList.add("navigation-restore");
-          sessionStorage.removeItem(navigationRestoreKey);
-        } catch {}
-
       })();
     </script>
   </head>
   <body
     style={`--wallpaper-image:url("${wallpaper}")`}
     data-active-page={activePage}
+    data-active-app={activeApp}
+    data-app-order={appOrder}
+    data-reader-title={readerTitle}
+    data-reader-href={readerHref}
     data-clock-zone={siteData.profile.location}
   >
     <div class="wallpaper" aria-hidden="true"></div>
-    <MobileTopbar title={siteData.site.title} />
-    <Sidebar
-      activePage={activePage}
+    <AppDock
+      activeApp={activeApp}
       postCount={posts.length}
       categoryCount={categories.length}
-      themes={themes}
-      defaultLight={themeDefaults.light}
-      defaultDark={themeDefaults.dark}
+      readerTitle={readerTitle}
+      readerHref={readerHref}
     />
     <main class="main-panel" id="main-content" data-main-panel>
-      <div class="page-frame">
-        <slot />
-      </div>
+      <section
+        class:list={["app-screen", `app-screen--${activePage}`, { "app-screen--window": activePage !== "home" }]}
+        data-app-screen
+      >
+        {activePage !== "home" && (
+          <header class="app-window__bar">
+            <span class="app-window__icon"><Icon name={appChrome.icon} size={18} /></span>
+            <div class="app-window__identity">
+              <strong>{appChrome.label}</strong>
+              <span>{appChrome.detail}</span>
+            </div>
+            <time class="app-window__clock" data-clock data-clock-format="short">--:--</time>
+          </header>
+        )}
+        <div class:list={["app-content", { "app-content--home": activePage === "home" }]} data-app-content>
+          <div class:list={["page-frame", { "page-frame--home": activePage === "home" }]}>
+            <slot />
+          </div>
+        </div>
+      </section>
     </main>
+    <ThemePanel themes={themes} defaultLight={themeDefaults.light} defaultDark={themeDefaults.dark} />
     <script>
       import "../scripts/ui";
     </script>

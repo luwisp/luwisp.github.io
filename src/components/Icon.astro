@@ -2,17 +2,24 @@
 import {
   Archive,
   ArrowLeft,
+  BookOpen,
   ChevronDown,
   Clock3,
+  FileText,
   ExternalLink,
   Folder,
   Github,
+  Grid2X2,
   Home,
+  Info,
   Mail,
   Menu,
   MoonStar,
   Palette,
+  PanelLeft,
+  Sparkles,
   Sun,
+  UserRound,
   X
 } from "lucide-astro";
 
@@ -26,17 +33,24 @@ const { name, size = 19, strokeWidth = 1.8 } = Astro.props;
 const iconMap = {
   archive: Archive,
   back: ArrowLeft,
+  "book-open": BookOpen,
   chevron: ChevronDown,
   clock: Clock3,
   external: ExternalLink,
+  file: FileText,
   folder: Folder,
   github: Github,
+  grid: Grid2X2,
   home: Home,
+  info: Info,
   mail: Mail,
   menu: Menu,
   moon: MoonStar,
   palette: Palette,
+  panel: PanelLeft,
+  sparkles: Sparkles,
   sun: Sun,
+  user: UserRound,
   x: X
 };
 const IconComponent = iconMap[name as keyof typeof iconMap] ?? ExternalLink;

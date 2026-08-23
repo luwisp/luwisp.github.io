@@ -1,63 +1,43 @@
 ---
-import siteData from "../../content/site.json";
-import quotes from "../../content/quotes.json";
-import ContributionGrid from "../components/ContributionGrid.astro";
-import Icon from "../components/Icon.astro";
-import PostCard from "../components/PostCard.astro";
+import HomeWidget from "../components/HomeWidget.astro";
 import { uiConfig } from "../config/site";
+import { homeWidgets } from "../config/widgets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getPosts } from "../lib/content";
-import { publicAsset } from "../lib/paths";
+import { getBlogStats } from "../lib/stats";
 
 const posts = await getPosts();
 const recentPosts = posts.slice(0, uiConfig.recentPostCount);
-const profile = siteData.profile;
-const avatar = publicAsset(profile.avatar);
+const stats = getBlogStats(posts);
+const mobilePages = [...new Set(homeWidgets.map((widget) => widget.mobilePage))]
+  .sort((left, right) => left - right)
+  .map((page) => homeWidgets.filter((widget) => widget.mobilePage === page));
 ---
 
 <BaseLayout activePage="home">
-  <div class="home-dashboard">
-    <section class="profile-widget" aria-labelledby="profile-title">
-      <div class="profile-copy">
-        <p class="profile-copy__eyebrow">Personal Notes</p>
-        <h1 id="profile-title">{profile.name}'s blog</h1>
-        <div class="profile-copy__rule" aria-hidden="true"></div>
-        <p class="profile-copy__tagline">想到哪写到哪的博客</p>
-      </div>
-      <div class="profile-avatar">
-        <img src={avatar} alt={profile.displayName} width="420" height="420" />
-      </div>
-    </section>
-
-    <section class="clock-links-widget" aria-label="时间与相关链接">
-      <time class="large-clock" data-clock>--:--:--</time>
-      <span class="clock-date" data-clock-date>正在读取日期</span>
-      {profile.links.length > 0 && (
-        <nav class="social-links" aria-label="相关链接">
-          {profile.links.map((link) => (
-            <a class="social-link" href={link.url} target={link.url.startsWith("http") ? "_blank" : undefined} rel="noreferrer" aria-label={link.label} title={link.label}>
-              <Icon name={link.icon} />
-            </a>
+  <div class="home-workspace" aria-label="博客桌面">
+    <div class="home-pager" data-home-pager>
+      {mobilePages.map((widgets, pageIndex) => (
+        <section class="home-page" aria-label={`桌面第${pageIndex + 1}页`} data-home-page>
+          {widgets.map((widget) => (
+            <HomeWidget id={widget.id} recentPosts={recentPosts} stats={stats} />
           ))}
-        </nav>
-      )}
-    </section>
-
-    <div class="home-solid-flow">
-      <ContributionGrid />
-      <section class="recent-section" aria-labelledby="recent-title">
-        <div class="recent-heading">
-          <h2 id="recent-title">最近文章</h2>
-          <span>最新 {recentPosts.length} 篇</span>
-        </div>
-        <div class="post-list">
-          {recentPosts.map((post) => <PostCard post={post} />)}
-        </div>
-      </section>
+        </section>
+      ))}
     </div>
 
-    <section class="quote-widget" aria-label="随机标语">
-      <blockquote data-random-quote data-quotes={JSON.stringify(quotes)}>{quotes[0]}</blockquote>
-    </section>
+    {mobilePages.length > 1 && (
+      <nav class="home-page-indicator" aria-label="桌面分页">
+        {mobilePages.map((_, pageIndex) => (
+          <button
+            class:list={{ "is-active": pageIndex === 0 }}
+            type="button"
+            aria-label={`转到第${pageIndex + 1}页`}
+            aria-current={pageIndex === 0 ? "page" : undefined}
+            data-home-page-target={pageIndex}
+          ></button>
+        ))}
+      </nav>
+    )}
   </div>
 </BaseLayout>

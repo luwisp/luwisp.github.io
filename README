@@ -29,18 +29,30 @@ npm run preview    # 预览 dist 构建结果
 
 旧的 `content/posts.json` 暂时保留用于迁移参考，新站实际以 Markdown frontmatter 为准。
 
+## 博客桌面架构
+
+页面分为三层：壁纸与系统壳、主页小组件桌面、归档/分类/阅读器应用窗口。
+
+- 固定应用和顺序：`src/config/apps.ts`。主页、归档、分类始终固定；文章阅读器是唯一的动态应用槽位。
+- 主页小组件尺寸和位置：`src/config/widgets.ts`。新增小组件或小应用时先在这里声明桌面、平板、手机布局。
+- 站点数据：`content/site.json`。文章和分类统计在静态构建阶段计算，不依赖浏览器接口。
+- 桌面壳与应用窗口：`src/layouts/BaseLayout.astro`。
+- 应用栏：`src/components/AppDock.astro`。桌面端固定在左侧，手机端自动成为四个固定槽位的底栏。
+
+手机主页使用横向分页；归档、分类和文章仍保持普通纵向滚动。打开过的文章会保留为一个阅读器图标，切换文章时只更新这个槽位，不会不断增加图标。
+
 ## 页面切换动画
 
 动画总开关位于 `src/config/site.ts`：
 
 ```ts
 pageTransition: {
-  enabled: false,
-  durationMs: 380
+  enabled: true,
+  durationMs: 320
 }
 ```
 
-将 `enabled` 改为 `false` 即可完全关闭客户端路由和页面动画。转场使用 Astro `ClientRouter` 与浏览器 View Transition 快照，样式集中在 `src/styles/global.css` 的 `page-leave`、`page-enter` 区域。移动端和系统启用“减少动态效果”时始终不播放。
+将 `enabled` 改为 `false` 即可完全关闭客户端路由和页面动画。桌面端按应用栏顺序做纵向工作区切换：打开下方应用时新界面从下方进入，返回上方应用时从上方进入；同一阅读器内仅做轻量替换。转场使用 Astro `ClientRouter` 与浏览器 View Transition，样式集中在 `src/styles/global.css` 的 `app-screen` 转场区域。手机端和系统启用“减少动态效果”时始终不播放。
 
 ## GitHub 热力图
 

@@ -1,0 +1,137 @@
+---
+import siteData from "../../content/site.json";
+import type { WidgetId } from "../config/widgets";
+import { widgetPlacementStyle } from "../config/widgets";
+import type { PostEntry } from "../lib/content";
+import { publicAsset } from "../lib/paths";
+import type { getBlogStats } from "../lib/stats";
+import ContributionGrid from "./ContributionGrid.astro";
+import Icon from "./Icon.astro";
+
+interface Props {
+  id: WidgetId;
+  recentPosts: PostEntry[];
+  stats: ReturnType<typeof getBlogStats>;
+}
+
+const { id, recentPosts, stats } = Astro.props;
+const profile = siteData.profile;
+const avatar = publicAsset(profile.avatar);
+const compactDate = new Intl.DateTimeFormat("zh-CN", { month: "2-digit", day: "2-digit" });
+const latestDate = stats.latestDate
+  ? new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "short" }).format(stats.latestDate)
+  : "暂无";
+const formattedWords = new Intl.NumberFormat("zh-CN", {
+  notation: "compact",
+  maximumFractionDigits: 1
+}).format(stats.totalWords);
+const placementStyle = widgetPlacementStyle(id);
+---
+
+{id === "clock" && (
+  <section class="desktop-widget widget-clock" aria-label="当前时间" style={placementStyle}>
+    <div class="widget-label"><Icon name="clock" size={15} /><span>Asia / Shanghai</span></div>
+    <time class="large-clock" data-clock data-clock-format="adaptive">--:--:--</time>
+    <span class="clock-date" data-clock-date>正在读取日期</span>
+  </section>
+)}
+
+{id === "avatar" && (
+  <section class="desktop-widget widget-avatar" aria-label="用户头像" style={placementStyle}>
+    <img src={avatar} alt={profile.displayName} width="420" height="420" />
+  </section>
+)}
+
+{id === "user" && (
+  <section class="desktop-widget widget-user" aria-labelledby="profile-title" style={placementStyle}>
+    <div class="widget-label"><Icon name="user" size={15} /><span>当前用户</span></div>
+    <div class="widget-user__copy">
+      <h1 id="profile-title">{profile.name}</h1>
+      <p>{profile.bio}</p>
+    </div>
+    <span class="widget-user__status"><i aria-hidden="true"></i> online</span>
+  </section>
+)}
+
+{id === "theme" && (
+  <section class="desktop-widget widget-theme" aria-label="主题控制" style={placementStyle}>
+    <button class="theme-quick-toggle" type="button" aria-label="切换明暗主题" data-theme-toggle>
+      <span class="theme-quick-toggle__swatch" data-current-swatch></span>
+      <span class="theme-quick-toggle__icons" aria-hidden="true">
+        <Icon name="sun" size={19} />
+        <Icon name="moon" size={19} />
+      </span>
+      <strong>明暗</strong>
+    </button>
+    <button class="widget-corner-action" type="button" aria-label="选择主题配色" data-theme-dialog-open>
+      <Icon name="palette" size={16} />
+    </button>
+  </section>
+)}
+
+{id === "recent" && (
+  <section class="desktop-widget widget-recent" aria-labelledby="recent-title" style={placementStyle}>
+    <header class="widget-header">
+      <div>
+        <p>Recent Files</p>
+        <h2 id="recent-title">最近文章</h2>
+      </div>
+      <a href="/archive/" aria-label="打开全部归档" data-internal-link data-app-order="1">
+        <Icon name="archive" size={17} />
+      </a>
+    </header>
+    <div class="recent-file-list">
+      {recentPosts.map((post) => (
+        <a class="recent-file" href={`/posts/${post.id}/`} data-internal-link data-app-order="3">
+          <span class="recent-file__icon"><Icon name="file" size={17} /></span>
+          <span class="recent-file__copy">
+            <strong>{post.data.title}</strong>
+            <small>{post.data.category}</small>
+          </span>
+          <time datetime={post.data.date.toISOString()}>{compactDate.format(post.data.date)}</time>
+        </a>
+      ))}
+    </div>
+  </section>
+)}
+
+{id === "contributions" && <ContributionGrid placementStyle={placementStyle} />}
+
+{id === "stats" && (
+  <section class="desktop-widget widget-stats" aria-labelledby="stats-title" style={placementStyle}>
+    <header class="widget-header">
+      <div>
+        <p>System Info</p>
+        <h2 id="stats-title">博客信息</h2>
+      </div>
+      <Icon name="info" size={18} />
+    </header>
+    <dl class="stats-grid">
+      <div><dt>文章</dt><dd>{stats.postCount}</dd></div>
+      <div><dt>分类</dt><dd>{stats.categoryCount}</dd></div>
+      <div><dt>总字数</dt><dd>{formattedWords}</dd></div>
+      <div><dt>最近更新</dt><dd>{latestDate}</dd></div>
+    </dl>
+  </section>
+)}
+
+{id === "links" && (
+  <section class="desktop-widget widget-links" aria-labelledby="links-title" style={placementStyle}>
+    <header class="widget-header widget-header--compact">
+      <div><p>Connect</p><h2 id="links-title">相关链接</h2></div>
+    </header>
+    <nav class="social-links" aria-label="相关链接">
+      {profile.links.map((link) => (
+        <a
+          href={link.url}
+          target={link.url.startsWith("http") ? "_blank" : undefined}
+          rel="noreferrer"
+          aria-label={link.label}
+          title={link.label}
+        >
+          <Icon name={link.icon} size={20} />
+        </a>
+      ))}
+    </nav>
+  </section>
+)}

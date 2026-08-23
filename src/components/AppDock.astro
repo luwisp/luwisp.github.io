@@ -1,0 +1,65 @@
+---
+import { fixedApps, readerApp, type AppId } from "../config/apps";
+import Icon from "./Icon.astro";
+
+interface Props {
+  activeApp: AppId;
+  postCount: number;
+  categoryCount: number;
+  readerTitle?: string;
+  readerHref?: string;
+}
+
+const { activeApp, postCount, categoryCount, readerTitle, readerHref } = Astro.props;
+const counts: Partial<Record<AppId, number>> = {
+  archive: postCount,
+  categories: categoryCount
+};
+const readerOpen = Boolean(readerTitle && readerHref);
+---
+
+<aside class="app-dock" aria-label="应用栏" data-app-dock transition:persist="app-dock">
+  <nav class="app-dock__apps" aria-label="博客应用">
+    {fixedApps.map((app) => {
+      const count = counts[app.id];
+      const tooltip = count ? `${app.label} · ${count}` : app.label;
+      return (
+        <a
+          class:list={["app-dock__item", { "is-active": activeApp === app.id }]}
+          href={app.href}
+          aria-label={tooltip}
+          aria-current={activeApp === app.id ? "page" : undefined}
+          data-app-link
+          data-internal-link
+          data-app-id={app.id}
+          data-app-order={app.order}
+        >
+          <span class="app-dock__icon"><Icon name={app.icon} size={21} /></span>
+          <span class="app-dock__tooltip" aria-hidden="true">{app.shortLabel}</span>
+        </a>
+      );
+    })}
+
+    <span class="app-dock__separator" hidden={!readerOpen} data-reader-separator aria-hidden="true"></span>
+    <a
+      class:list={["app-dock__item", "app-dock__item--dynamic", { "is-active": activeApp === "reader" }]}
+      href={readerHref ?? readerApp.href}
+      aria-label={readerTitle ? `阅读器 · ${readerTitle}` : readerApp.label}
+      aria-current={activeApp === "reader" ? "page" : undefined}
+      hidden={!readerOpen}
+      data-app-link
+      data-internal-link
+      data-app-id="reader"
+      data-app-order={readerApp.order}
+      data-dynamic-app
+      data-reader-title={readerTitle}
+      data-reader-href={readerHref}
+    >
+      <span class="app-dock__icon"><Icon name={readerApp.icon} size={21} /></span>
+      <span class="app-dock__running" aria-hidden="true"></span>
+      <span class="app-dock__tooltip" aria-hidden="true">{readerApp.shortLabel}</span>
+    </a>
+  </nav>
+
+  <div class="app-dock__handle" aria-hidden="true"></div>
+</aside>

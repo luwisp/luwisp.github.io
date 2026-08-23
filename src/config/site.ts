@@ -1,9 +1,9 @@
 export const uiConfig = {
-  recentPostCount: 6,
+  recentPostCount: 4,
   archivePageSize: 12,
   mobileBreakpoint: 820,
   pageTransition: {
-    enabled: false,
-    durationMs: 380
+    enabled: true,
+    durationMs: 320
   }
 } as const;

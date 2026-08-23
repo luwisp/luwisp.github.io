@@ -1,6 +1,10 @@
 ---
 import contributions from "../data/contributions.json";
 
+interface Props {
+  placementStyle?: string;
+}
+
 interface ContributionDay {
   date: string;
   contributionCount: number;
@@ -23,10 +27,11 @@ const levelMap: Record<string, number> = {
 };
 const weeks = contributions.weeks as ContributionWeek[];
 const days = weeks.flatMap((week) => week.contributionDays);
+const { placementStyle } = Astro.props;
 ---
 
-<section class="contribution-widget solid-widget" aria-labelledby="contribution-title">
-  <div class="widget-heading">
+<section class="desktop-widget widget-contributions" aria-labelledby="contribution-title" style={placementStyle}>
+  <header class="widget-header">
     <div>
       <p>GitHub Activity</p>
       <h2 id="contribution-title">最近提交</h2>
@@ -34,7 +39,7 @@ const days = weeks.flatMap((week) => week.contributionDays);
     <a href={`https://github.com/${contributions.username}`} target="_blank" rel="noreferrer">
       @{contributions.username}
     </a>
-  </div>
+  </header>
 
   {contributions.status === "ready" && days.length > 0 ? (
     <>
@@ -47,7 +52,7 @@ const days = weeks.flatMap((week) => week.contributionDays);
           ></span>
         ))}
       </div>
-      <p class="widget-note">过去一年共 {contributions.totalContributions} 次公开贡献</p>
+      <p class="widget-note">过去一年 {contributions.totalContributions} 次公开贡献</p>
     </>
   ) : (
     <div class="contribution-empty">

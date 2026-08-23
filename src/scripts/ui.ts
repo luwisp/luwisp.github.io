@@ -1,5 +1,7 @@
-const storageKey = "luorong.notes.theme";
-const navigationRestoreKey = "luorong.notes.navigation-expanded";
+import { getAppOrder } from "../config/apps";
+
+const themeStorageKey = "luorong.notes.theme";
+const readerStorageKey = "luorong.notes.open-reader";
 
 interface ThemePreference {
   mode?: "light" | "dark";
@@ -7,16 +9,36 @@ interface ThemePreference {
   dark?: string;
 }
 
-function getPreference(): ThemePreference {
+interface OpenReader {
+  href: string;
+  title: string;
+  scrollTop?: number;
+}
+
+interface AstroBeforePreparationEvent extends Event {
+  from: URL;
+  to: URL;
+  direction: string;
+}
+
+interface AstroBeforeSwapEvent extends Event {
+  newDocument: Document;
+}
+
+function readJson<T>(key: string, fallback: T): T {
   try {
-    return JSON.parse(localStorage.getItem(storageKey) || "{}");
+    return JSON.parse(localStorage.getItem(key) || "") as T;
   } catch {
-    return {};
+    return fallback;
   }
 }
 
-function savePreference(preference: ThemePreference) {
-  localStorage.setItem(storageKey, JSON.stringify(preference));
+function getThemePreference() {
+  return readJson<ThemePreference>(themeStorageKey, {});
+}
+
+function saveThemePreference(preference: ThemePreference) {
+  localStorage.setItem(themeStorageKey, JSON.stringify(preference));
 }
 
 function getThemeButton(id: string | undefined) {
@@ -37,27 +59,32 @@ function applyTheme(id: string, mode: "light" | "dark", persist = true) {
 
   document.documentElement.dataset.theme = id;
   document.documentElement.dataset.themeMode = mode;
-  document.querySelector<HTMLElement>("meta[name='theme-color']")?.setAttribute("content", tokens["--panel-strong"] || "#1e2326");
-  document.querySelector<HTMLElement>("[data-current-swatch]")?.style.setProperty("background", swatches[1] || tokens["--accent"] || "currentColor");
-  document.querySelectorAll("[data-theme-option]").forEach((item) => {
-    item.classList.toggle("is-selected", (item as HTMLElement).dataset.themeId === id);
+  document.querySelector<HTMLMetaElement>("meta[name='theme-color']")?.setAttribute("content", tokens["--panel"] || "#272e33");
+  document.querySelectorAll<HTMLElement>("[data-current-swatch]").forEach((swatch) => {
+    swatch.style.setProperty("background", swatches[1] || tokens["--accent"] || "currentColor");
+  });
+  document.querySelectorAll<HTMLElement>("[data-theme-option]").forEach((item) => {
+    const selected = item.dataset.themeId === id;
+    item.classList.toggle("is-selected", selected);
+    item.setAttribute("aria-pressed", String(selected));
   });
 
   if (persist) {
-    const preference = getPreference();
+    const preference = getThemePreference();
     preference.mode = mode;
     preference[mode] = id;
-    savePreference(preference);
+    saveThemePreference(preference);
   }
 }
 
 function initializeThemeControls() {
-  const sidebar = document.querySelector<HTMLElement>("[data-sidebar]");
-  if (!sidebar) return;
-  const preference = getPreference();
-  const mode = preference.mode || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  const defaultId = mode === "dark" ? sidebar.dataset.defaultDark : sidebar.dataset.defaultLight;
-  applyTheme(preference[mode] || defaultId || "", mode, false);
+  const dialog = document.querySelector<HTMLDialogElement>("[data-theme-dialog]");
+  if (!dialog) return;
+
+  const preference = getThemePreference();
+  const currentMode = document.documentElement.dataset.themeMode === "light" ? "light" : "dark";
+  const defaultId = currentMode === "dark" ? dialog.dataset.defaultDark : dialog.dataset.defaultLight;
+  applyTheme(preference[currentMode] || defaultId || "", currentMode, false);
 
   document.querySelectorAll<HTMLElement>("[data-theme-option]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -66,103 +93,57 @@ function initializeThemeControls() {
     });
   });
 
-  document.querySelector("[data-theme-toggle]")?.addEventListener("click", () => {
-    const current = document.documentElement.dataset.themeMode === "dark" ? "dark" : "light";
-    const next = current === "dark" ? "light" : "dark";
-    const latest = getPreference();
-    const nextId = latest[next] || (next === "dark" ? sidebar.dataset.defaultDark : sidebar.dataset.defaultLight);
-    if (nextId) applyTheme(nextId, next);
-  });
-
-  document.querySelectorAll("[data-theme-library-toggle]").forEach((button) => {
-    button.addEventListener("click", () => sidebar.classList.toggle("theme-library-open"));
-  });
-}
-
-function initializeMenu() {
-  const button = document.querySelector<HTMLButtonElement>("[data-menu-toggle]");
-  if (!button) return;
-  const syncButton = (open: boolean) => {
-    button.ariaExpanded = String(open);
-    button.ariaLabel = open ? "收起导航" : "展开导航";
-  };
-  syncButton(document.body.classList.contains("menu-open"));
-  button.addEventListener("click", () => {
-    const open = document.body.classList.toggle("menu-open");
-    syncButton(open);
-  });
-}
-
-function initializeExpandedSidebar() {
-  const sidebar = document.querySelector<HTMLElement>("[data-sidebar]");
-  if (!sidebar) return;
-  if (document.documentElement.classList.contains("navigation-restore")) {
-    sidebar.classList.add("navigation-expanded");
-    document.documentElement.classList.remove("navigation-restore");
-  }
-  if (!sidebar.classList.contains("navigation-expanded")) return;
-  const releaseWhenPointerLeaves = (event: PointerEvent) => {
-    if (event.target instanceof Node && sidebar.contains(event.target)) return;
-    sidebar.classList.remove("navigation-expanded");
-    document.removeEventListener("pointermove", releaseWhenPointerLeaves);
-  };
-  document.addEventListener("pointermove", releaseWhenPointerLeaves);
-}
-
-function initializeStaticNavigation() {
-  const sidebar = document.querySelector<HTMLElement>("[data-sidebar]");
-  if (!sidebar) return;
-  sidebar.querySelectorAll<HTMLAnchorElement>("a[href]").forEach((anchor) => {
-    anchor.addEventListener("click", (event) => {
-      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-      const target = new URL(anchor.href, location.href);
-      const current = new URL(location.href);
-      if (target.pathname === current.pathname && target.search === current.search && target.hash === current.hash) {
-        event.preventDefault();
-        return;
-      }
-      if (innerWidth > 820) sessionStorage.setItem(navigationRestoreKey, "1");
+  document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const current = document.documentElement.dataset.themeMode === "dark" ? "dark" : "light";
+      const next = current === "dark" ? "light" : "dark";
+      const latest = getThemePreference();
+      const nextId = latest[next] || (next === "dark" ? dialog.dataset.defaultDark : dialog.dataset.defaultLight);
+      if (nextId) applyTheme(nextId, next);
     });
   });
+
+  document.querySelectorAll<HTMLButtonElement>("[data-theme-dialog-open]").forEach((button) => {
+    button.addEventListener("click", () => dialog.showModal());
+  });
+  document.querySelector("[data-theme-dialog-close]")?.addEventListener("click", () => dialog.close());
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
 }
 
-interface AstroBeforeSwapEvent extends Event {
-  newDocument: Document;
-  sourceElement: Element | null;
-}
-
-function preserveNavigationState(event: Event) {
-  const { newDocument: nextDocument, sourceElement } = event as AstroBeforeSwapEvent;
-  if (!nextDocument) return;
-  sessionStorage.removeItem(navigationRestoreKey);
-
-  const currentRoot = document.documentElement;
-  const nextRoot = nextDocument.documentElement;
-  nextRoot.style.cssText = currentRoot.style.cssText;
-  nextRoot.dataset.theme = currentRoot.dataset.theme || "";
-  nextRoot.dataset.themeMode = currentRoot.dataset.themeMode || "";
-  const currentThemeColor = document.querySelector<HTMLMetaElement>("meta[name='theme-color']")?.content;
-  const nextThemeColor = nextDocument.querySelector<HTMLMetaElement>("meta[name='theme-color']");
-  if (currentThemeColor && nextThemeColor) nextThemeColor.content = currentThemeColor;
-
-  const menuOpen = document.body.classList.contains("menu-open");
-  nextDocument.body.classList.toggle("menu-open", menuOpen);
-  const nextMenuButton = nextDocument.querySelector<HTMLButtonElement>("[data-menu-toggle]");
-  if (nextMenuButton) {
-    nextMenuButton.ariaExpanded = String(menuOpen);
-    nextMenuButton.ariaLabel = menuOpen ? "收起导航" : "展开导航";
+function getStoredReader() {
+  try {
+    return JSON.parse(sessionStorage.getItem(readerStorageKey) || "null") as OpenReader | null;
+  } catch {
+    return null;
   }
+}
 
-  const currentSidebar = document.querySelector<HTMLElement>("[data-sidebar]");
-  const nextSidebar = nextDocument.querySelector<HTMLElement>("[data-sidebar]");
-  if (!currentSidebar || !nextSidebar) return;
+function initializeDynamicReader() {
+  const currentTitle = document.body.dataset.readerTitle;
+  const currentHref = document.body.dataset.readerHref;
+  const current = currentTitle && currentHref ? { title: currentTitle, href: currentHref } : null;
+  if (current) {
+    const previous = getStoredReader();
+    sessionStorage.setItem(readerStorageKey, JSON.stringify({
+      ...current,
+      scrollTop: previous?.href === current.href ? previous.scrollTop : 0
+    }));
+  }
+  const reader = current ?? getStoredReader();
 
-  nextSidebar.classList.toggle("theme-library-open", currentSidebar.classList.contains("theme-library-open"));
-  const navigationStartedInSidebar = sourceElement instanceof Node && currentSidebar.contains(sourceElement);
-  const desktopExpanded =
-    innerWidth > 820 &&
-    (navigationStartedInSidebar || currentSidebar.matches(":hover") || currentSidebar.classList.contains("navigation-expanded"));
-  nextSidebar.classList.toggle("navigation-expanded", desktopExpanded);
+  document.querySelectorAll<HTMLAnchorElement>("[data-dynamic-app]").forEach((anchor) => {
+    anchor.hidden = !reader;
+    if (!reader) return;
+    anchor.href = reader.href;
+    anchor.dataset.readerTitle = reader.title;
+    anchor.dataset.readerHref = reader.href;
+    anchor.setAttribute("aria-label", `阅读器 · ${reader.title}`);
+  });
+  document.querySelectorAll<HTMLElement>("[data-reader-separator]").forEach((separator) => {
+    separator.hidden = !reader;
+  });
 }
 
 let clockTimer = 0;
@@ -175,7 +156,9 @@ function initializeClocks() {
   const update = () => {
     const now = new Date();
     for (const clock of clocks) {
-      const short = clock.dataset.clockFormat === "short";
+      const short =
+        clock.dataset.clockFormat === "short" ||
+        (clock.dataset.clockFormat === "adaptive" && matchMedia("(max-width: 820px)").matches);
       clock.dateTime = now.toISOString();
       clock.textContent = new Intl.DateTimeFormat("zh-CN", {
         timeZone,
@@ -185,28 +168,17 @@ function initializeClocks() {
         hour12: false
       }).format(now);
     }
-    const dateTarget = document.querySelector<HTMLElement>("[data-clock-date]");
-    if (dateTarget) {
-      dateTarget.textContent = new Intl.DateTimeFormat("zh-CN", {
+    document.querySelectorAll<HTMLElement>("[data-clock-date]").forEach((target) => {
+      target.textContent = new Intl.DateTimeFormat("zh-CN", {
         timeZone,
-        year: "numeric",
         month: "long",
         day: "numeric",
         weekday: "long"
       }).format(now);
-    }
+    });
   };
   update();
   clockTimer = window.setInterval(update, 1000);
-}
-
-function initializeQuote() {
-  const target = document.querySelector<HTMLElement>("[data-random-quote]");
-  if (!target) return;
-  try {
-    const quotes = JSON.parse(target.dataset.quotes || "[]") as string[];
-    if (quotes.length) target.textContent = quotes[Math.floor(Math.random() * quotes.length)];
-  } catch {}
 }
 
 function initializeArchivePagination() {
@@ -224,14 +196,14 @@ function initializeArchivePagination() {
       button.classList.toggle("is-active", active);
       button.ariaCurrent = active ? "page" : null;
     });
-    archive.scrollIntoView({ block: "start" });
+    document.querySelector<HTMLElement>("[data-app-content]")?.scrollTo({ top: 0, behavior: "smooth" });
   };
   buttons.forEach((button) => button.addEventListener("click", () => renderPage(Number(button.dataset.archivePage))));
   if (buttons.length) renderPage(1);
 }
 
 function initializeBackButtons() {
-  document.querySelectorAll("[data-history-back]").forEach((button) => {
+  document.querySelectorAll<HTMLButtonElement>("[data-history-back]").forEach((button) => {
     button.addEventListener("click", () => {
       if (history.length > 1) history.back();
       else location.href = "/archive/";
@@ -239,20 +211,151 @@ function initializeBackButtons() {
   });
 }
 
+function initializeHomePager() {
+  const pager = document.querySelector<HTMLElement>("[data-home-pager]");
+  if (!pager) return;
+  const pages = [...pager.querySelectorAll<HTMLElement>("[data-home-page]")];
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-home-page-target]")];
+  if (pages.length < 2 || buttons.length < 2) return;
+
+  const setActive = (index: number) => {
+    buttons.forEach((button, buttonIndex) => {
+      const active = buttonIndex === index;
+      button.classList.toggle("is-active", active);
+      if (active) button.setAttribute("aria-current", "page");
+      else button.removeAttribute("aria-current");
+    });
+  };
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const index = Number(button.dataset.homePageTarget || "0");
+      pages[index]?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+      setActive(index);
+    });
+  });
+
+  let frame = 0;
+  pager.addEventListener("scroll", () => {
+    window.cancelAnimationFrame(frame);
+    frame = window.requestAnimationFrame(() => {
+      const width = Math.max(1, pager.clientWidth);
+      const index = Math.max(0, Math.min(pages.length - 1, Math.round(pager.scrollLeft / width)));
+      setActive(index);
+    });
+  }, { passive: true });
+}
+
+function setTransitionDirection(event: Event) {
+  const transition = event as AstroBeforePreparationEvent;
+  const reader = getStoredReader();
+  if (document.body.dataset.activeApp === "reader" && reader) {
+    const scrollTop = document.querySelector<HTMLElement>("[data-app-content]")?.scrollTop ?? 0;
+    sessionStorage.setItem(readerStorageKey, JSON.stringify({ ...reader, scrollTop }));
+  }
+  const returningToReader =
+    document.body.dataset.activeApp !== "reader" &&
+    reader?.href === transition.to.pathname;
+  sessionStorage.setItem("luorong.notes.restore-reader-scroll", returningToReader ? "1" : "0");
+  const fromOrder = getAppOrder(transition.from.pathname);
+  const toOrder = getAppOrder(transition.to.pathname);
+  const direction = toOrder > fromOrder ? "down" : toOrder < fromOrder ? "up" : "same";
+  transition.direction = direction;
+  document.documentElement.dataset.appDirection = direction;
+}
+
+function preserveDocumentState(event: Event) {
+  const nextDocument = (event as AstroBeforeSwapEvent).newDocument;
+  if (!nextDocument) return;
+  const currentRoot = document.documentElement;
+  const nextRoot = nextDocument.documentElement;
+  nextRoot.style.cssText = currentRoot.style.cssText;
+  nextRoot.dataset.theme = currentRoot.dataset.theme || "";
+  nextRoot.dataset.themeMode = currentRoot.dataset.themeMode || "";
+  nextRoot.dataset.appDirection = currentRoot.dataset.appDirection || "same";
+  const currentThemeColor = document.querySelector<HTMLMetaElement>("meta[name='theme-color']")?.content;
+  const nextThemeColor = nextDocument.querySelector<HTMLMetaElement>("meta[name='theme-color']");
+  if (currentThemeColor && nextThemeColor) nextThemeColor.content = currentThemeColor;
+
+  const nextActiveApp = nextDocument.body.dataset.activeApp;
+  const nextReaderTitle = nextDocument.body.dataset.readerTitle;
+  const nextReaderHref = nextDocument.body.dataset.readerHref;
+  const previousReader = getStoredReader();
+  const nextReader = nextReaderTitle && nextReaderHref
+    ? {
+        title: nextReaderTitle,
+        href: nextReaderHref,
+        scrollTop: previousReader?.href === nextReaderHref ? previousReader.scrollTop : 0
+      }
+    : previousReader;
+  if (nextReaderTitle && nextReaderHref) {
+    sessionStorage.setItem(readerStorageKey, JSON.stringify(nextReader));
+  }
+
+  const dock = document.querySelector<HTMLElement>("[data-app-dock]");
+  dock?.querySelectorAll<HTMLAnchorElement>("[data-app-id]").forEach((anchor) => {
+    const active = anchor.dataset.appId === nextActiveApp;
+    anchor.classList.toggle("is-active", active);
+    if (active) anchor.setAttribute("aria-current", "page");
+    else anchor.removeAttribute("aria-current");
+  });
+  const dynamicApp = dock?.querySelector<HTMLAnchorElement>("[data-dynamic-app]");
+  if (dynamicApp) {
+    dynamicApp.hidden = !nextReader;
+    if (nextReader) {
+      dynamicApp.href = nextReader.href;
+      dynamicApp.dataset.readerTitle = nextReader.title;
+      dynamicApp.dataset.readerHref = nextReader.href;
+      dynamicApp.setAttribute("aria-label", `阅读器 · ${nextReader.title}`);
+    }
+  }
+  const separator = dock?.querySelector<HTMLElement>("[data-reader-separator]");
+  if (separator) separator.hidden = !nextReader;
+  document.querySelector<HTMLDialogElement>("[data-theme-dialog]")?.close();
+}
+
 function initializePage() {
   if (document.body.dataset.uiInitialized === "true") return;
   document.body.dataset.uiInitialized = "true";
   initializeThemeControls();
-  initializeMenu();
-  initializeExpandedSidebar();
-  initializeStaticNavigation();
+  initializeDynamicReader();
   initializeClocks();
-  initializeQuote();
   initializeArchivePagination();
   initializeBackButtons();
+  initializeHomePager();
+  if (
+    document.body.dataset.activeApp === "reader" &&
+    sessionStorage.getItem("luorong.notes.restore-reader-scroll") === "1"
+  ) {
+    const reader = getStoredReader();
+    window.requestAnimationFrame(() => {
+      document.querySelector<HTMLElement>("[data-app-content]")?.scrollTo({
+        top: reader?.scrollTop ?? 0,
+        behavior: "instant"
+      });
+    });
+  }
+  sessionStorage.removeItem("luorong.notes.restore-reader-scroll");
 }
 
-document.addEventListener("astro:before-swap", preserveNavigationState);
-document.addEventListener("astro:page-load", initializePage);
+const runtimeWindow = window as Window & { __luorongSystemEvents?: boolean };
+if (!runtimeWindow.__luorongSystemEvents) {
+  runtimeWindow.__luorongSystemEvents = true;
+  document.addEventListener("astro:before-preparation", setTransitionDirection);
+  document.addEventListener("astro:before-swap", preserveDocumentState);
+  document.addEventListener("click", (event) => {
+    if (!(event instanceof MouseEvent) || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const target = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[data-internal-link]") : null;
+    if (!target) return;
+    const destination = new URL(target.href, location.href);
+    if (
+      destination.pathname === location.pathname &&
+      destination.search === location.search &&
+      destination.hash === location.hash
+    ) event.preventDefault();
+  });
+  document.addEventListener("astro:page-load", initializePage);
+}
+
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initializePage, { once: true });
 else initializePage();
