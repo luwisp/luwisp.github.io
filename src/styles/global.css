@@ -540,10 +540,10 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
     --home-double: calc(var(--home-cell) + var(--home-gap) + var(--home-cell));
     --home-quad: calc(var(--home-double) + var(--home-gap) + var(--home-double));
     grid-template-columns: repeat(8, minmax(0, var(--home-cell)));
-    grid-template-rows: repeat(3, minmax(0, var(--home-cell)));
+    grid-template-rows: var(--home-cell) minmax(0, 1fr) var(--home-cell);
     column-gap: var(--home-gap);
     row-gap: var(--home-gap);
-    align-content: space-between;
+    align-content: stretch;
     justify-content: space-between;
     width: 100%;
     height: 100%;
@@ -572,6 +572,7 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
   }
 
   [data-home-object="contributions"] {
+    align-self: end;
     justify-self: end;
     max-width: var(--home-quad);
   }
