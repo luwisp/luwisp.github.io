@@ -259,7 +259,7 @@ img {
 .app-screen--window {
   inset: 18px;
   display: grid;
-  grid-template-rows: 56px minmax(0, 1fr);
+  grid-template-rows: 48px minmax(0, 1fr);
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: var(--system-radius);
@@ -269,11 +269,10 @@ img {
 
 .app-window__bar {
   display: grid;
-  grid-template-columns: 40px 38px minmax(0, 1fr) auto;
+  grid-template-columns: 40px minmax(0, 1fr);
   align-items: center;
-  gap: 8px;
   min-width: 0;
-  padding: 0 16px;
+  padding: 0 12px;
   border-bottom: 1px solid var(--border);
   background: var(--surface-raised);
 }
@@ -312,35 +311,8 @@ img {
   outline-offset: 2px;
 }
 
-.app-window__icon {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
-  color: var(--accent-text);
-  background: var(--accent);
-}
-
-.app-window__identity {
-  min-width: 0;
-}
-
-.app-window__identity strong,
-.app-window__identity span {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.app-window__identity strong {
-  font-size: 0.86rem;
-}
-
-.app-window__identity span,
 .app-window__clock {
-  margin-top: 2px;
+  justify-self: end;
   color: var(--subtle);
   font-size: 0.68rem;
 }
@@ -562,17 +534,17 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
   background: #2f81f7;
 }
 
-@media (min-width: 1680px) and (min-height: 800px) {
-  .home-workspace {
-    padding: clamp(24px, 2vw, 56px);
-  }
-
+@media (min-width: 1280px) {
   .home-pager {
     --home-gap: 14px;
     --home-double: calc(var(--home-cell) + var(--home-gap) + var(--home-cell));
     --home-quad: calc(var(--home-double) + var(--home-gap) + var(--home-double));
-    position: relative;
-    display: block;
+    grid-template-columns: repeat(8, minmax(0, var(--home-cell)));
+    grid-template-rows: repeat(3, minmax(0, var(--home-cell)));
+    column-gap: var(--home-gap);
+    row-gap: var(--home-gap);
+    align-content: space-between;
+    justify-content: space-between;
     width: 100%;
     height: 100%;
     max-width: none;
@@ -581,69 +553,27 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
 
   .desktop-widget,
   .desktop-app {
-    position: absolute;
-    width: var(--home-cell);
-    height: var(--home-cell);
+    width: 100%;
+    height: 100%;
+    max-width: var(--home-cell);
+    max-height: var(--home-cell);
   }
 
   [data-home-object="clock"],
   [data-home-object="user"],
   [data-home-object="stats"] {
-    width: var(--home-double);
+    max-width: var(--home-double);
   }
 
   [data-home-object="recent"] {
-    bottom: 0;
-    left: 0;
-    width: var(--home-quad);
-    height: var(--home-double);
+    align-self: end;
+    max-width: var(--home-quad);
+    max-height: var(--home-double);
   }
 
   [data-home-object="contributions"] {
-    top: 50%;
-    right: 0;
-    width: var(--home-quad);
-    transform: translateY(-50%);
-  }
-
-  [data-home-object="clock"] {
-    top: 0;
-    left: 0;
-  }
-
-  [data-home-object="user"] {
-    top: 0;
-    left: 28%;
-  }
-
-  [data-home-object="avatar"] {
-    top: 0;
-    left: 55%;
-  }
-
-  [data-home-object="theme"] {
-    top: 0;
-    right: calc(var(--home-cell) + var(--home-gap));
-  }
-
-  [data-home-object="appearance"] {
-    top: 0;
-    right: 0;
-  }
-
-  [data-home-object="stats"] {
-    right: calc(var(--home-double) + var(--home-gap));
-    bottom: 0;
-  }
-
-  [data-home-object="github"] {
-    right: calc(var(--home-cell) + var(--home-gap));
-    bottom: 0;
-  }
-
-  [data-home-object="email"] {
-    right: 0;
-    bottom: 0;
+    justify-self: end;
+    max-width: var(--home-quad);
   }
 }
 
@@ -1695,22 +1625,15 @@ html[data-app-direction="same"]::view-transition-new(app-screen) {
 
   .app-screen--window {
     inset: 0;
-    grid-template-rows: 54px minmax(0, 1fr);
+    grid-template-rows: 48px minmax(0, 1fr);
     border: 0;
     border-radius: 0;
     box-shadow: none;
   }
 
   .app-window__bar {
-    grid-template-columns: 40px 36px minmax(0, 1fr) auto;
-    gap: 6px;
+    grid-template-columns: 40px minmax(0, 1fr);
     padding: 0 12px;
-  }
-
-  .app-window__icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 11px;
   }
 
   .page-frame {
@@ -2004,7 +1927,8 @@ html[data-app-direction="same"]::view-transition-new(app-screen) {
   }
 
   .home-pager {
-    gap: 10px;
+    --home-gap: 10px;
+    gap: var(--home-gap);
   }
 
   .desktop-widget {

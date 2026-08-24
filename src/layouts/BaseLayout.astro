@@ -26,15 +26,13 @@ const wallpaper = publicAsset(siteData.site.wallpaper);
 const initialThemePayload = JSON.stringify({ themes, defaults: themeDefaults });
 const activeApp = (activePage === "post" ? "reader" : activePage) as AppId;
 const appOrder = getAppOrder(Astro.url.pathname);
-const appChrome = {
-  home: { label: "桌面", detail: siteData.site.title, icon: "home" },
-  archive: { label: "归档", detail: `${posts.length} 篇文章`, icon: "archive" },
-  categories: { label: "分类", detail: `${categories.length} 个主题`, icon: "folder" },
-  post: { label: "阅读器", detail: title ?? "文章", icon: "book-open" }
-}[activePage];
 const readerTitle = activePage === "post" ? title : undefined;
 const readerHref = activePage === "post" ? Astro.url.pathname : undefined;
-const appCloseLabel = activePage === "post" ? "关闭阅读器" : `关闭${appChrome.label}`;
+const appCloseLabel = activePage === "post"
+  ? "关闭阅读器"
+  : activePage === "archive"
+    ? "关闭归档"
+    : "关闭分类";
 ---
 
 <!doctype html>
@@ -103,11 +101,6 @@ const appCloseLabel = activePage === "post" ? "关闭阅读器" : `关闭${appCh
             >
               <Icon name="x" size={13} strokeWidth={2.2} />
             </a>
-            <span class="app-window__icon"><Icon name={appChrome.icon} size={18} /></span>
-            <div class="app-window__identity">
-              <strong>{appChrome.label}</strong>
-              <span>{appChrome.detail}</span>
-            </div>
             <time class="app-window__clock" data-clock data-clock-format="short">--:--</time>
           </header>
         )}
