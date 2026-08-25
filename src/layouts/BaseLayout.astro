@@ -47,6 +47,7 @@ const appCloseLabel = activePage === "post"
     <meta name="description" content={description} />
     <meta name="theme-color" content="#1e2326" />
     <title>{pageTitle}</title>
+    <link rel="preload" as="image" href={wallpaper} fetchpriority="high" />
     {uiConfig.pageTransition.enabled && <ClientRouter fallback="swap" />}
     <script is:inline define:vars={{ initialThemePayload }}>
       (() => {
@@ -67,6 +68,16 @@ const appCloseLabel = activePage === "post"
 
       })();
     </script>
+    <script is:inline define:vars={{ wallpaper }}>
+      (() => {
+        try {
+          const key = `luorong.notes.wallpaper.ready:${wallpaper}`;
+          document.documentElement.dataset.wallpaperReady = sessionStorage.getItem(key) === "1" ? "true" : "false";
+        } catch {
+          document.documentElement.dataset.wallpaperReady = "false";
+        }
+      })();
+    </script>
   </head>
   <body
     style={`--wallpaper-image:url("${wallpaper}")`}
@@ -77,6 +88,22 @@ const appCloseLabel = activePage === "post"
     data-reader-href={readerHref}
     data-clock-zone={siteData.profile.location}
   >
+    <div
+      class="wallpaper-loader"
+      data-wallpaper-loader
+      data-wallpaper-src={wallpaper}
+      role="status"
+      aria-label="正在加载桌面"
+    >
+      <div class="wallpaper-loader__content">
+        <div class="wallpaper-loader__mark" aria-hidden="true">
+          <Icon name="clover" size={48} strokeWidth={1.65} />
+        </div>
+        <div class="wallpaper-loader__track" aria-hidden="true">
+          <span class="wallpaper-loader__progress" data-wallpaper-progress></span>
+        </div>
+      </div>
+    </div>
     <div class="wallpaper" aria-hidden="true"></div>
     <AppDock
       activeApp={activeApp}

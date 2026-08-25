@@ -5,6 +5,7 @@ import { uiConfig } from "../config/site";
 const themeStorageKey = "luorong.notes.theme";
 const readerStorageKey = "luorong.notes.open-reader";
 const readerClosingKey = "luorong.notes.reader-closing";
+const wallpaperStoragePrefix = "luorong.notes.wallpaper.ready:";
 
 interface ThemePreference {
   mode?: "light" | "dark";
@@ -26,6 +27,65 @@ interface AstroBeforePreparationEvent extends Event {
 
 interface AstroBeforeSwapEvent extends Event {
   newDocument: Document;
+}
+
+function initializeWallpaperLoader() {
+  const loader = document.querySelector<HTMLElement>("[data-wallpaper-loader]");
+  const source = loader?.dataset.wallpaperSrc;
+  if (!loader || !source) return;
+
+  const storageKey = `${wallpaperStoragePrefix}${source}`;
+  try {
+    if (sessionStorage.getItem(storageKey) === "1") {
+      document.documentElement.dataset.wallpaperReady = "true";
+      loader.remove();
+      return;
+    }
+  } catch {}
+
+  const progress = loader.querySelector<HTMLElement>("[data-wallpaper-progress]");
+  const startedAt = performance.now();
+  const timers: number[] = [];
+  let settled = false;
+
+  const setProgress = (value: number) => {
+    progress?.style.setProperty("--wallpaper-load-progress", String(value));
+  };
+  const finish = (loaded: boolean) => {
+    if (settled) return;
+    settled = true;
+    timers.forEach((timer) => window.clearTimeout(timer));
+    setProgress(1);
+
+    if (loaded) {
+      try {
+        sessionStorage.setItem(storageKey, "1");
+      } catch {}
+    }
+
+    const remaining = Math.max(0, 520 - (performance.now() - startedAt));
+    window.setTimeout(() => {
+      document.documentElement.dataset.wallpaperReady = "true";
+      loader.classList.add("is-complete");
+      window.setTimeout(() => loader.remove(), 440);
+    }, remaining);
+  };
+
+  setProgress(0.08);
+  requestAnimationFrame(() => setProgress(0.24));
+  timers.push(window.setTimeout(() => setProgress(0.48), 260));
+  timers.push(window.setTimeout(() => setProgress(0.68), 760));
+  timers.push(window.setTimeout(() => setProgress(0.82), 1700));
+  timers.push(window.setTimeout(() => finish(false), 8000));
+
+  const image = new Image();
+  image.decoding = "async";
+  image.onload = () => {
+    setProgress(0.94);
+    void image.decode().catch(() => undefined).finally(() => finish(true));
+  };
+  image.onerror = () => finish(false);
+  image.src = source;
 }
 
 function readJson<T>(key: string, fallback: T): T {
@@ -621,6 +681,7 @@ function preserveDocumentState(event: Event) {
 }
 
 function initializePage() {
+  initializeWallpaperLoader();
   if (document.body.dataset.uiInitialized === "true") return;
   document.body.dataset.uiInitialized = "true";
   initializeThemeControls();

@@ -1,4 +1,4 @@
-# Luorong Notes
+# Luwisp Notes
 
 使用 Astro 和 TypeScript 构建的静态个人博客。开发阶段采用组件和内容集合，`npm run build` 最终输出可直接部署到 GitHub Pages 的 `dist/` 静态目录。
 
@@ -77,7 +77,7 @@ GH_CONTRIBUTIONS_TOKEN=your_token npm run sync-data
 
 工作流位于 `.github/workflows/deploy-pages.yml`。在仓库 Settings → Pages 中将 Source 设为 GitHub Actions，然后把分支合并到 `main` 即可触发部署。
 
-当前站点按自定义域名 `luorong.blog` 配置，域名文件位于 `public/CNAME`，Astro 的 `site` 地址位于 `astro.config.mjs`。若改用 `*.github.io/<repo>/` 项目地址，需要同时删除 `public/CNAME` 并设置 Astro 的 `site` 和 `base`。
+当前站点按自定义域名 `luwisp.blog` 配置，域名文件位于 `public/CNAME`，Astro 的 `site` 地址位于 `astro.config.mjs`。若改用 `*.github.io/<repo>/` 项目地址，需要同时删除 `public/CNAME` 并设置 Astro 的 `site` 和 `base`。
 
 ## 设计规范
 

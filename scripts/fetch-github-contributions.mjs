@@ -48,7 +48,7 @@ try {
       Accept: "application/vnd.github+json",
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
-      "User-Agent": "luorong-notes-build"
+      "User-Agent": "luwisp-notes-build"
     },
     body: JSON.stringify({ query, variables: { login: username } })
   });

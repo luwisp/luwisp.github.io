@@ -4,7 +4,7 @@ import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
 
 export default defineConfig({
-  site: "https://luorong.blog",
+  site: "https://luwisp.blog",
   output: "static",
   trailingSlash: "always",
   markdown: {
