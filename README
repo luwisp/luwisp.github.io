@@ -21,13 +21,16 @@ npm run preview    # 预览 dist 构建结果
 
 ## 内容管理
 
-- 文章：`content/articles/*.md`，元信息写在 Markdown frontmatter 中。
+- 文章：`content/articles/**/*.md`，目录结构会映射到分类文件管理器与文章 URL。
+- 目录名称与说明：`content/folders.json`。文章可省略 `category`，默认使用顶层目录名称。
 - 站点与个人资料：`content/site.json`。
 - 随机标语：`content/quotes.json`。
 - 主题清单：`themes/index.json` 与 `themes/*.json`。
 - 页面数量、归档分页及实验功能：`src/config/site.ts`。
 
 旧的 `content/posts.json` 暂时保留用于迁移参考，新站实际以 Markdown frontmatter 为准。
+
+新增文章时放入对应目录，并至少填写 `title`、`date` 与 `summary`。`tags`、`minutes` 和 `category` 都是可选项；目录用于主要组织，标签只承担跨目录关联。分类应用支持目录导航、搜索、排序、网格/列表视图和文件详情。
 
 ## 博客桌面架构
 

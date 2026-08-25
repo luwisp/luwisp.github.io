@@ -2,7 +2,7 @@
 import { render } from "astro:content";
 import TableOfContents from "../../components/TableOfContents.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { getPosts, type PostEntry } from "../../lib/content";
+import { getPostCategory, getPosts, type PostEntry } from "../../lib/content";
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -15,6 +15,7 @@ interface Props {
 
 const { post } = Astro.props;
 const { Content, headings } = await render(post);
+const category = getPostCategory(post);
 const date = new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "long", day: "numeric" }).format(post.data.date);
 ---
 
@@ -23,7 +24,7 @@ const date = new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "long", 
     <TableOfContents headings={headings} />
     <article class="article-card">
       <header class="article-header">
-        <p class="article-category">{post.data.category}</p>
+        <p class="article-category">{category}</p>
         <h1 tabindex="-1" data-page-title>{post.data.title}</h1>
         <div class="article-meta">
           <time datetime={post.data.date.toISOString()}>{date}</time>

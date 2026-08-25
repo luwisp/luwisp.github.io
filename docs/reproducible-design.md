@@ -207,7 +207,7 @@ pageTransition: {
 
 ## 9. 静态内容与数据
 
-- 文章来自 `content/articles/*.md` 和 Markdown frontmatter；
+- 文章来自 `content/articles/**/*.md` 和 Markdown frontmatter，目录结构是分类文件管理器的数据来源；
 - 站点与用户信息来自 `content/site.json`；
 - 主题来自 `themes/`；
 - GitHub 热力图由构建脚本写入 `src/data/contributions.json`；

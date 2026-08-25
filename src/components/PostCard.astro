@@ -1,11 +1,12 @@
 ---
-import type { PostEntry } from "../lib/content";
+import { getPostCategory, getPostHref, type PostEntry } from "../lib/content";
 
 interface Props {
   post: PostEntry;
 }
 
 const { post } = Astro.props;
+const category = getPostCategory(post);
 const date = new Intl.DateTimeFormat("zh-CN", {
   year: "numeric",
   month: "2-digit",
@@ -13,9 +14,9 @@ const date = new Intl.DateTimeFormat("zh-CN", {
 }).format(post.data.date);
 ---
 
-<a class="post-card" href={`/posts/${post.id}/`} data-internal-link>
+<a class="post-card" href={getPostHref(post)} data-internal-link>
   <div class="post-card__meta">
-    <span>{post.data.category}</span>
+    <span>{category}</span>
     <time datetime={post.data.date.toISOString()}>{date}</time>
   </div>
   <h2>{post.data.title}</h2>

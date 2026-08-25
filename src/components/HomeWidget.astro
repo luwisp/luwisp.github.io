@@ -2,7 +2,7 @@
 import siteData from "../../content/site.json";
 import type { WidgetId } from "../config/widgets";
 import { widgetPlacementStyle } from "../config/widgets";
-import type { PostEntry } from "../lib/content";
+import { getPostCategory, getPostHref, type PostEntry } from "../lib/content";
 import { publicAsset } from "../lib/paths";
 import type { getBlogStats } from "../lib/stats";
 import ContributionGrid from "./ContributionGrid.astro";
@@ -113,11 +113,11 @@ const placementStyle = widgetPlacementStyle(id);
     </header>
     <div class="recent-file-list">
       {recentPosts.map((post) => (
-        <a class="recent-file" href={`/posts/${post.id}/`} data-internal-link data-app-order="3">
+        <a class="recent-file" href={getPostHref(post)} data-internal-link data-app-order="3">
           <span class="recent-file__icon"><Icon name="file" size={17} /></span>
           <span class="recent-file__copy">
             <strong>{post.data.title}</strong>
-            <small>{post.data.category}</small>
+            <small>{getPostCategory(post)}</small>
           </span>
           <time datetime={post.data.date.toISOString()}>{compactDate.format(post.data.date)}</time>
         </a>

@@ -1,4 +1,4 @@
-import type { PostEntry } from "./content";
+import { getPostCategory, type PostEntry } from "./content";
 
 function estimateWords(markdown: string) {
   const withoutCode = markdown
@@ -13,7 +13,7 @@ function estimateWords(markdown: string) {
 }
 
 export function getBlogStats(posts: PostEntry[]) {
-  const categoryCount = new Set(posts.map((post) => post.data.category)).size;
+  const categoryCount = new Set(posts.map(getPostCategory)).size;
   const totalWords = posts.reduce((total, post) => total + estimateWords(post.body ?? ""), 0);
   const latestDate = posts[0]?.data.date;
 

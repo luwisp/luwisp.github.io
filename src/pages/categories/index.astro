@@ -1,40 +1,166 @@
 ---
-import PageHeading from "../../components/PageHeading.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { getCategories, getPosts } from "../../lib/content";
+import Icon from "../../components/Icon.astro";
+import { getPosts } from "../../lib/content";
+import { getFileManagerEntries } from "../../lib/file-manager";
 
 const posts = await getPosts();
-const categories = getCategories(posts);
-const dateFormatter = new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" });
+const entries = getFileManagerEntries(posts);
+const rootEntries = entries
+  .filter((entry) => entry.parentPath === "")
+  .sort((left, right) => left.displayName.localeCompare(right.displayName, "zh-CN"));
+const totalSize = entries
+  .filter((entry) => entry.type === "file")
+  .reduce((total, entry) => total + entry.sizeBytes, 0);
 ---
 
-<BaseLayout activePage="categories" title="分类" description="按主题浏览全部文章">
-  <PageHeading eyebrow="Categories" title="文章分类" description="按内容主题直接扫视全部文章。" />
-  {categories.length > 0 ? (
-    <div class="category-layout">
-      {categories.map((category) => {
-        const categoryPosts = posts.filter((post) => post.data.category === category);
-        return (
-          <section class="category-group">
-            <header class="category-group__heading">
-              <h2>{category}</h2>
-              <span>{categoryPosts.length} 篇</span>
-            </header>
-            <ul>
-              {categoryPosts.map((post) => (
-                <li>
-                  <a href={`/posts/${post.id}/`} data-internal-link>
-                    <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
-                    <strong>{post.data.title}</strong>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </section>
-        );
-      })}
+<BaseLayout activePage="categories" title="文件" description="按目录浏览和搜索全部文章">
+  <section
+    class="file-manager"
+    data-file-manager
+    data-root-count={rootEntries.length}
+    data-post-count={posts.length}
+    data-total-size={totalSize}
+    aria-label="文章文件管理器"
+  >
+    <header class="file-manager__toolbar">
+      <div class="file-manager__history" aria-label="目录导航">
+        <button type="button" data-file-back aria-label="后退" title="后退" disabled>
+          <Icon name="back" size={18} />
+        </button>
+        <button type="button" data-file-forward aria-label="前进" title="前进" disabled>
+          <Icon name="forward" size={18} />
+        </button>
+        <button type="button" data-file-up aria-label="上一级" title="上一级" disabled>
+          <Icon name="up" size={18} />
+        </button>
+        <button type="button" data-file-refresh aria-label="刷新" title="刷新">
+          <Icon name="refresh" size={17} />
+        </button>
+      </div>
+
+      <nav class="file-manager__breadcrumbs" data-file-breadcrumbs aria-label="当前位置">
+        <button type="button" data-file-path="" aria-current="page">
+          <Icon name="drive" size={16} />
+          <span>文章</span>
+        </button>
+      </nav>
+
+      <label class="file-manager__search">
+        <Icon name="search" size={17} />
+        <input type="search" data-file-search placeholder="搜索文件" autocomplete="off" />
+        <kbd>Ctrl K</kbd>
+      </label>
+    </header>
+
+    <div class="file-manager__commandbar">
+      <label class="file-manager__sort">
+        <span>排序</span>
+        <select data-file-sort aria-label="排序方式">
+          <option value="name">名称</option>
+          <option value="date">修改日期</option>
+          <option value="type">类型</option>
+          <option value="size">大小</option>
+        </select>
+      </label>
+      <button type="button" class="file-manager__sort-direction" data-file-sort-direction aria-label="当前升序，切换为降序" title="切换排序方向" aria-pressed="false">
+        <Icon name="down" size={17} />
+      </button>
+      <div class="file-manager__view-switch" role="group" aria-label="查看方式">
+        <button type="button" data-file-view="grid" class="is-active" aria-label="网格视图" title="网格视图" aria-pressed="true">
+          <Icon name="grid" size={17} />
+        </button>
+        <button type="button" data-file-view="list" aria-label="列表视图" title="列表视图" aria-pressed="false">
+          <Icon name="list" size={18} />
+        </button>
+      </div>
+      <button type="button" class="file-manager__details-toggle is-active" data-file-details-toggle aria-label="显示或隐藏详情" title="详情" aria-pressed="true">
+        <Icon name="details" size={18} />
+      </button>
     </div>
-  ) : (
-    <section class="empty-state"><h1>暂无分类</h1><p>文章发布后会自动生成分类。</p></section>
-  )}
+
+    <div class="file-manager__workspace">
+      <div class="file-manager__browser">
+        <div class="file-manager__columns" aria-hidden="true">
+          <span>名称</span>
+          <span>类型</span>
+          <span>修改日期</span>
+        </div>
+        <div class="file-manager__entries" data-file-entries role="listbox" aria-label="文件与文件夹" tabindex="0">
+          {entries.map((entry) => (
+            <button
+              type="button"
+              class="file-manager__entry"
+              data-file-entry
+              data-entry-type={entry.type}
+              data-entry-path={entry.path}
+              data-entry-parent={entry.parentPath}
+              data-entry-name={entry.name}
+              data-entry-display-name={entry.displayName}
+              data-entry-description={entry.description}
+              data-entry-modified={entry.modifiedAt}
+              data-entry-time={entry.modifiedTime}
+              data-entry-size={entry.sizeBytes}
+              data-entry-count={entry.itemCount}
+              data-entry-href={entry.href}
+              data-entry-category={entry.category}
+              data-entry-tags={entry.tags.join(",")}
+              data-entry-minutes={entry.minutes}
+              data-entry-search={`${entry.displayName} ${entry.name} ${entry.path} ${entry.category ?? ""} ${entry.tags.join(" ")} ${entry.description}`.toLocaleLowerCase("zh-CN")}
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+              hidden={entry.parentPath !== ""}
+            >
+              <span class:list={["file-manager__entry-icon", { "is-folder": entry.type === "folder" }]}>
+                <Icon name={entry.type === "folder" ? "folder" : "file"} size={entry.type === "folder" ? 34 : 31} strokeWidth={1.55} />
+              </span>
+              <span class="file-manager__entry-copy">
+                <strong>{entry.displayName}</strong>
+                <small>{entry.type === "folder" ? `${entry.itemCount} 个项目` : entry.name}</small>
+              </span>
+              <span class="file-manager__entry-type">{entry.type === "folder" ? "文件夹" : "Markdown"}</span>
+              <time datetime={entry.modifiedAt}>{entry.modifiedAt.slice(0, 10)}</time>
+              <span class="file-manager__entry-path">{entry.parentPath || "文章"}</span>
+            </button>
+          ))}
+        </div>
+        <div class="file-manager__empty" data-file-empty hidden>
+          <Icon name="search" size={24} />
+          <strong>没有找到文件</strong>
+          <span>尝试更换关键词或返回其他目录。</span>
+        </div>
+      </div>
+
+      <aside class="file-manager__details" data-file-details aria-label="项目详情">
+        <div class="file-manager__details-hero">
+          <span data-file-details-icon><Icon name="drive" size={34} strokeWidth={1.5} /></span>
+          <div>
+            <h1 data-file-details-title>文章</h1>
+            <p data-file-details-name>content/articles</p>
+          </div>
+        </div>
+        <p class="file-manager__details-description" data-file-details-description>本地文章目录，文件夹结构会直接映射到这里。</p>
+        <dl>
+          <div><dt>类型</dt><dd data-file-details-type>内容目录</dd></div>
+          <div><dt>位置</dt><dd data-file-details-location>content/articles</dd></div>
+          <div><dt>项目</dt><dd data-file-details-count>{rootEntries.length} 个文件夹</dd></div>
+          <div><dt>文章</dt><dd data-file-details-posts>{posts.length} 篇</dd></div>
+          <div><dt>大小</dt><dd data-file-details-size>--</dd></div>
+          <div data-file-details-date-row hidden><dt>修改日期</dt><dd data-file-details-date></dd></div>
+          <div data-file-details-read-row hidden><dt>阅读时间</dt><dd data-file-details-read></dd></div>
+        </dl>
+        <div class="file-manager__details-tags" data-file-details-tags hidden></div>
+        <a class="file-manager__open" data-file-details-open href="/" data-internal-link hidden>
+          <Icon name="book-open" size={17} />
+          打开文章
+        </a>
+      </aside>
+    </div>
+
+    <footer class="file-manager__statusbar">
+      <span data-file-status>{rootEntries.length} 个项目</span>
+      <span data-file-selection>未选择项目</span>
+    </footer>
+  </section>
 </BaseLayout>

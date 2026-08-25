@@ -1,0 +1,34 @@
+{
+  "design": {
+    "label": "设计札记",
+    "description": "界面、交互与个人桌面系统的设计记录。"
+  },
+  "frontend": {
+    "label": "前端工程",
+    "description": "静态站点、主题系统与浏览器端实现。"
+  },
+  "linux": {
+    "label": "Linux",
+    "description": "桌面环境、系统配置与 Linux 应用实践。"
+  },
+  "linux/waydroid": {
+    "label": "Waydroid",
+    "description": "Waydroid 安装、配置与兼容性记录。"
+  },
+  "machine-learning": {
+    "label": "机器学习",
+    "description": "模型原理、代码阅读与实验笔记。"
+  },
+  "network": {
+    "label": "计算机网络",
+    "description": "协议、网络分层与实现原理。"
+  },
+  "tools": {
+    "label": "工具链",
+    "description": "脚本、配置和小工具使用记录。"
+  },
+  "x86": {
+    "label": "x86 与汇编",
+    "description": "体系结构、汇编语言与底层编程。"
+  }
+}

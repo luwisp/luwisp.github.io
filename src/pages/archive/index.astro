@@ -2,7 +2,7 @@
 import PageHeading from "../../components/PageHeading.astro";
 import { uiConfig } from "../../config/site";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { getPosts } from "../../lib/content";
+import { getPostHref, getPosts } from "../../lib/content";
 
 const posts = await getPosts();
 const pageCount = Math.ceil(posts.length / uiConfig.archivePageSize);
@@ -15,7 +15,7 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", { year: "numeric", month:
     <>
       <div class="archive-layout" data-archive data-page-size={uiConfig.archivePageSize}>
         {posts.map((post) => (
-          <a class="archive-entry" href={`/posts/${post.id}/`} data-archive-entry data-internal-link>
+          <a class="archive-entry" href={getPostHref(post)} data-archive-entry data-internal-link>
             <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
             <h2>{post.data.title}</h2>
           </a>
