@@ -1,5 +1,6 @@
 ---
 import contributions from "../data/contributions.json";
+import siteData from "../../content/site.json";
 
 interface Props {
   placementStyle?: string;
@@ -27,6 +28,9 @@ const levelMap: Record<string, number> = {
 };
 const weeks = contributions.weeks as ContributionWeek[];
 const days = weeks.flatMap((week) => week.contributionDays);
+const githubUser = siteData.profile.githubUser;
+const snapshotMatchesProfile = contributions.username.toLowerCase() === githubUser.toLowerCase();
+const hasContributionData = contributions.status === "ready" && days.length > 0 && snapshotMatchesProfile;
 const { placementStyle } = Astro.props;
 ---
 
@@ -36,12 +40,12 @@ const { placementStyle } = Astro.props;
       <h2 id="contribution-title">最近提交</h2>
       <p>过去一年的公开活动</p>
     </div>
-    <a href={`https://github.com/${contributions.username}`} target="_blank" rel="noreferrer">
-      @{contributions.username}
+    <a href={`https://github.com/${githubUser}`} target="_blank" rel="noreferrer">
+      @{githubUser}
     </a>
   </header>
 
-  {contributions.status === "ready" && days.length > 0 ? (
+  {hasContributionData ? (
     <>
       <div class="contribution-grid" aria-label={`过去一年的 ${contributions.totalContributions} 次贡献`}>
         {days.map((day) => (
@@ -57,7 +61,11 @@ const { placementStyle } = Astro.props;
   ) : (
     <div class="contribution-empty">
       <p>尚未同步 GitHub 活动。</p>
-      <span>配置构建令牌后，定时任务会在这里生成真实热力图。</span>
+      <span>
+        {!snapshotMatchesProfile && contributions.username
+          ? `当前快照属于 @${contributions.username}，重新同步后会显示 @${githubUser}。`
+          : "配置构建令牌后，定时任务会在这里生成真实热力图。"}
+      </span>
     </div>
   )}
 </section>

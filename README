@@ -60,13 +60,17 @@ pageTransition: {
 
 `scripts/fetch-github-contributions.mjs` 在构建阶段读取 GitHub GraphQL 的贡献日历，并写入 `src/data/contributions.json`。令牌不会进入浏览器产物。
 
+GitHub Actions 会为每次工作流自动创建内置的 `GITHUB_TOKEN`，部署配置已将它传给同步脚本，因此线上构建不需要手动创建或保存令牌。账号名以 `content/site.json` 中的 `profile.githubUser` 为准；修改后重新运行部署工作流即可刷新热力图。
+
+仅在本地手动同步时需要个人访问令牌：在 GitHub 头像菜单中进入 Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token。将 Resource owner 设为自己的账号，设置较短的有效期；读取公开贡献不需要额外写权限。令牌只应通过临时环境变量传入，不要写入站点配置、源码或提交到 Git。
+
 本地临时同步：
 
 ```bash
 GH_CONTRIBUTIONS_TOKEN=your_token npm run sync-data
 ```
 
-GitHub 仓库中需要添加 Actions Secret：`GH_CONTRIBUTIONS_TOKEN`。部署工作流会在推送、手动执行以及每天北京时间约 10:20 运行。没有配置令牌时，构建会继续使用仓库中的现有快照。
+部署工作流会在推送、手动执行以及每天北京时间约 10:20 运行。没有配置本地令牌时，本地构建会继续使用仓库中的现有快照。
 
 ## GitHub Pages
 

@@ -38,8 +38,7 @@ jobs:
       - name: Build static site
         run: npm run build
         env:
-          GH_CONTRIBUTIONS_TOKEN: ${{ secrets.GH_CONTRIBUTIONS_TOKEN }}
-          GITHUB_USERNAME: luoronger
+          GH_CONTRIBUTIONS_TOKEN: ${{ github.token }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
