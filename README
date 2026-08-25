@@ -28,8 +28,6 @@ npm run preview    # 预览 dist 构建结果
 - 主题清单：`themes/index.json` 与 `themes/*.json`。
 - 页面数量、归档分页及实验功能：`src/config/site.ts`。
 
-旧的 `content/posts.json` 暂时保留用于迁移参考，新站实际以 Markdown frontmatter 为准。
-
 新增文章时放入对应目录，并至少填写 `title`、`date` 与 `summary`。`tags`、`minutes` 和 `category` 都是可选项；目录用于主要组织，标签只承担跨目录关联。分类应用支持目录导航、搜索、排序、网格/列表视图和文件详情。
 
 ## 博客桌面架构
@@ -77,7 +75,7 @@ GH_CONTRIBUTIONS_TOKEN=your_token npm run sync-data
 
 ## GitHub Pages
 
-工作流位于 `.github/workflows/deploy-pages.yml`。在仓库 Settings → Pages 中将 Source 设为 GitHub Actions，然后把分支合并到 `master` 即可触发部署。
+工作流位于 `.github/workflows/deploy-pages.yml`。在仓库 Settings → Pages 中将 Source 设为 GitHub Actions，然后把分支合并到 `main` 即可触发部署。
 
 当前站点按自定义域名 `luorong.blog` 配置，域名文件位于 `public/CNAME`，Astro 的 `site` 地址位于 `astro.config.mjs`。若改用 `*.github.io/<repo>/` 项目地址，需要同时删除 `public/CNAME` 并设置 Astro 的 `site` 和 `base`。
 

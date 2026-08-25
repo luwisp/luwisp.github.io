@@ -2,7 +2,7 @@ name: Build and deploy blog
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   workflow_dispatch:
   schedule:
     - cron: "20 2 * * *"

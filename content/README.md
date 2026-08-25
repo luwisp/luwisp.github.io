@@ -27,5 +27,3 @@ summary: 一句话摘要。
 `category`、`tags`、`minutes`、`featured` 和 `cover` 均为可选字段。未填写 `category` 时使用顶层目录在 `folders.json` 中的名称，避免为每篇文章重复维护分类。
 
 Markdown 支持标题、列表、引用、表格、代码高亮和 LaTeX 公式。图片可以放在文章旁边的子目录中并使用相对路径引用，Astro 会在构建时处理这些资源。
-
-`posts.json` 只保留为旧版迁移参考，当前站点不会读取它。
