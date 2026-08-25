@@ -1,6 +1,5 @@
 ---
 import { render } from "astro:content";
-import Icon from "../../components/Icon.astro";
 import TableOfContents from "../../components/TableOfContents.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getPosts, type PostEntry } from "../../lib/content";
@@ -21,10 +20,6 @@ const date = new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "long", 
 
 <BaseLayout activePage="post" title={post.data.title} description={post.data.summary}>
   <div class="article-layout">
-    <button class="article-back" type="button" data-history-back>
-      <Icon name="back" size={18} />
-      <span>返回</span>
-    </button>
     <TableOfContents headings={headings} />
     <article class="article-card">
       <header class="article-header">

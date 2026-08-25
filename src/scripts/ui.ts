@@ -238,15 +238,6 @@ function initializeArchivePagination() {
   if (buttons.length) renderPage(1);
 }
 
-function initializeBackButtons() {
-  document.querySelectorAll<HTMLButtonElement>("[data-history-back]").forEach((button) => {
-    button.addEventListener("click", () => {
-      if (history.length > 1) history.back();
-      else location.href = "/archive/";
-    });
-  });
-}
-
 function initializeHomePager() {
   const pager = document.querySelector<HTMLElement>("[data-home-pager]");
   if (!pager) return;
@@ -350,7 +341,6 @@ function initializePage() {
   initializeDynamicReader();
   initializeClocks();
   initializeArchivePagination();
-  initializeBackButtons();
   initializeHomePager();
   if (
     document.body.dataset.activeApp === "reader" &&

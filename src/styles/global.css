@@ -1220,10 +1220,6 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
   padding: 4px 44px 40px 4px;
 }
 
-.article-back {
-  display: none;
-}
-
 .article-header {
   padding-bottom: 25px;
   border-bottom: 1px solid var(--border);
@@ -1866,22 +1862,9 @@ html[data-app-direction="same"]::view-transition-new(app-screen) {
   .article-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: "back" "mobiletoc" "article";
+    grid-template-areas: "mobiletoc" "article";
     gap: 0;
     margin: -6px -14px -42px;
-  }
-
-  .article-back {
-    display: inline-flex;
-    grid-area: back;
-    align-items: center;
-    gap: 6px;
-    min-height: 48px;
-    margin: 0 14px 8px;
-    padding: 0 8px;
-    color: var(--muted);
-    background: transparent;
-    cursor: pointer;
   }
 
   .article-card {
