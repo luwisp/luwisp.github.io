@@ -1845,7 +1845,8 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
   overflow-x: auto;
   border: 1px solid var(--border);
   border-radius: 14px;
-  background: var(--surface-muted) !important;
+  color: #e6edf3;
+  background: #0d1117;
 }
 
 .markdown-body pre code { padding: 0; background: transparent; }
