@@ -3,5 +3,6 @@ example/
 .codex
 .astro/
 .superpowers/
+docs/
 dist/
 node_modules/
