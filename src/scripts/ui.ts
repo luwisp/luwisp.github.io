@@ -131,6 +131,20 @@ function getThemeButton(id: string | undefined) {
   return document.querySelector<HTMLElement>(`[data-theme-option][data-theme-id="${CSS.escape(id)}"]`);
 }
 
+function syncThemeOptions(preference: ThemePreference) {
+  const dialog = document.querySelector<HTMLDialogElement>("[data-theme-dialog]");
+  const selectedThemes = {
+    light: preference.light || dialog?.dataset.defaultLight,
+    dark: preference.dark || dialog?.dataset.defaultDark
+  };
+  document.querySelectorAll<HTMLElement>("[data-theme-option]").forEach((item) => {
+    const itemMode = item.dataset.themeMode as "light" | "dark";
+    const selected = item.dataset.themeId === selectedThemes[itemMode];
+    item.classList.toggle("is-selected", selected);
+    item.setAttribute("aria-pressed", String(selected));
+  });
+}
+
 function applyTheme(id: string, mode: "light" | "dark", persist = true) {
   const button = getThemeButton(id);
   if (!button) return;
@@ -148,11 +162,6 @@ function applyTheme(id: string, mode: "light" | "dark", persist = true) {
   document.querySelectorAll<HTMLElement>("[data-current-swatch]").forEach((swatch) => {
     swatch.style.setProperty("background", swatches[1] || tokens["--accent"] || "currentColor");
   });
-  document.querySelectorAll<HTMLElement>("[data-theme-option]").forEach((item) => {
-    const selected = item.dataset.themeId === id;
-    item.classList.toggle("is-selected", selected);
-    item.setAttribute("aria-pressed", String(selected));
-  });
   document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]").forEach((toggle) => {
     const darkMode = mode === "dark";
     toggle.setAttribute("aria-pressed", String(darkMode));
@@ -162,12 +171,13 @@ function applyTheme(id: string, mode: "light" | "dark", persist = true) {
     );
   });
 
+  const preference = getThemePreference();
   if (persist) {
-    const preference = getThemePreference();
     preference.mode = mode;
     preference[mode] = id;
     saveThemePreference(preference);
   }
+  syncThemeOptions(preference);
 }
 
 function initializeThemeControls() {

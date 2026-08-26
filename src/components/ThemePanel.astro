@@ -39,7 +39,10 @@ const groupedThemes = {
         <div class="theme-options">
           {groupedThemes[mode].map((theme) => (
             <button
-              class="theme-option"
+              class:list={[
+                "theme-option",
+                { "is-selected": theme.id === (mode === "light" ? defaultLight : defaultDark) }
+              ]}
               type="button"
               aria-pressed={theme.id === (mode === "light" ? defaultLight : defaultDark)}
               data-theme-option
