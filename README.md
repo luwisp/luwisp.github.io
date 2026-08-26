@@ -19,6 +19,17 @@ npm run build      # 同步可用的 GitHub 数据并构建静态站
 npm run preview    # 预览 dist 构建结果
 ```
 
+也可以使用根目录的 `Makefile` 完成常见流程：
+
+```bash
+make dev
+make verify
+make update MSG="说明本次修改"
+make publish
+```
+
+`make update` 会先检查并构建站点，然后提交修改并推送当前开发分支；`make publish` 只接受干净的工作区，并将当前提交明确推送到 `main`。远程名和线上分支可分别通过 `REMOTE`、`MAIN_BRANCH` 覆盖。
+
 ## 内容管理
 
 - 文章：`content/articles/**/*.md`，目录结构会映射到分类文件管理器与文章 URL。
