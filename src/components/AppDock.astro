@@ -33,8 +33,17 @@ const readerOpen = Boolean(readerTitle && readerHref);
           data-internal-link
           data-app-id={app.id}
           data-app-order={app.order}
+          data-file-manager-app={app.id === "categories" ? "true" : undefined}
         >
           <span class="app-dock__icon"><Icon name={app.icon} size={21} /></span>
+          {app.id === "categories" && (
+            <span
+              class="app-dock__running"
+              hidden={activeApp !== "categories"}
+              data-file-manager-running
+              aria-hidden="true"
+            ></span>
+          )}
           <span class="app-dock__tooltip" aria-hidden="true">{app.shortLabel}</span>
         </a>
       );

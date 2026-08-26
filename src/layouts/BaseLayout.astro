@@ -125,14 +125,15 @@ const appCloseLabel = activePage === "post"
               aria-label={appCloseLabel}
               data-internal-link
               data-reader-close={activePage === "post" ? "true" : undefined}
+              data-file-manager-close={activePage === "categories" ? "true" : undefined}
             >
               <Icon name="x" size={13} strokeWidth={2.2} />
             </a>
             <time class="app-window__clock" data-clock data-clock-format="short">--:--</time>
           </header>
         )}
-        <div class:list={["app-content", { "app-content--home": activePage === "home" }]} data-app-content>
-          <div class:list={["page-frame", { "page-frame--home": activePage === "home" }]}>
+        <div class:list={["app-content", { "app-content--home": activePage === "home", "app-content--categories": activePage === "categories" }]} data-app-content>
+          <div class:list={["page-frame", { "page-frame--home": activePage === "home", "page-frame--categories": activePage === "categories" }]}>
             <slot />
           </div>
         </div>

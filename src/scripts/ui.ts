@@ -6,6 +6,8 @@ const themeStorageKey = "luorong.notes.theme";
 const readerStorageKey = "luorong.notes.open-reader";
 const readerClosingKey = "luorong.notes.reader-closing";
 const wallpaperStoragePrefix = "luorong.notes.wallpaper.ready:";
+const fileManagerOpenKey = "luorong.notes.open-file-manager";
+const fileManagerStateKey = "luorong.notes.file-manager-state";
 
 interface ThemePreference {
   mode?: "light" | "dark";
@@ -16,6 +18,18 @@ interface ThemePreference {
 interface OpenReader {
   href: string;
   title: string;
+  scrollTop?: number;
+}
+
+interface FileManagerViewState {
+  currentPath?: string;
+  history?: string[];
+  historyIndex?: number;
+  query?: string;
+  sort?: string;
+  descending?: boolean;
+  listView?: boolean;
+  detailsVisible?: boolean;
   scrollTop?: number;
 }
 
@@ -91,6 +105,14 @@ function initializeWallpaperLoader() {
 function readJson<T>(key: string, fallback: T): T {
   try {
     return JSON.parse(localStorage.getItem(key) || "") as T;
+  } catch {
+    return fallback;
+  }
+}
+
+function readSessionJson<T>(key: string, fallback: T): T {
+  try {
+    return JSON.parse(sessionStorage.getItem(key) || "") as T;
   } catch {
     return fallback;
   }
@@ -181,6 +203,50 @@ function initializeThemeControls() {
   dialog.addEventListener("click", (event) => {
     if (event.target === dialog) dialog.close();
   });
+}
+
+function isFileManagerOpen() {
+  try {
+    return sessionStorage.getItem(fileManagerOpenKey) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function syncFileManagerDock(
+  open: boolean,
+  root: ParentNode = document,
+  active = document.body.dataset.activeApp === "categories"
+) {
+  root.querySelectorAll<HTMLAnchorElement>("[data-file-manager-app]").forEach((anchor) => {
+    anchor.classList.toggle("is-running", open);
+    anchor.classList.toggle("is-active", active);
+    anchor.querySelector<HTMLElement>("[data-file-manager-running]")?.toggleAttribute("hidden", !open);
+    if (active) anchor.setAttribute("aria-current", "page");
+    else anchor.removeAttribute("aria-current");
+  });
+}
+
+function initializeDynamicFileManager() {
+  const active = document.body.dataset.activeApp === "categories";
+  if (active) {
+    try {
+      sessionStorage.setItem(fileManagerOpenKey, "1");
+    } catch {
+      // The active page still renders correctly when session storage is unavailable.
+    }
+  }
+  syncFileManagerDock(active || isFileManagerOpen());
+}
+
+function clearFileManagerState() {
+  try {
+    sessionStorage.removeItem(fileManagerOpenKey);
+    sessionStorage.removeItem(fileManagerStateKey);
+  } catch {
+    // Keep the close action usable in privacy-restricted browsing contexts.
+  }
+  syncFileManagerDock(false, document, false);
 }
 
 function getStoredReader() {
@@ -353,21 +419,42 @@ function initializeFileManager() {
   const selectionStatus = root.querySelector<HTMLElement>("[data-file-selection]");
   const details = root.querySelector<HTMLElement>("[data-file-details]");
   const detailsToggle = root.querySelector<HTMLButtonElement>("[data-file-details-toggle]");
+  const browserPane = root.querySelector<HTMLElement>(".file-manager__browser");
   if (!entryContainer || !breadcrumbs || !homeCrumb || !searchInput || !sortSelect || !details) return;
 
-  if (matchMedia("(max-width: 820px)").matches) {
-    root.classList.add("is-details-hidden");
-    detailsToggle?.classList.remove("is-active");
-    detailsToggle?.setAttribute("aria-pressed", "false");
-  }
-
-  let currentPath = "";
-  let history = [""];
-  let historyIndex = 0;
-  let descending = false;
+  const byPath = new Map(entries.map((entry) => [entry.dataset.entryPath || "", entry]));
+  const storedState = readSessionJson<FileManagerViewState | null>(fileManagerStateKey, null) ?? {};
+  const validFolderPath = (path: unknown): path is string =>
+    typeof path === "string" && (path === "" || byPath.get(path)?.dataset.entryType === "folder");
+  const restoredPath = validFolderPath(storedState.currentPath) ? storedState.currentPath : "";
+  const restoredHistory = (storedState.history || []).filter(validFolderPath);
+  let history = restoredHistory.length ? restoredHistory : [restoredPath];
+  let historyIndex = Math.max(0, Math.min(history.length - 1, storedState.historyIndex ?? history.length - 1));
+  let currentPath = history[historyIndex] ?? restoredPath;
+  let descending = Boolean(storedState.descending);
   let selected: HTMLButtonElement | null = null;
 
-  const byPath = new Map(entries.map((entry) => [entry.dataset.entryPath || "", entry]));
+  searchInput.value = storedState.query || "";
+  if (["name", "date", "type", "size"].includes(storedState.sort || "")) {
+    sortSelect.value = storedState.sort || "name";
+  }
+  sortDirection?.classList.toggle("is-descending", descending);
+  sortDirection?.setAttribute("aria-pressed", String(descending));
+  sortDirection?.setAttribute("aria-label", descending ? "当前降序，切换为升序" : "当前升序，切换为降序");
+
+  const listView = Boolean(storedState.listView);
+  root.classList.toggle("is-list-view", listView);
+  root.querySelectorAll<HTMLButtonElement>("[data-file-view]").forEach((button) => {
+    const active = (button.dataset.fileView === "list") === listView;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+
+  const detailsVisible = storedState.detailsVisible ?? !matchMedia("(max-width: 820px)").matches;
+  root.classList.toggle("is-details-hidden", !detailsVisible);
+  detailsToggle?.classList.toggle("is-active", detailsVisible);
+  detailsToggle?.setAttribute("aria-pressed", String(detailsVisible));
+
   const formatDate = (value: string | undefined) => value
     ? new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(value))
     : "--";
@@ -379,6 +466,24 @@ function initializeFileManager() {
   const setText = (selector: string, value: string) => {
     const target = details.querySelector<HTMLElement>(selector);
     if (target) target.textContent = value;
+  };
+  const saveState = () => {
+    const state: FileManagerViewState = {
+      currentPath,
+      history,
+      historyIndex,
+      query: searchInput.value,
+      sort: sortSelect.value,
+      descending,
+      listView: root.classList.contains("is-list-view"),
+      detailsVisible: !root.classList.contains("is-details-hidden"),
+      scrollTop: browserPane?.scrollTop ?? 0
+    };
+    try {
+      sessionStorage.setItem(fileManagerStateKey, JSON.stringify(state));
+    } catch {
+      // State persistence is an enhancement; browsing remains available without it.
+    }
   };
   const clearSelection = () => {
     entries.forEach((entry) => {
@@ -521,6 +626,7 @@ function initializeFileManager() {
     forwardButton && (forwardButton.disabled = historyIndex >= history.length - 1);
     upButton && (upButton.disabled = !currentPath || Boolean(query));
     updateDetails(null);
+    saveState();
   };
   const visit = (path: string, push = true) => {
     if (path === currentPath && !searchInput.value) return;
@@ -531,11 +637,13 @@ function initializeFileManager() {
       historyIndex = history.length - 1;
     }
     renderBreadcrumbs();
+    browserPane?.scrollTo({ top: 0 });
     render();
   };
   const activate = (entry: HTMLButtonElement) => {
     if (entry.dataset.entryType === "folder") visit(entry.dataset.entryPath || "");
     else if (entry.dataset.entryHref) {
+      saveState();
       if (uiConfig.pageTransition.enabled) void navigate(entry.dataset.entryHref, { sourceElement: entry });
       else location.href = entry.dataset.entryHref;
     }
@@ -607,16 +715,27 @@ function initializeFileManager() {
         viewButton.classList.toggle("is-active", active);
         viewButton.setAttribute("aria-pressed", String(active));
       });
+      saveState();
     });
   });
   detailsToggle?.addEventListener("click", (event) => {
     const button = event.currentTarget as HTMLButtonElement;
-    const visible = root.classList.toggle("is-details-hidden");
-    button.classList.toggle("is-active", !visible);
-    button.setAttribute("aria-pressed", String(!visible));
+    const hidden = root.classList.toggle("is-details-hidden");
+    button.classList.toggle("is-active", !hidden);
+    button.setAttribute("aria-pressed", String(!hidden));
+    saveState();
   });
+  let scrollFrame = 0;
+  browserPane?.addEventListener("scroll", () => {
+    window.cancelAnimationFrame(scrollFrame);
+    scrollFrame = window.requestAnimationFrame(saveState);
+  }, { passive: true });
 
+  renderBreadcrumbs();
   render();
+  window.requestAnimationFrame(() => {
+    if (browserPane) browserPane.scrollTop = storedState.scrollTop ?? 0;
+  });
 }
 
 function setTransitionDirection(event: Event) {
@@ -676,6 +795,14 @@ function preserveDocumentState(event: Event) {
     if (active) anchor.setAttribute("aria-current", "page");
     else anchor.removeAttribute("aria-current");
   });
+  if (nextActiveApp === "categories") {
+    try {
+      sessionStorage.setItem(fileManagerOpenKey, "1");
+    } catch {
+      // The active page remains usable when session storage is unavailable.
+    }
+  }
+  if (dock) syncFileManagerDock(nextActiveApp === "categories" || isFileManagerOpen(), dock, nextActiveApp === "categories");
   if (dock) syncReaderDock(nextReader, dock, nextActiveApp === "reader");
   document.querySelector<HTMLDialogElement>("[data-theme-dialog]")?.close();
 }
@@ -685,6 +812,7 @@ function initializePage() {
   if (document.body.dataset.uiInitialized === "true") return;
   document.body.dataset.uiInitialized = "true";
   initializeThemeControls();
+  initializeDynamicFileManager();
   initializeDynamicReader();
   initializeClocks();
   initializeArchivePagination();
@@ -713,6 +841,20 @@ if (!runtimeWindow.__luorongSystemEvents) {
   document.addEventListener("astro:before-swap", preserveDocumentState);
   document.addEventListener("click", (event) => {
     if (!(event instanceof MouseEvent) || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const fileManagerClose = event.target instanceof Element
+      ? event.target.closest<HTMLAnchorElement>("a[data-file-manager-close]")
+      : null;
+    if (fileManagerClose) {
+      event.preventDefault();
+      clearFileManagerState();
+      const restoreFileManager = () => initializeDynamicFileManager();
+      if (uiConfig.pageTransition.enabled) {
+        void navigate(fileManagerClose.href, { history: "replace", sourceElement: fileManagerClose }).catch(restoreFileManager);
+      } else {
+        location.replace(fileManagerClose.href);
+      }
+      return;
+    }
     const readerClose = event.target instanceof Element
       ? event.target.closest<HTMLAnchorElement>("a[data-reader-close]")
       : null;
