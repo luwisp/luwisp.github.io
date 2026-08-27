@@ -28,6 +28,13 @@ const levelMap: Record<string, number> = {
 };
 const weeks = contributions.weeks as ContributionWeek[];
 const days = weeks.flatMap((week) => week.contributionDays);
+const calendarWeeks = weeks.map((week) => ({
+  firstDay: week.firstDay,
+  days: Array.from(
+    { length: 7 },
+    (_, weekday) => week.contributionDays.find((day) => day.weekday === weekday) ?? null
+  )
+}));
 const githubUser = siteData.profile.githubUser;
 const snapshotMatchesProfile = contributions.username.toLowerCase() === githubUser.toLowerCase();
 const hasContributionData = contributions.status === "ready" && days.length > 0 && snapshotMatchesProfile;
@@ -38,7 +45,7 @@ const { placementStyle } = Astro.props;
   <header class="widget-header">
     <div>
       <h2 id="contribution-title">最近提交</h2>
-      <p>过去一年的公开活动</p>
+      {hasContributionData && <p>过去一年 {contributions.totalContributions} 次公开贡献</p>}
     </div>
     <a href={`https://github.com/${githubUser}`} target="_blank" rel="noreferrer">
       @{githubUser}
@@ -47,25 +54,29 @@ const { placementStyle } = Astro.props;
 
   {hasContributionData ? (
     <>
-      <div class="contribution-grid" aria-label={`过去一年的 ${contributions.totalContributions} 次贡献`}>
-        {days.map((day) => (
-          <span
-            class="contribution-day"
-            data-level={levelMap[day.contributionLevel] ?? 0}
-            title={`${day.date}: ${day.contributionCount}`}
-          ></span>
+      <div
+        class="contribution-grid"
+        aria-label={`过去一年的 ${contributions.totalContributions} 次贡献`}
+        style={`--contribution-week-count:${calendarWeeks.length}`}
+      >
+        {calendarWeeks.map((week) => (
+          <span class="contribution-week" data-first-day={week.firstDay}>
+            {week.days.map((day) => day ? (
+              <span
+                class="contribution-day"
+                data-level={levelMap[day.contributionLevel] ?? 0}
+                title={`${day.date}: ${day.contributionCount}`}
+              ></span>
+            ) : (
+              <span class="contribution-day contribution-day--placeholder" aria-hidden="true"></span>
+            ))}
+          </span>
         ))}
       </div>
-      <p class="widget-note">过去一年 {contributions.totalContributions} 次公开贡献</p>
     </>
   ) : (
     <div class="contribution-empty">
       <p>尚未同步 GitHub 活动。</p>
-      <span>
-        {!snapshotMatchesProfile && contributions.username
-          ? `当前快照属于 @${contributions.username}，重新同步后会显示 @${githubUser}。`
-          : "配置构建令牌后，定时任务会在这里生成真实热力图。"}
-      </span>
     </div>
   )}
 </section>

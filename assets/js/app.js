@@ -39,20 +39,20 @@ const icons = {
 
 const fallbackSite = {
   site: {
-    title: "Luorong Notes",
+    title: "Luwisp Notes",
     subtitle: "personal desktop blog",
-    domain: "luorong.blog",
-    wallpaper: "./public/background/145464450_p000_5760x3240.png"
+    domain: "luwisp.blog",
+    wallpaper: "./public/background/a_person_standing_on_a_broken_object_in_a_field_with_a_large_white_moon.png"
   },
   profile: {
-    name: "luoronger",
-    displayName: "Luorong Notes",
+    name: "Luwisp",
+    displayName: "Luwisp Notes",
     avatar: "./public/avatar.png",
     avatarText: "L",
-    tagline: "一个简单的博客尝试.",
-    bio: "请输入文本.",
+    tagline: "随便做的一个博客。",
+    bio: "随便逛一下吧，虽然暂时什么都没有。",
     location: "Asia/Shanghai",
-    githubUser: "luoronger",
+    githubUser: "luwisp",
     links: []
   }
 };
