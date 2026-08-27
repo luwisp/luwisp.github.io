@@ -1,0 +1,29 @@
+{
+  "id": "tokyo-night-light",
+  "name": "Tokyo Night Light",
+  "family": "Tokyo Night · 现代",
+  "type": "light",
+  "source": "https://github.com/tokyo-night/tokyo-night-vscode-theme/blob/master/themes/tokyo-night-light-color-theme.json",
+  "swatches": ["#e6e7ed", "#2959aa", "#33635c", "#965027"],
+  "tokens": {
+    "colorScheme": "light",
+    "--wallpaper-dim": "rgba(230, 231, 237, 0.28)",
+    "--panel": "#d6d8df",
+    "--panel-strong": "#c1c2c7",
+    "--panel-soft": "#dcdee3",
+    "--surface": "#e6e7ed",
+    "--surface-raised": "#f4f5f8",
+    "--surface-muted": "#d6d8df",
+    "--text": "#343b58",
+    "--muted": "#363c4d",
+    "--subtle": "#707280",
+    "--border": "#c1c2c7",
+    "--accent": "#2959aa",
+    "--accent-2": "#33635c",
+    "--accent-text": "#ffffff",
+    "--good": "#385f0d",
+    "--warning": "#8f5e15",
+    "--danger": "#942f2f",
+    "--shadow": "#00000033"
+  }
+}

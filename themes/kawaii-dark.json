@@ -1,0 +1,29 @@
+{
+  "id": "kawaii-dark",
+  "name": "Kawaii Dark",
+  "family": "Kawaii · 卡通",
+  "type": "dark",
+  "source": "https://github.com/diff001a/KawaiiTheme/blob/master/themes/kawaii.json",
+  "swatches": ["#353042", "#ff5c8d", "#FFE175", "#37e884"],
+  "tokens": {
+    "colorScheme": "dark",
+    "--wallpaper-dim": "rgba(44, 38, 56, 0.34)",
+    "--panel": "#2C2638",
+    "--panel-strong": "#202025",
+    "--panel-soft": "#6d5d72",
+    "--surface": "#353042",
+    "--surface-raised": "#6d5d72",
+    "--surface-muted": "#2C2638",
+    "--text": "#FFF0F5",
+    "--muted": "#fde3e8",
+    "--subtle": "#9498a1",
+    "--border": "#9498a144",
+    "--accent": "#ff5c8d",
+    "--accent-2": "#FFE175",
+    "--accent-text": "#2C2638",
+    "--good": "#37e884",
+    "--warning": "#e5ac40",
+    "--danger": "#f44747",
+    "--shadow": "#202025aa"
+  }
+}

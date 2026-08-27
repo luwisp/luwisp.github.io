@@ -1,0 +1,29 @@
+{
+  "id": "tokyo-night",
+  "name": "Tokyo Night",
+  "family": "Tokyo Night · 现代",
+  "type": "dark",
+  "source": "https://github.com/tokyo-night/tokyo-night-vscode-theme/blob/master/themes/tokyo-night-color-theme.json",
+  "swatches": ["#1a1b26", "#3d59a1", "#7aa2f7", "#73daca"],
+  "tokens": {
+    "colorScheme": "dark",
+    "--wallpaper-dim": "rgba(13, 15, 23, 0.36)",
+    "--panel": "#16161e",
+    "--panel-strong": "#101014",
+    "--panel-soft": "#1e202e",
+    "--surface": "#1a1b26",
+    "--surface-raised": "#202330",
+    "--surface-muted": "#14141b",
+    "--text": "#c0caf5",
+    "--muted": "#a9b1d6",
+    "--subtle": "#787c99",
+    "--border": "#363b54",
+    "--accent": "#3d59a1",
+    "--accent-2": "#7aa2f7",
+    "--accent-text": "#ffffff",
+    "--good": "#73daca",
+    "--warning": "#e0af68",
+    "--danger": "#f7768e",
+    "--shadow": "#00000033"
+  }
+}

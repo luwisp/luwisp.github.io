@@ -3,7 +3,7 @@
   "name": "Everforest Dark",
   "family": "Everforest",
   "type": "dark",
-  "source": "everforest.md",
+  "source": "https://github.com/sainnhe/everforest/blob/master/palette.md",
   "swatches": ["#272e33", "#a7c080", "#7fbbb3", "#d699b6"],
   "tokens": {
     "colorScheme": "dark",

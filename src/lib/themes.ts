@@ -5,6 +5,7 @@ export interface ThemeDefinition {
   name: string;
   family: string;
   type: "light" | "dark";
+  source: string;
   swatches: string[];
   tokens: Record<string, string>;
 }

@@ -3,7 +3,7 @@
   "name": "Solarized Light",
   "family": "Solarized",
   "type": "light",
-  "source": "solizedlight.md",
+  "source": "https://github.com/altercation/solarized",
   "swatches": ["#fdf6e3", "#7b6200", "#268bd2", "#859900"],
   "tokens": {
     "colorScheme": "light",

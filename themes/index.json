@@ -6,6 +6,9 @@
     "./themes/catppuccin-frappe.json",
     "./themes/catppuccin-macchiato.json",
     "./themes/catppuccin-mocha.json",
+    "./themes/tokyo-night-light.json",
+    "./themes/tokyo-night.json",
+    "./themes/kawaii-dark.json",
     "./themes/everforest-dark.json",
     "./themes/solarized-light.json"
   ]
