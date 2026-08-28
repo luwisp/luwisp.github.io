@@ -397,6 +397,44 @@ html[data-wallpaper-ready="true"] .wallpaper-loader,
   font-variant-numeric: tabular-nums;
 }
 
+@media (min-width: 821px) {
+  .app-screen--window {
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .app-window__bar {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 8;
+    display: block;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .app-window__close {
+    width: 32px;
+    height: 32px;
+  }
+
+  .app-window__clock {
+    display: none;
+  }
+
+  .app-screen--archive .page-frame,
+  .app-screen--post .page-frame {
+    padding-top: 32px;
+    padding-left: 40px;
+  }
+
+  .app-screen--categories .file-manager__toolbar {
+    padding-left: 56px;
+  }
+}
+
 .app-content {
   min-width: 0;
   min-height: 0;
