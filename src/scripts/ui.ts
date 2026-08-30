@@ -5,6 +5,7 @@ import { uiConfig } from "../config/site";
 const themeStorageKey = "luorong.notes.theme";
 const readerStorageKey = "luorong.notes.open-reader";
 const readerClosingKey = "luorong.notes.reader-closing";
+const readerReturnKey = "luorong.notes.reader-return";
 const wallpaperStoragePrefix = "luorong.notes.wallpaper.ready:";
 const fileManagerOpenKey = "luorong.notes.open-file-manager";
 const fileManagerStateKey = "luorong.notes.file-manager-state";
@@ -298,6 +299,7 @@ function syncReaderDock(
 function clearReaderState() {
   sessionStorage.setItem(readerClosingKey, "1");
   sessionStorage.removeItem(readerStorageKey);
+  sessionStorage.removeItem(readerReturnKey);
   sessionStorage.removeItem("luorong.notes.restore-reader-scroll");
   syncReaderDock(null);
 }
@@ -316,6 +318,33 @@ function initializeDynamicReader() {
   const reader = current ?? getStoredReader();
 
   syncReaderDock(reader);
+
+  const mobileBack = document.querySelector<HTMLAnchorElement>("[data-mobile-reader-back]");
+  const returnHref = readSessionJson<string | null>(readerReturnKey, null);
+  if (mobileBack) {
+    if (returnHref && !returnHref.startsWith("/posts/")) mobileBack.href = returnHref;
+  }
+
+  const returnPath = returnHref ? new URL(returnHref, location.origin).pathname : "/archive/";
+  const mobileContextApp = document.body.dataset.activeApp === "reader"
+    ? returnPath.endsWith("/categories/")
+      ? "categories"
+      : returnPath.endsWith("/archive/")
+        ? "archive"
+        : "home"
+    : null;
+  document.querySelectorAll<HTMLElement>("[data-app-id]").forEach((app) => {
+    app.classList.toggle("is-mobile-context", app.dataset.appId === mobileContextApp);
+  });
+}
+
+function rememberReaderReturn() {
+  if (location.pathname.startsWith("/posts/")) return;
+  try {
+    sessionStorage.setItem(readerReturnKey, JSON.stringify(`${location.pathname}${location.search}${location.hash}`));
+  } catch {
+    // The archive fallback remains available when session storage is unavailable.
+  }
 }
 
 let clockTimer = 0;
@@ -654,6 +683,7 @@ function initializeFileManager() {
     if (entry.dataset.entryType === "folder") visit(entry.dataset.entryPath || "");
     else if (entry.dataset.entryHref) {
       saveState();
+      rememberReaderReturn();
       if (uiConfig.pageTransition.enabled) void navigate(entry.dataset.entryHref, { sourceElement: entry });
       else location.href = entry.dataset.entryHref;
     }
@@ -885,6 +915,9 @@ if (!runtimeWindow.__luorongSystemEvents) {
     const target = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[data-internal-link]") : null;
     if (!target) return;
     const destination = new URL(target.href, location.href);
+    if (destination.pathname.startsWith("/posts/") && !location.pathname.startsWith("/posts/")) {
+      rememberReaderReturn();
+    }
     if (
       destination.pathname === location.pathname &&
       destination.search === location.search &&

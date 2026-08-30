@@ -1,8 +1,10 @@
 ---
 import { render } from "astro:content";
+import Icon from "../../components/Icon.astro";
 import TableOfContents from "../../components/TableOfContents.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getPostCategory, getPosts, type PostEntry } from "../../lib/content";
+import { withBase } from "../../lib/paths";
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -23,6 +25,17 @@ const date = new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "long", 
   <div class="article-layout">
     <TableOfContents headings={headings} />
     <article class="article-card">
+      <nav class="article-mobile-nav" aria-label="文章导航">
+        <a
+          href={withBase("/archive/")}
+          aria-label="返回文章列表"
+          title="返回文章列表"
+          data-mobile-reader-back
+          data-internal-link
+        >
+          <Icon name="back" size={20} />
+        </a>
+      </nav>
       <header class="article-header">
         <p class="article-category">{category}</p>
         <h1 tabindex="-1" data-page-title>{post.data.title}</h1>

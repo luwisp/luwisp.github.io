@@ -1795,6 +1795,10 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
   padding: 4px 44px 40px 4px;
 }
 
+.article-mobile-nav {
+  display: none;
+}
+
 .article-header {
   padding-bottom: 25px;
   border-bottom: 1px solid var(--border);
@@ -2176,15 +2180,14 @@ html[data-app-direction="same"]::view-transition-new(app-screen) {
   }
 
   .app-dock__separator,
+  .app-dock__item--dynamic,
+  .app-dock__running,
   .app-dock__tooltip {
-    display: none;
+    display: none !important;
   }
 
   .app-dock__handle {
-    top: -7px;
-    width: 30px;
-    height: 4px;
-    background: color-mix(in srgb, var(--subtle) 64%, transparent);
+    display: none;
   }
 
   .main-panel {
@@ -2198,15 +2201,24 @@ html[data-app-direction="same"]::view-transition-new(app-screen) {
 
   .app-screen--window {
     inset: 0;
-    grid-template-rows: 48px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
     border: 0;
     border-radius: 0;
     box-shadow: none;
   }
 
   .app-window__bar {
-    grid-template-columns: 40px minmax(0, 1fr);
-    padding: 0 12px;
+    display: none;
+  }
+
+  .app-dock__item.is-mobile-context {
+    color: var(--accent-text);
+    background: var(--accent);
+  }
+
+  .app-dock__item.is-mobile-context::before {
+    width: 24px;
+    height: 3px;
   }
 
   .page-frame {
@@ -2533,6 +2545,29 @@ html[data-app-direction="same"]::view-transition-new(app-screen) {
   .article-card {
     padding: 22px 18px 48px;
     border-top: 1px solid var(--border);
+  }
+
+  .article-mobile-nav {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    margin: -10px 0 8px;
+  }
+
+  .article-mobile-nav a {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin-left: -10px;
+    border-radius: 50%;
+    color: var(--muted);
+  }
+
+  .article-mobile-nav a:hover,
+  .article-mobile-nav a:focus-visible {
+    color: var(--text);
+    background: var(--panel-soft);
   }
 
   .article-header h1 {
