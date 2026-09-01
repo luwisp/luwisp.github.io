@@ -7,6 +7,7 @@ export type WidgetId =
   | "recent"
   | "contributions"
   | "stats"
+  | "web"
   | "github"
   | "email";
 
@@ -34,6 +35,7 @@ export const homeWidgets: WidgetDefinition[] = [
   { id: "recent", mobilePage: 0, desktop: { column: 1, row: 2, width: 4, height: 2 }, tablet: { column: 1, row: 3, width: 2, height: 2 }, mobile: { column: 1, row: 3, width: 4, height: 3 } },
   { id: "contributions", mobilePage: 1, desktop: { column: 6, row: 2, width: 4, height: 1 }, tablet: { column: 3, row: 3, width: 2, height: 1 }, mobile: { column: 1, row: 1, width: 4, height: 2 } },
   { id: "stats", mobilePage: 1, desktop: { column: 6, row: 3, width: 2, height: 1 }, tablet: { column: 3, row: 4, width: 2, height: 1 }, mobile: { column: 1, row: 3, width: 4, height: 2 } },
+  { id: "web", mobilePage: 1, desktop: { column: 7, row: 1, width: 1, height: 1 }, tablet: { column: 3, row: 5, width: 1, height: 1 }, mobile: { column: 3, row: 5, width: 1, height: 1 } },
   { id: "github", mobilePage: 1, desktop: { column: 8, row: 3, width: 1, height: 1 }, tablet: { column: 1, row: 5, width: 1, height: 1 }, mobile: { column: 1, row: 5, width: 1, height: 1 } },
   { id: "email", mobilePage: 1, desktop: { column: 9, row: 3, width: 1, height: 1 }, tablet: { column: 2, row: 5, width: 1, height: 1 }, mobile: { column: 2, row: 5, width: 1, height: 1 } }
 ];

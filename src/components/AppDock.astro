@@ -1,5 +1,5 @@
 ---
-import { fixedApps, readerApp, type AppId } from "../config/apps";
+import { fixedApps, readerApp, webApp, type AppId } from "../config/apps";
 import Icon from "./Icon.astro";
 
 interface Props {
@@ -16,6 +16,7 @@ const counts: Partial<Record<AppId, number>> = {
   categories: categoryCount
 };
 const readerOpen = Boolean(readerTitle && readerHref);
+const webOpen = activeApp === "web";
 ---
 
 <aside class="app-dock" aria-label="应用栏" data-app-dock transition:persist="app-dock">
@@ -49,7 +50,32 @@ const readerOpen = Boolean(readerTitle && readerHref);
       );
     })}
 
-    <span class="app-dock__separator" hidden={!readerOpen} data-reader-separator aria-hidden="true"></span>
+    <span
+      class="app-dock__separator"
+      hidden={!readerOpen && !webOpen}
+      data-dynamic-separator
+      data-reader-separator
+      aria-hidden="true"
+    ></span>
+
+    <a
+      class:list={["app-dock__item", "app-dock__item--dynamic", { "is-active": activeApp === "web" }]}
+      href={webApp.href}
+      aria-label={webApp.label}
+      aria-current={activeApp === "web" ? "page" : undefined}
+      hidden={!webOpen}
+      data-app-link
+      data-internal-link
+      data-app-id="web"
+      data-app-order={webApp.order}
+      data-dynamic-task-app
+      data-web-app
+    >
+      <span class="app-dock__icon"><Icon name={webApp.icon} size={21} /></span>
+      <span class="app-dock__running" aria-hidden="true"></span>
+      <span class="app-dock__tooltip" aria-hidden="true">{webApp.shortLabel}</span>
+    </a>
+
     <a
       class:list={["app-dock__item", "app-dock__item--dynamic", { "is-active": activeApp === "reader" }]}
       href={readerHref ?? readerApp.href}
@@ -61,6 +87,7 @@ const readerOpen = Boolean(readerTitle && readerHref);
       data-app-id="reader"
       data-app-order={readerApp.order}
       data-dynamic-app
+      data-dynamic-task-app
       data-reader-title={readerTitle}
       data-reader-href={readerHref}
     >

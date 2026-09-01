@@ -15,7 +15,7 @@ import { themeDefaults, themes } from "../lib/themes";
 interface Props {
   title?: string;
   description?: string;
-  activePage: "home" | "archive" | "categories" | "post";
+  activePage: "home" | "archive" | "categories" | "web" | "post";
 }
 
 const { title, description = siteData.site.subtitle, activePage } = Astro.props;
@@ -32,7 +32,9 @@ const appCloseLabel = activePage === "post"
   ? "关闭阅读器"
   : activePage === "archive"
     ? "关闭归档"
-    : "关闭文件";
+    : activePage === "categories"
+      ? "关闭文件"
+      : "关闭网页";
 ---
 
 <!doctype html>
@@ -126,14 +128,15 @@ const appCloseLabel = activePage === "post"
               data-internal-link
               data-reader-close={activePage === "post" ? "true" : undefined}
               data-file-manager-close={activePage === "categories" ? "true" : undefined}
+              data-web-close={activePage === "web" ? "true" : undefined}
             >
               <Icon name="x" size={13} strokeWidth={2.2} />
             </a>
             <time class="app-window__clock" data-clock data-clock-format="short">--:--</time>
           </header>
         )}
-        <div class:list={["app-content", { "app-content--home": activePage === "home", "app-content--categories": activePage === "categories" }]} data-app-content>
-          <div class:list={["page-frame", { "page-frame--home": activePage === "home", "page-frame--categories": activePage === "categories" }]}>
+        <div class:list={["app-content", { "app-content--home": activePage === "home", "app-content--categories": activePage === "categories", "app-content--web": activePage === "web" }]} data-app-content>
+          <div class:list={["page-frame", { "page-frame--home": activePage === "home", "page-frame--categories": activePage === "categories", "page-frame--web": activePage === "web" }]}>
             <slot />
           </div>
         </div>

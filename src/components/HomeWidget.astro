@@ -1,5 +1,6 @@
 ---
 import siteData from "../../content/site.json";
+import { webApp } from "../config/apps";
 import type { WidgetId } from "../config/widgets";
 import { widgetPlacementStyle } from "../config/widgets";
 import { getPostCategory, getPostHref, type PostEntry } from "../lib/content";
@@ -99,6 +100,23 @@ const placementStyle = widgetPlacementStyle(id);
   </button>
 )}
 
+{id === "web" && (
+  <a
+    class="desktop-app desktop-app--web"
+    href={webApp.href}
+    aria-label="打开网页"
+    style={placementStyle}
+    data-internal-link
+    data-app-order={webApp.order}
+    data-home-object={id}
+  >
+    <span class="desktop-app__icon desktop-app__icon--web">
+      <Icon name="globe" size={30} strokeWidth={1.65} />
+    </span>
+    <span class="desktop-app__label">网页</span>
+  </a>
+)}
+
 {id === "recent" && (
   <section class="desktop-widget widget-recent" aria-labelledby="recent-title" style={placementStyle} data-home-object={id}>
     <header class="widget-header">
@@ -112,7 +130,7 @@ const placementStyle = widgetPlacementStyle(id);
     </header>
     <div class="recent-file-list">
       {recentPosts.map((post) => (
-        <a class="recent-file" href={getPostHref(post)} data-internal-link data-app-order="3">
+        <a class="recent-file" href={getPostHref(post)} data-internal-link data-app-order="4">
           <span class="recent-file__icon"><Icon name="file" size={17} /></span>
           <span class="recent-file__copy">
             <strong>{post.data.title}</strong>

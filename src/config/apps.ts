@@ -1,4 +1,4 @@
-export type AppId = "home" | "archive" | "categories" | "reader";
+export type AppId = "home" | "archive" | "categories" | "web" | "reader";
 
 export interface AppDefinition {
   id: AppId;
@@ -16,17 +16,28 @@ export const fixedApps: AppDefinition[] = [
   { id: "categories", label: "文章文件", shortLabel: "文件", href: "/categories/", icon: "folder", order: 2 }
 ];
 
+export const webApp: AppDefinition = {
+  id: "web",
+  label: "网页",
+  shortLabel: "网页",
+  href: "/web/",
+  icon: "globe",
+  order: 3,
+  dynamic: true
+};
+
 export const readerApp: AppDefinition = {
   id: "reader",
   label: "文章阅读器",
   shortLabel: "阅读",
   href: "/archive/",
   icon: "book-open",
-  order: 3,
+  order: 4,
   dynamic: true
 };
 
 export function getAppOrder(pathname: string) {
+  if (pathname.startsWith("/web/")) return webApp.order;
   if (pathname.startsWith("/posts/")) return readerApp.order;
   return fixedApps.find((app) => app.href === pathname)?.order ?? readerApp.order + 1;
 }

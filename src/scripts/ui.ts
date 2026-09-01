@@ -1,6 +1,14 @@
 import { navigate } from "astro:transitions/client";
 import { getAppOrder, readerApp } from "../config/apps";
 import { uiConfig } from "../config/site";
+import {
+  clearWebState,
+  initializeDynamicWeb,
+  initializeWebBrowser,
+  isWebOpen,
+  syncDynamicTaskSeparator,
+  syncWebDock
+} from "./web-app";
 
 const themeStorageKey = "luorong.notes.theme";
 const readerStorageKey = "luorong.notes.open-reader";
@@ -291,9 +299,7 @@ function syncReaderDock(
       anchor.setAttribute("aria-label", readerApp.label);
     }
   });
-  root.querySelectorAll<HTMLElement>("[data-reader-separator]").forEach((separator) => {
-    separator.hidden = !reader;
-  });
+  syncDynamicTaskSeparator(root);
 }
 
 function clearReaderState() {
@@ -843,6 +849,7 @@ function preserveDocumentState(event: Event) {
     }
   }
   if (dock) syncFileManagerDock(nextActiveApp === "categories" || isFileManagerOpen(), dock, nextActiveApp === "categories");
+  if (dock) syncWebDock(nextActiveApp === "web" || isWebOpen(), dock, nextActiveApp === "web");
   if (dock) syncReaderDock(nextReader, dock, nextActiveApp === "reader");
   document.querySelector<HTMLDialogElement>("[data-theme-dialog]")?.close();
 }
@@ -853,11 +860,13 @@ function initializePage() {
   document.body.dataset.uiInitialized = "true";
   initializeThemeControls();
   initializeDynamicFileManager();
+  initializeDynamicWeb();
   initializeDynamicReader();
   initializeClocks();
   initializeArchivePagination();
   initializeHomePager();
   initializeFileManager();
+  initializeWebBrowser();
   if (
     document.body.dataset.activeApp === "reader" &&
     sessionStorage.getItem("luorong.notes.restore-reader-scroll") === "1"
@@ -892,6 +901,20 @@ if (!runtimeWindow.__luorongSystemEvents) {
         void navigate(fileManagerClose.href, { history: "replace", sourceElement: fileManagerClose }).catch(restoreFileManager);
       } else {
         location.replace(fileManagerClose.href);
+      }
+      return;
+    }
+    const webClose = event.target instanceof Element
+      ? event.target.closest<HTMLAnchorElement>("a[data-web-close]")
+      : null;
+    if (webClose) {
+      event.preventDefault();
+      clearWebState();
+      const restoreWeb = () => initializeDynamicWeb();
+      if (uiConfig.pageTransition.enabled) {
+        void navigate(webClose.href, { history: "replace", sourceElement: webClose }).catch(restoreWeb);
+      } else {
+        location.replace(webClose.href);
       }
       return;
     }

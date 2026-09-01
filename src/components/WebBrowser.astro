@@ -1,0 +1,224 @@
+---
+import webData from "../../content/web.json";
+import Icon from "./Icon.astro";
+
+interface LinkItem {
+  label: string;
+  url: string;
+  description?: string;
+  icon?: string;
+}
+
+interface BookmarkFolder {
+  id: string;
+  name: string;
+  items: LinkItem[];
+}
+
+interface Props {
+  view?: "home" | "bookmarks";
+}
+
+const { view = "home" } = Astro.props;
+const folders = webData.bookmarks.folders as BookmarkFolder[];
+const looseBookmarks = webData.bookmarks.items as LinkItem[];
+const friends = webData.friends as LinkItem[];
+const bookmarkCount = folders.reduce((total, folder) => total + folder.items.length, 0) + looseBookmarks.length;
+
+function faviconFor(item: LinkItem) {
+  return item.icon || "";
+}
+---
+
+<section class="web-browser" data-web-browser data-web-default-view={view} aria-label="网页浏览器">
+  <header class="web-browser__chrome">
+    <nav class="web-browser__navigation" aria-label="网页导航">
+      <button type="button" aria-label="后退" title="后退" data-web-history-back>
+        <Icon name="back" size={18} />
+      </button>
+      <button type="button" aria-label="前进" title="前进" data-web-history-forward>
+        <Icon name="forward" size={18} />
+      </button>
+      <button type="button" aria-label="刷新" title="刷新" data-web-refresh>
+        <Icon name="refresh" size={17} />
+      </button>
+      <a href="/web/" aria-label="主页" title="主页" data-internal-link data-web-home data-app-order="3">
+        <Icon name="home" size={17} />
+      </a>
+    </nav>
+
+    <form class="web-browser__address" data-web-address-form autocomplete="off">
+      <Icon name="globe" size={16} />
+      <input
+        type="text"
+        inputmode="url"
+        placeholder="搜索或输入网址"
+        aria-label="地址栏"
+        data-web-address
+      />
+    </form>
+
+    <a
+      class="web-browser__bookmarks-button"
+      href="/web/bookmarks/"
+      aria-label="全部书签"
+      title="全部书签"
+      data-internal-link
+      data-app-order="3"
+    >
+      <Icon name="bookmark" size={18} />
+    </a>
+  </header>
+
+  <div class="web-browser__viewport">
+    <section class="web-start" data-web-view="home" hidden={view !== "home"}>
+      <form class="web-start__search" action="https://www.bing.com/search" method="get" target="_blank" data-web-search-form>
+        <Icon name="search" size={21} />
+        <input type="search" name="q" placeholder="使用 Bing 搜索" aria-label="使用 Bing 搜索" autocomplete="off" />
+        <button type="submit" aria-label="搜索">搜索</button>
+      </form>
+
+      <section class="web-start__section" aria-labelledby="web-bookmarks-title">
+        <header class="web-start__section-heading">
+          <h1 id="web-bookmarks-title">书签</h1>
+          {bookmarkCount > 0 && (
+            <a href="/web/bookmarks/" data-internal-link data-app-order="3">全部书签</a>
+          )}
+        </header>
+
+        {bookmarkCount > 0 ? (
+          <div class="web-quick-links web-quick-links--bookmarks">
+            {folders.map((folder) => (
+              <a
+                class="web-quick-link web-quick-link--folder"
+                href={`/web/bookmarks/#${folder.id}`}
+                title={`${folder.name} · ${folder.items.length} 个书签`}
+                data-internal-link
+                data-app-order="3"
+              >
+                <span class="web-quick-link__icon"><Icon name="folder" size={23} strokeWidth={1.65} /></span>
+                <span>{folder.name}</span>
+              </a>
+            ))}
+            {looseBookmarks.map((item) => (
+              <a class="web-quick-link" href={item.url} target="_blank" rel="noreferrer" title={item.description || item.label}>
+                <span class="web-quick-link__icon web-link-icon">
+                  <Icon name="globe" size={21} strokeWidth={1.6} />
+                  {faviconFor(item) && <img src={faviconFor(item)} alt="" loading="lazy" onerror="this.remove()" />}
+                </span>
+                <span>{item.label}</span>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <p class="web-start__empty">暂时还没有，以后一定会放的</p>
+        )}
+      </section>
+
+      <section class="web-start__section" aria-labelledby="web-friends-title">
+        <header class="web-start__section-heading">
+          <h1 id="web-friends-title">友情链接</h1>
+        </header>
+
+        {friends.length > 0 ? (
+          <div class="web-quick-links web-quick-links--friends">
+            {friends.map((item) => (
+              <a class="web-quick-link" href={item.url} target="_blank" rel="noreferrer" title={item.description || item.label}>
+                <span class="web-quick-link__icon web-link-icon">
+                  <Icon name="globe" size={21} strokeWidth={1.6} />
+                  {faviconFor(item) && <img src={faviconFor(item)} alt="" loading="lazy" onerror="this.remove()" />}
+                </span>
+                <span>{item.label}</span>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <p class="web-start__empty">欢迎联系我放置</p>
+        )}
+      </section>
+    </section>
+
+    <section class="web-bookmarks" data-web-view="bookmarks" hidden={view !== "bookmarks"}>
+      <header class="web-bookmarks__heading">
+        <div>
+          <p>网页 · 书签</p>
+          <h1>全部书签</h1>
+        </div>
+        <span>{bookmarkCount} 个链接</span>
+      </header>
+
+      {bookmarkCount === 0 ? (
+        <div class="web-bookmarks__empty">
+          <Icon name="bookmark" size={27} strokeWidth={1.55} />
+          <strong>暂时还没有，以后一定会放的</strong>
+          <a href="/web/" data-internal-link data-app-order="3">返回主页</a>
+        </div>
+      ) : (
+        <div class="web-bookmarks__groups">
+          {folders.map((folder) => (
+            <section class="web-bookmark-group" id={folder.id}>
+              <header>
+                <h2>{folder.name}</h2>
+                <span>{folder.items.length}</span>
+              </header>
+              <div class="web-bookmark-grid">
+                {folder.items.map((item) => (
+                  <a class="web-bookmark-card" href={item.url} target="_blank" rel="noreferrer">
+                    <span class="web-bookmark-card__icon web-link-icon">
+                      <Icon name="globe" size={25} strokeWidth={1.55} />
+                      {faviconFor(item) && <img src={faviconFor(item)} alt="" loading="lazy" onerror="this.remove()" />}
+                    </span>
+                    <span class="web-bookmark-card__copy">
+                      <strong>{item.label}</strong>
+                      <small>{item.description || new URL(item.url).hostname}</small>
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </section>
+          ))}
+
+          {looseBookmarks.length > 0 && (
+            <section class="web-bookmark-group" id="other">
+              <header>
+                <h2>其他</h2>
+                <span>{looseBookmarks.length}</span>
+              </header>
+              <div class="web-bookmark-grid">
+                {looseBookmarks.map((item) => (
+                  <a class="web-bookmark-card" href={item.url} target="_blank" rel="noreferrer">
+                    <span class="web-bookmark-card__icon web-link-icon">
+                      <Icon name="globe" size={25} strokeWidth={1.55} />
+                      {faviconFor(item) && <img src={faviconFor(item)} alt="" loading="lazy" onerror="this.remove()" />}
+                    </span>
+                    <span class="web-bookmark-card__copy">
+                      <strong>{item.label}</strong>
+                      <small>{item.description || new URL(item.url).hostname}</small>
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+      )}
+    </section>
+
+    <section class="web-offline" data-web-view="error" hidden>
+      <div class="web-offline__content">
+        <div class="web-offline__dino" aria-hidden="true"><Icon name="wifi-off" size={34} strokeWidth={1.45} /></div>
+        <h1>没有网络连接哦</h1>
+        <p>“网页”现在还不能真正访问外部网站。</p>
+        <p class="web-offline__url" data-web-error-url></p>
+        <div class="web-offline__try">
+          <span>可以试试：</span>
+          <ul>
+            <li>检查一下输入的网址</li>
+            <li>回到主页，通过搜索、书签或友情链接前往外部网站</li>
+          </ul>
+        </div>
+        <code>ERR_INTERNET_DISCONNECTED</code>
+      </div>
+    </section>
+  </div>
+</section>
