@@ -798,7 +798,14 @@ function setTransitionDirection(event: Event) {
   sessionStorage.setItem("luorong.notes.restore-reader-scroll", returningToReader ? "1" : "0");
   const fromOrder = getAppOrder(transition.from.pathname);
   const toOrder = getAppOrder(transition.to.pathname);
-  const direction = toOrder > fromOrder ? "down" : toOrder < fromOrder ? "up" : "same";
+  const withinWebApp = transition.from.pathname.startsWith("/web/") && transition.to.pathname.startsWith("/web/");
+  const direction = withinWebApp
+    ? "internal"
+    : toOrder > fromOrder
+      ? "down"
+      : toOrder < fromOrder
+        ? "up"
+        : "same";
   transition.direction = direction;
   document.documentElement.dataset.appDirection = direction;
 }
@@ -883,9 +890,27 @@ function initializePage() {
   sessionStorage.removeItem(readerClosingKey);
 }
 
+function preventRedundantInternalNavigation(event: MouseEvent) {
+  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const target = event.target instanceof Element
+    ? event.target.closest<HTMLAnchorElement>("a[data-internal-link]")
+    : null;
+  if (!target) return;
+  const destination = new URL(target.href, location.href);
+  if (
+    destination.origin === location.origin &&
+    destination.pathname === location.pathname &&
+    destination.search === location.search &&
+    destination.hash === location.hash
+  ) {
+    event.preventDefault();
+  }
+}
+
 const runtimeWindow = window as Window & { __luorongSystemEvents?: boolean };
 if (!runtimeWindow.__luorongSystemEvents) {
   runtimeWindow.__luorongSystemEvents = true;
+  document.addEventListener("click", preventRedundantInternalNavigation, { capture: true });
   document.addEventListener("astro:before-preparation", setTransitionDirection);
   document.addEventListener("astro:before-swap", preserveDocumentState);
   document.addEventListener("click", (event) => {

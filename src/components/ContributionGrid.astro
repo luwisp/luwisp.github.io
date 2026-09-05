@@ -47,9 +47,6 @@ const { placementStyle } = Astro.props;
       <h2 id="contribution-title">最近提交</h2>
       {hasContributionData && <p>过去一年 {contributions.totalContributions} 次公开贡献</p>}
     </div>
-    <a href={`https://github.com/${githubUser}`} target="_blank" rel="noreferrer">
-      @{githubUser}
-    </a>
   </header>
 
   {hasContributionData ? (
