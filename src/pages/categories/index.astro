@@ -2,26 +2,23 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Icon from "../../components/Icon.astro";
 import { getPosts } from "../../lib/content";
-import { getFileManagerEntries } from "../../lib/file-manager";
+import { getFileManagerData, type MusicSnapshot } from "../../lib/file-manager";
+import musicData from "../../data/music.json";
 
 const posts = await getPosts();
-const entries = getFileManagerEntries(posts);
-const rootEntries = entries
-  .filter((entry) => entry.parentPath === "")
+const { volumes, entries } = getFileManagerData(posts, musicData as MusicSnapshot);
+const defaultVolume = volumes.find((volume) => volume.id === "files") ?? volumes[0];
+const defaultEntries = entries
+  .filter((entry) => entry.volume === defaultVolume.id && entry.parentPath === "")
   .sort((left, right) => left.displayName.localeCompare(right.displayName, "zh-CN"));
-const totalSize = entries
-  .filter((entry) => entry.type === "file")
-  .reduce((total, entry) => total + entry.sizeBytes, 0);
 ---
 
-<BaseLayout activePage="categories" title="文件" description="按目录浏览和搜索全部文章">
+<BaseLayout activePage="categories" title="文件" description="按内容卷浏览文章与音乐">
   <section
     class="file-manager"
     data-file-manager
-    data-root-count={rootEntries.length}
-    data-post-count={posts.length}
-    data-total-size={totalSize}
-    aria-label="文章文件管理器"
+    data-default-volume={defaultVolume.id}
+    aria-label="内容文件管理器"
   >
     <header class="file-manager__toolbar">
       <div class="file-manager__history" aria-label="目录导航">
@@ -40,15 +37,48 @@ const totalSize = entries
       </div>
 
       <nav class="file-manager__breadcrumbs" data-file-breadcrumbs aria-label="当前位置">
-        <button type="button" data-file-path="" aria-current="page">
-          <Icon name="drive" size={16} />
-          <span>文章</span>
+        <div class="file-manager__volume-picker" data-file-volume-picker>
+          <button
+            type="button"
+            class="file-manager__volume-trigger"
+            data-file-volume-trigger
+            aria-label="切换内容卷"
+            title="切换内容卷"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <Icon name="drive" size={15} strokeWidth={1.55} />
+            <Icon name="chevron" size={10} strokeWidth={2} />
+          </button>
+          <div class="file-manager__volume-menu" data-file-volume-menu role="menu" hidden>
+            {volumes.map((volume) => (
+              <button
+                type="button"
+                role="menuitem"
+                data-file-volume={volume.id}
+                data-volume-name={volume.name}
+                data-volume-description={volume.description}
+                data-volume-location={volume.location}
+                data-volume-item-count={volume.itemCount}
+                data-volume-content-count={volume.contentCount}
+                data-volume-content-label={volume.contentLabel}
+                data-volume-size={volume.sizeBytes}
+                data-volume-modified={volume.modifiedAt}
+              >
+                {volume.name}
+              </button>
+            ))}
+          </div>
+        </div>
+        <button type="button" class="file-manager__volume-name" data-file-path="" data-file-volume-name aria-current="page">
+          {defaultVolume.name}
         </button>
+        <div class="file-manager__breadcrumb-trail" data-file-breadcrumb-trail></div>
       </nav>
 
       <label class="file-manager__search">
         <Icon name="search" size={17} />
-        <input type="search" data-file-search placeholder="搜索文件" autocomplete="off" />
+        <input type="search" data-file-search placeholder="搜索内容" autocomplete="off" />
         <kbd>Ctrl K</kbd>
       </label>
     </header>
@@ -92,7 +122,16 @@ const totalSize = entries
               type="button"
               class="file-manager__entry"
               data-file-entry
+              data-entry-volume={entry.volume}
               data-entry-type={entry.type}
+              data-entry-kind={entry.kind}
+              data-entry-icon={entry.icon}
+              data-entry-type-label={entry.typeLabel}
+              data-entry-location={entry.location}
+              data-entry-external={entry.external ? "true" : "false"}
+              data-entry-artist={entry.artist}
+              data-entry-album={entry.album}
+              data-entry-duration={entry.durationMs}
               data-entry-path={entry.path}
               data-entry-parent={entry.parentPath}
               data-entry-name={entry.name}
@@ -106,22 +145,22 @@ const totalSize = entries
               data-entry-category={entry.category}
               data-entry-tags={entry.tags.join(",")}
               data-entry-minutes={entry.minutes}
-              data-entry-search={`${entry.displayName} ${entry.name} ${entry.path} ${entry.category ?? ""} ${entry.tags.join(" ")} ${entry.description}`.toLocaleLowerCase("zh-CN")}
+              data-entry-search={`${entry.displayName} ${entry.name} ${entry.path} ${entry.category ?? ""} ${entry.artist ?? ""} ${entry.album ?? ""} ${entry.tags.join(" ")} ${entry.description}`.toLocaleLowerCase("zh-CN")}
               role="option"
               aria-selected="false"
               tabindex="-1"
-              hidden={entry.parentPath !== ""}
+              hidden={entry.volume !== defaultVolume.id || entry.parentPath !== ""}
             >
-              <span class:list={["file-manager__entry-icon", { "is-folder": entry.type === "folder" }]}>
-                <Icon name={entry.type === "folder" ? "folder" : "file"} size={entry.type === "folder" ? 34 : 31} strokeWidth={1.55} />
+              <span class:list={["file-manager__entry-icon", { "is-folder": entry.type === "folder", "is-music": entry.kind === "track" }]}>
+                <Icon name={entry.type === "folder" ? "folder" : entry.icon} size={entry.type === "folder" ? 34 : 31} strokeWidth={1.55} />
               </span>
               <span class="file-manager__entry-copy">
                 <strong>{entry.displayName}</strong>
-                <small>{entry.type === "folder" ? `${entry.itemCount} 个项目` : entry.name}</small>
+                <small>{entry.type === "folder" ? `${entry.itemCount} 个项目` : entry.kind === "track" ? entry.artist || "歌曲" : entry.name}</small>
               </span>
-              <span class="file-manager__entry-type">{entry.type === "folder" ? "文件夹" : "Markdown"}</span>
+              <span class="file-manager__entry-type">{entry.typeLabel}</span>
               <time datetime={entry.modifiedAt}>{entry.modifiedAt.slice(0, 10)}</time>
-              <span class="file-manager__entry-path">{entry.parentPath || "文章"}</span>
+              <span class="file-manager__entry-path">{entry.parentPath || volumes.find((volume) => volume.id === entry.volume)?.name || entry.volume}</span>
             </button>
           ))}
         </div>
@@ -134,32 +173,31 @@ const totalSize = entries
 
       <aside class="file-manager__details" data-file-details aria-label="项目详情">
         <div class="file-manager__details-hero">
-          <span data-file-details-icon><Icon name="drive" size={34} strokeWidth={1.5} /></span>
+          <span data-file-details-icon class="is-volume"><Icon name="drive" size={34} strokeWidth={1.5} /></span>
           <div>
-            <h1 data-file-details-title>文章</h1>
-            <p data-file-details-name>content/articles</p>
+            <h1 data-file-details-title>{defaultVolume.name}</h1>
+            <p data-file-details-name>内容卷</p>
           </div>
         </div>
-        <p class="file-manager__details-description" data-file-details-description>本地文章目录，文件夹结构会直接映射到这里。</p>
+        <p class="file-manager__details-description" data-file-details-description>{defaultVolume.description}</p>
         <dl>
-          <div><dt>类型</dt><dd data-file-details-type>内容目录</dd></div>
-          <div><dt>位置</dt><dd data-file-details-location>content/articles</dd></div>
-          <div><dt>项目</dt><dd data-file-details-count>{rootEntries.length} 个文件夹</dd></div>
-          <div><dt>文章</dt><dd data-file-details-posts>{posts.length} 篇</dd></div>
-          <div><dt>大小</dt><dd data-file-details-size>--</dd></div>
+          <div><dt>类型</dt><dd data-file-details-type>内容卷</dd></div>
+          <div><dt>位置</dt><dd data-file-details-location>{defaultVolume.location}</dd></div>
+          <div><dt>项目</dt><dd data-file-details-count>{defaultVolume.itemCount} 个项目</dd></div>
+          <div><dt data-file-details-meta-label>{defaultVolume.contentLabel}</dt><dd data-file-details-posts>{defaultVolume.contentCount} {defaultVolume.contentLabel === "文章" ? "篇" : "首"}</dd></div>
+          <div data-file-details-size-row><dt>大小</dt><dd data-file-details-size>--</dd></div>
           <div data-file-details-date-row hidden><dt>修改日期</dt><dd data-file-details-date></dd></div>
           <div data-file-details-read-row hidden><dt>阅读时间</dt><dd data-file-details-read></dd></div>
+          <div data-file-details-artist-row hidden><dt>歌手</dt><dd data-file-details-artist></dd></div>
+          <div data-file-details-album-row hidden><dt>专辑</dt><dd data-file-details-album></dd></div>
+          <div data-file-details-duration-row hidden><dt>时长</dt><dd data-file-details-duration></dd></div>
         </dl>
         <div class="file-manager__details-tags" data-file-details-tags hidden></div>
-        <a class="file-manager__open" data-file-details-open href="/" data-internal-link hidden>
-          <Icon name="book-open" size={17} />
-          打开文章
-        </a>
       </aside>
     </div>
 
     <footer class="file-manager__statusbar">
-      <span data-file-status>{rootEntries.length} 个项目</span>
+      <span data-file-status>{defaultEntries.length} 个项目</span>
       <span data-file-selection>未选择项目</span>
     </footer>
   </section>

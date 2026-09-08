@@ -30,9 +30,17 @@ interface OpenReader {
   scrollTop?: number;
 }
 
+type FileManagerVolumeId = "files" | "music";
+
+interface FileManagerLocation {
+  volume: FileManagerVolumeId;
+  path: string;
+}
+
 interface FileManagerViewState {
+  currentVolume?: FileManagerVolumeId;
   currentPath?: string;
-  history?: string[];
+  history?: FileManagerLocation[];
   historyIndex?: number;
   query?: string;
   sort?: string;
@@ -452,7 +460,11 @@ function initializeFileManager() {
   const entryContainer = root.querySelector<HTMLElement>("[data-file-entries]");
   const entries = [...root.querySelectorAll<HTMLButtonElement>("[data-file-entry]")];
   const breadcrumbs = root.querySelector<HTMLElement>("[data-file-breadcrumbs]");
-  const homeCrumb = breadcrumbs?.querySelector<HTMLButtonElement>("[data-file-path]")?.cloneNode(true) as HTMLButtonElement | undefined;
+  const breadcrumbTrail = root.querySelector<HTMLElement>("[data-file-breadcrumb-trail]");
+  const volumeName = root.querySelector<HTMLButtonElement>("[data-file-volume-name]");
+  const volumeTrigger = root.querySelector<HTMLButtonElement>("[data-file-volume-trigger]");
+  const volumeMenu = root.querySelector<HTMLElement>("[data-file-volume-menu]");
+  const volumeButtons = [...root.querySelectorAll<HTMLButtonElement>("[data-file-volume]")];
   const searchInput = root.querySelector<HTMLInputElement>("[data-file-search]");
   const sortSelect = root.querySelector<HTMLSelectElement>("[data-file-sort]");
   const sortDirection = root.querySelector<HTMLButtonElement>("[data-file-sort-direction]");
@@ -465,17 +477,38 @@ function initializeFileManager() {
   const details = root.querySelector<HTMLElement>("[data-file-details]");
   const detailsToggle = root.querySelector<HTMLButtonElement>("[data-file-details-toggle]");
   const browserPane = root.querySelector<HTMLElement>(".file-manager__browser");
-  if (!entryContainer || !breadcrumbs || !homeCrumb || !searchInput || !sortSelect || !details) return;
+  const volumeIconTemplate = details?.querySelector("[data-file-details-icon] svg")?.cloneNode(true);
+  if (
+    !entryContainer || !breadcrumbs || !breadcrumbTrail || !volumeName || !volumeTrigger || !volumeMenu ||
+    !searchInput || !sortSelect || !details || !volumeButtons.length
+  ) return;
 
-  const byPath = new Map(entries.map((entry) => [entry.dataset.entryPath || "", entry]));
+  const isVolume = (value: unknown): value is FileManagerVolumeId => value === "files" || value === "music";
+  const defaultVolume: FileManagerVolumeId = isVolume(root.dataset.defaultVolume) ? root.dataset.defaultVolume : "files";
+  const entryKey = (volume: FileManagerVolumeId, path: string) => `${volume}:${path}`;
+  const byKey = new Map(entries.map((entry) => [entryKey(entry.dataset.entryVolume as FileManagerVolumeId, entry.dataset.entryPath || ""), entry]));
+  const volumeById = new Map(volumeButtons.map((button) => [button.dataset.fileVolume as FileManagerVolumeId, button]));
+  const getEntry = (volume: FileManagerVolumeId, path: string) => byKey.get(entryKey(volume, path));
+  const getVolume = (volume: FileManagerVolumeId) => volumeById.get(volume);
+  const getVolumeName = (volume: FileManagerVolumeId) => getVolume(volume)?.dataset.volumeName || (volume === "files" ? "文件" : "音乐");
+
+  const validLocation = (value: unknown): value is FileManagerLocation => {
+    if (!value || typeof value !== "object") return false;
+    const candidate = value as Partial<FileManagerLocation>;
+    if (!isVolume(candidate.volume) || typeof candidate.path !== "string") return false;
+    return candidate.path === "" || getEntry(candidate.volume, candidate.path)?.dataset.entryType === "folder";
+  };
+
   const storedState = readSessionJson<FileManagerViewState | null>(fileManagerStateKey, null) ?? {};
-  const validFolderPath = (path: unknown): path is string =>
-    typeof path === "string" && (path === "" || byPath.get(path)?.dataset.entryType === "folder");
-  const restoredPath = validFolderPath(storedState.currentPath) ? storedState.currentPath : "";
-  const restoredHistory = (storedState.history || []).filter(validFolderPath);
-  let history = restoredHistory.length ? restoredHistory : [restoredPath];
+  const storedLocation = validLocation({ volume: storedState.currentVolume, path: storedState.currentPath })
+    ? { volume: storedState.currentVolume as FileManagerVolumeId, path: storedState.currentPath || "" }
+    : null;
+  const restoredHistory = Array.isArray(storedState.history) ? storedState.history.filter(validLocation) : [];
+  const fallbackLocation: FileManagerLocation = storedLocation ?? { volume: defaultVolume, path: "" };
+  let history: FileManagerLocation[] = restoredHistory.length ? restoredHistory : [fallbackLocation];
   let historyIndex = Math.max(0, Math.min(history.length - 1, storedState.historyIndex ?? history.length - 1));
-  let currentPath = history[historyIndex] ?? restoredPath;
+  let currentVolume = history[historyIndex]?.volume ?? fallbackLocation.volume;
+  let currentPath = history[historyIndex]?.path ?? fallbackLocation.path;
   let descending = Boolean(storedState.descending);
   let selected: HTMLButtonElement | null = null;
 
@@ -508,12 +541,23 @@ function initializeFileManager() {
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(bytes < 10 * 1024 ? 1 : 0)} KB`;
     return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
   };
+  const formatDuration = (milliseconds: number) => {
+    if (!milliseconds) return "--";
+    const seconds = Math.round(milliseconds / 1000);
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes}:${String(seconds % 60).padStart(2, "0")}`;
+  };
   const setText = (selector: string, value: string) => {
     const target = details.querySelector<HTMLElement>(selector);
     if (target) target.textContent = value;
   };
+  const setVolumeMenu = (open: boolean) => {
+    volumeMenu.hidden = !open;
+    volumeTrigger.setAttribute("aria-expanded", String(open));
+  };
   const saveState = () => {
     const state: FileManagerViewState = {
+      currentVolume,
       currentPath,
       history,
       historyIndex,
@@ -539,61 +583,149 @@ function initializeFileManager() {
     selected = null;
     if (selectionStatus) selectionStatus.textContent = "未选择项目";
   };
+
+  const renderBreadcrumbs = () => {
+    root.dataset.currentVolume = currentVolume;
+    volumeName.textContent = getVolumeName(currentVolume);
+    volumeButtons.forEach((button) => {
+      const active = button.dataset.fileVolume === currentVolume;
+      button.classList.toggle("is-active", active);
+      if (active) button.setAttribute("aria-current", "true");
+      else button.removeAttribute("aria-current");
+    });
+    breadcrumbTrail.querySelectorAll("[data-file-breadcrumb-dynamic]").forEach((node) => node.remove());
+    if (!currentPath) volumeName.setAttribute("aria-current", "page");
+    else volumeName.removeAttribute("aria-current");
+
+    let path = "";
+    currentPath.split("/").filter(Boolean).forEach((segment) => {
+      path = path ? `${path}/${segment}` : segment;
+      const separator = document.createElement("span");
+      separator.className = "file-manager__breadcrumb-separator";
+      separator.dataset.fileBreadcrumbDynamic = "";
+      separator.textContent = "/";
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.filePath = path;
+      button.dataset.fileBreadcrumbDynamic = "";
+      button.textContent = getEntry(currentVolume, path)?.dataset.entryDisplayName || segment;
+      breadcrumbTrail.append(separator, button);
+    });
+    const pathButtons = [...breadcrumbTrail.querySelectorAll<HTMLButtonElement>("button[data-file-path]")];
+    pathButtons.forEach((button, index) => {
+      if (index === pathButtons.length - 1) button.setAttribute("aria-current", "page");
+      else button.removeAttribute("aria-current");
+    });
+    breadcrumbTrail.scrollLeft = breadcrumbTrail.scrollWidth;
+  };
+
   const updateDetails = (entry: HTMLButtonElement | null) => {
     const detailsIcon = details.querySelector<HTMLElement>("[data-file-details-icon]");
     const dateRow = details.querySelector<HTMLElement>("[data-file-details-date-row]");
     const readRow = details.querySelector<HTMLElement>("[data-file-details-read-row]");
+    const sizeRow = details.querySelector<HTMLElement>("[data-file-details-size-row]");
+    const artistRow = details.querySelector<HTMLElement>("[data-file-details-artist-row]");
+    const albumRow = details.querySelector<HTMLElement>("[data-file-details-album-row]");
+    const durationRow = details.querySelector<HTMLElement>("[data-file-details-duration-row]");
     const tags = details.querySelector<HTMLElement>("[data-file-details-tags]");
-    const open = details.querySelector<HTMLAnchorElement>("[data-file-details-open]");
-    const postsValue = details.querySelector<HTMLElement>("[data-file-details-posts]");
-    const postsLabel = postsValue?.previousElementSibling;
+    const metaValue = details.querySelector<HTMLElement>("[data-file-details-posts]");
+    const metaLabel = details.querySelector<HTMLElement>("[data-file-details-meta-label]");
+    const volume = getVolume(currentVolume);
+
+    if (artistRow) artistRow.hidden = true;
+    if (albumRow) albumRow.hidden = true;
+    if (durationRow) durationRow.hidden = true;
+    if (readRow) readRow.hidden = true;
+    if (tags) tags.hidden = true;
 
     if (!entry) {
-      const folder = currentPath ? byPath.get(currentPath) : null;
-      const pathPrefix = currentPath ? `${currentPath}/` : "";
-      const directCount = entries.filter((item) => item.dataset.entryParent === currentPath).length;
-      const postCount = entries.filter((item) => item.dataset.entryType === "file" && item.dataset.entryPath?.startsWith(pathPrefix)).length;
-      const totalSize = entries
-        .filter((item) => item.dataset.entryType === "file" && item.dataset.entryPath?.startsWith(pathPrefix))
-        .reduce((total, item) => total + Number(item.dataset.entrySize || 0), 0);
-      const icon = (folder ?? homeCrumb).querySelector("svg")?.cloneNode(true);
+      const folder = currentPath ? getEntry(currentVolume, currentPath) : null;
+      const prefix = currentPath ? `${currentPath}/` : "";
+      const directCount = entries.filter((item) =>
+        item.dataset.entryVolume === currentVolume && item.dataset.entryParent === currentPath
+      ).length;
+      const contentKind = currentVolume === "files" ? "article" : "track";
+      const descendantCount = entries.filter((item) =>
+        item.dataset.entryVolume === currentVolume &&
+        item.dataset.entryKind === contentKind &&
+        (!currentPath || item.dataset.entryPath?.startsWith(prefix))
+      ).length;
+
+      const icon = folder?.querySelector("svg")?.cloneNode(true) ?? volumeIconTemplate?.cloneNode(true);
       if (detailsIcon && icon) detailsIcon.replaceChildren(icon);
-      setText("[data-file-details-title]", folder?.dataset.entryDisplayName || "文章");
-      setText("[data-file-details-name]", currentPath || "content/articles");
-      setText("[data-file-details-description]", folder?.dataset.entryDescription || "本地文章目录，文件夹结构会直接映射到这里。");
-      setText("[data-file-details-type]", "内容目录");
-      setText("[data-file-details-location]", `content/articles${currentPath ? `/${currentPath}` : ""}`);
+      detailsIcon?.classList.toggle("is-volume", !folder);
+      detailsIcon?.classList.remove("is-music");
+
+      setText("[data-file-details-title]", folder?.dataset.entryDisplayName || volume?.dataset.volumeName || getVolumeName(currentVolume));
+      setText("[data-file-details-name]", folder?.dataset.entryName || "内容卷");
+      setText("[data-file-details-description]", folder?.dataset.entryDescription || volume?.dataset.volumeDescription || "内容卷");
+      setText("[data-file-details-type]", folder?.dataset.entryTypeLabel || "内容卷");
+      setText("[data-file-details-location]", folder?.dataset.entryLocation || volume?.dataset.volumeLocation || "--");
       setText("[data-file-details-count]", `${directCount} 个项目`);
-      if (postsLabel) postsLabel.textContent = "文章";
-      if (postsValue) postsValue.textContent = `${postCount} 篇`;
-      setText("[data-file-details-size]", formatSize(totalSize));
-      if (dateRow) dateRow.hidden = true;
-      if (readRow) readRow.hidden = true;
-      if (tags) tags.hidden = true;
-      if (open) open.hidden = true;
+      if (metaLabel) metaLabel.textContent = currentVolume === "files" ? "文章" : "歌曲";
+      if (metaValue) metaValue.textContent = `${descendantCount} ${currentVolume === "files" ? "篇" : "首"}`;
+
+      if (sizeRow) sizeRow.hidden = currentVolume !== "files";
+      if (currentVolume === "files") {
+        const size = folder ? Number(folder.dataset.entrySize || 0) : Number(volume?.dataset.volumeSize || 0);
+        setText("[data-file-details-size]", formatSize(size));
+      }
+      const modified = folder?.dataset.entryModified || volume?.dataset.volumeModified || "";
+      setText("[data-file-details-date]", formatDate(modified));
+      if (dateRow) dateRow.hidden = !modified;
       return;
     }
 
     const isFolder = entry.dataset.entryType === "folder";
+    const kind = entry.dataset.entryKind || "";
+    const isTrack = kind === "track";
     const icon = entry.querySelector("svg")?.cloneNode(true);
     if (detailsIcon && icon) detailsIcon.replaceChildren(icon);
+    detailsIcon?.classList.remove("is-volume");
+    detailsIcon?.classList.toggle("is-music", isTrack);
+
     setText("[data-file-details-title]", entry.dataset.entryDisplayName || entry.dataset.entryName || "未命名");
     setText("[data-file-details-name]", entry.dataset.entryName || "");
     setText("[data-file-details-description]", entry.dataset.entryDescription || "暂无说明。");
-    setText("[data-file-details-type]", isFolder ? "文件夹" : "Markdown 文档");
-    setText("[data-file-details-location]", `content/articles/${entry.dataset.entryPath}${isFolder ? "" : ".md"}`);
+    setText("[data-file-details-type]", entry.dataset.entryTypeLabel || (isFolder ? "文件夹" : "文件"));
+    setText("[data-file-details-location]", entry.dataset.entryLocation || entry.dataset.entryPath || "--");
     setText("[data-file-details-count]", isFolder ? `${entry.dataset.entryCount || 0} 个项目` : entry.dataset.entryName || "--");
-    if (postsLabel) postsLabel.textContent = isFolder ? "文章" : "分类";
-    if (postsValue) {
-      const prefix = `${entry.dataset.entryPath}/`;
-      const descendantCount = entries.filter((item) => item.dataset.entryType === "file" && item.dataset.entryPath?.startsWith(prefix)).length;
-      postsValue.textContent = isFolder ? `${descendantCount} 篇` : entry.dataset.entryCategory || "未分类";
+
+    if (metaLabel && metaValue) {
+      if (isFolder) {
+        const prefix = `${entry.dataset.entryPath || ""}/`;
+        const contentKind = currentVolume === "files" ? "article" : "track";
+        const descendantCount = entries.filter((item) =>
+          item.dataset.entryVolume === currentVolume &&
+          item.dataset.entryKind === contentKind &&
+          item.dataset.entryPath?.startsWith(prefix)
+        ).length;
+        metaLabel.textContent = currentVolume === "files" ? "文章" : "歌曲";
+        metaValue.textContent = `${descendantCount} ${currentVolume === "files" ? "篇" : "首"}`;
+      } else if (kind === "article") {
+        metaLabel.textContent = "分类";
+        metaValue.textContent = entry.dataset.entryCategory || "未分类";
+      } else {
+        metaLabel.textContent = "来源";
+        metaValue.textContent = "网易云音乐";
+      }
     }
-    setText("[data-file-details-size]", formatSize(Number(entry.dataset.entrySize || 0)));
+
+    if (sizeRow) sizeRow.hidden = currentVolume !== "files";
+    if (currentVolume === "files") setText("[data-file-details-size]", formatSize(Number(entry.dataset.entrySize || 0)));
     setText("[data-file-details-date]", formatDate(entry.dataset.entryModified));
     if (dateRow) dateRow.hidden = !entry.dataset.entryModified;
     setText("[data-file-details-read]", `${entry.dataset.entryMinutes || "--"} 分钟`);
-    if (readRow) readRow.hidden = isFolder || !entry.dataset.entryMinutes;
+    if (readRow) readRow.hidden = kind !== "article" || !entry.dataset.entryMinutes;
+
+    if (isTrack) {
+      setText("[data-file-details-artist]", entry.dataset.entryArtist || "--");
+      setText("[data-file-details-album]", entry.dataset.entryAlbum || "--");
+      setText("[data-file-details-duration]", formatDuration(Number(entry.dataset.entryDuration || 0)));
+      if (artistRow) artistRow.hidden = false;
+      if (albumRow) albumRow.hidden = false;
+      if (durationRow) durationRow.hidden = false;
+    }
 
     const entryTags = (entry.dataset.entryTags || "").split(",").filter(Boolean);
     if (tags) {
@@ -604,11 +736,8 @@ function initializeFileManager() {
       }));
       tags.hidden = entryTags.length === 0;
     }
-    if (open) {
-      open.hidden = isFolder || !entry.dataset.entryHref;
-      if (entry.dataset.entryHref) open.href = entry.dataset.entryHref;
-    }
   };
+
   const selectEntry = (entry: HTMLButtonElement, focus = false) => {
     clearSelection();
     selected = entry;
@@ -619,26 +748,7 @@ function initializeFileManager() {
     if (selectionStatus) selectionStatus.textContent = `已选择 ${entry.dataset.entryDisplayName || entry.dataset.entryName}`;
     updateDetails(entry);
   };
-  const renderBreadcrumbs = () => {
-    const fragments: Node[] = [homeCrumb.cloneNode(true)];
-    let path = "";
-    currentPath.split("/").filter(Boolean).forEach((segment) => {
-      path = path ? `${path}/${segment}` : segment;
-      const separator = document.createElement("span");
-      separator.className = "file-manager__breadcrumb-separator";
-      separator.textContent = "/";
-      const button = document.createElement("button");
-      button.type = "button";
-      button.dataset.filePath = path;
-      button.textContent = byPath.get(path)?.dataset.entryDisplayName || segment;
-      fragments.push(separator, button);
-    });
-    breadcrumbs.replaceChildren(...fragments);
-    breadcrumbs.querySelectorAll("button").forEach((button, index, buttons) => {
-      if (index === buttons.length - 1) button.setAttribute("aria-current", "page");
-      else button.removeAttribute("aria-current");
-    });
-  };
+
   const compareEntries = (left: HTMLButtonElement, right: HTMLButtonElement) => {
     const leftFolder = left.dataset.entryType === "folder";
     const rightFolder = right.dataset.entryType === "folder";
@@ -646,20 +756,24 @@ function initializeFileManager() {
     let value = 0;
     if (sortSelect.value === "date") value = Number(left.dataset.entryTime || 0) - Number(right.dataset.entryTime || 0);
     else if (sortSelect.value === "size") value = Number(left.dataset.entrySize || 0) - Number(right.dataset.entrySize || 0);
-    else if (sortSelect.value === "type") value = (left.dataset.entryName?.split(".").at(-1) || "").localeCompare(right.dataset.entryName?.split(".").at(-1) || "", "zh-CN");
+    else if (sortSelect.value === "type") value = (left.dataset.entryTypeLabel || "").localeCompare(right.dataset.entryTypeLabel || "", "zh-CN");
     else value = (left.dataset.entryDisplayName || "").localeCompare(right.dataset.entryDisplayName || "", "zh-CN");
     if (value === 0) value = (left.dataset.entryDisplayName || "").localeCompare(right.dataset.entryDisplayName || "", "zh-CN");
     return descending ? -value : value;
   };
+
   const render = () => {
     const query = searchInput.value.trim().toLocaleLowerCase("zh-CN");
     root.classList.toggle("is-searching", Boolean(query));
     clearSelection();
     entries.forEach((entry) => { entry.hidden = true; });
     const visible = entries
-      .filter((entry) => query
-        ? (entry.dataset.entrySearch || "").includes(query)
-        : entry.dataset.entryParent === currentPath)
+      .filter((entry) =>
+        entry.dataset.entryVolume === currentVolume &&
+        (query
+          ? (entry.dataset.entrySearch || "").includes(query)
+          : entry.dataset.entryParent === currentPath)
+      )
       .sort(compareEntries);
     visible.forEach((entry) => {
       entry.hidden = false;
@@ -673,27 +787,59 @@ function initializeFileManager() {
     updateDetails(null);
     saveState();
   };
-  const visit = (path: string, push = true) => {
-    if (path === currentPath && !searchInput.value) return;
-    currentPath = path;
+
+  const visit = (location: FileManagerLocation, push = true) => {
+    if (!validLocation(location)) return;
+    if (location.volume === currentVolume && location.path === currentPath && !searchInput.value) {
+      setVolumeMenu(false);
+      return;
+    }
+    currentVolume = location.volume;
+    currentPath = location.path;
     searchInput.value = "";
     if (push) {
-      history = [...history.slice(0, historyIndex + 1), path];
+      history = [...history.slice(0, historyIndex + 1), { volume: currentVolume, path: currentPath }];
       historyIndex = history.length - 1;
     }
+    setVolumeMenu(false);
     renderBreadcrumbs();
     browserPane?.scrollTo({ top: 0 });
     render();
   };
+
   const activate = (entry: HTMLButtonElement) => {
-    if (entry.dataset.entryType === "folder") visit(entry.dataset.entryPath || "");
-    else if (entry.dataset.entryHref) {
+    if (entry.dataset.entryType === "folder") {
+      visit({ volume: currentVolume, path: entry.dataset.entryPath || "" });
+    } else if (entry.dataset.entryHref) {
       saveState();
+      if (entry.dataset.entryExternal === "true") {
+        window.open(entry.dataset.entryHref, "_blank", "noopener,noreferrer");
+        return;
+      }
       rememberReaderReturn();
       if (uiConfig.pageTransition.enabled) void navigate(entry.dataset.entryHref, { sourceElement: entry });
       else location.href = entry.dataset.entryHref;
     }
   };
+
+  volumeTrigger.addEventListener("click", (event) => {
+    event.stopPropagation();
+    setVolumeMenu(Boolean(volumeMenu.hidden));
+  });
+  volumeMenu.addEventListener("click", (event) => {
+    const button = event.target instanceof Element ? event.target.closest<HTMLButtonElement>("[data-file-volume]") : null;
+    if (!button || !isVolume(button.dataset.fileVolume)) return;
+    visit({ volume: button.dataset.fileVolume, path: "" });
+  });
+  root.addEventListener("click", (event) => {
+    if (!(event.target instanceof Element) || !event.target.closest("[data-file-volume-picker]")) setVolumeMenu(false);
+  });
+  root.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !volumeMenu.hidden) {
+      setVolumeMenu(false);
+      volumeTrigger.focus();
+    }
+  });
 
   entryContainer.addEventListener("click", (event) => {
     const entry = event.target instanceof Element ? event.target.closest<HTMLButtonElement>("[data-file-entry]") : null;
@@ -718,12 +864,13 @@ function initializeFileManager() {
       selectEntry(visible[nextIndex], true);
     } else if (event.key === "Backspace" && currentPath) {
       event.preventDefault();
-      visit(currentPath.split("/").slice(0, -1).join("/"));
+      visit({ volume: currentVolume, path: currentPath.split("/").slice(0, -1).join("/") });
     }
   });
+
   breadcrumbs.addEventListener("click", (event) => {
     const button = event.target instanceof Element ? event.target.closest<HTMLButtonElement>("[data-file-path]") : null;
-    if (button) visit(button.dataset.filePath || "");
+    if (button) visit({ volume: currentVolume, path: button.dataset.filePath || "" });
   });
   searchInput.addEventListener("input", render);
   sortSelect.addEventListener("change", render);
@@ -737,20 +884,29 @@ function initializeFileManager() {
   backButton?.addEventListener("click", () => {
     if (historyIndex <= 0) return;
     historyIndex -= 1;
-    currentPath = history[historyIndex];
+    const next = history[historyIndex];
+    currentVolume = next.volume;
+    currentPath = next.path;
     searchInput.value = "";
     renderBreadcrumbs();
+    browserPane?.scrollTo({ top: 0 });
     render();
   });
   forwardButton?.addEventListener("click", () => {
     if (historyIndex >= history.length - 1) return;
     historyIndex += 1;
-    currentPath = history[historyIndex];
+    const next = history[historyIndex];
+    currentVolume = next.volume;
+    currentPath = next.path;
     searchInput.value = "";
     renderBreadcrumbs();
+    browserPane?.scrollTo({ top: 0 });
     render();
   });
-  upButton?.addEventListener("click", () => visit(currentPath.split("/").slice(0, -1).join("/")));
+  upButton?.addEventListener("click", () => {
+    if (!currentPath) return;
+    visit({ volume: currentVolume, path: currentPath.split("/").slice(0, -1).join("/") });
+  });
   root.querySelector("[data-file-refresh]")?.addEventListener("click", render);
   root.querySelectorAll<HTMLButtonElement>("[data-file-view]").forEach((button) => {
     button.addEventListener("click", () => {

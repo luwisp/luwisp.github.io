@@ -1799,22 +1799,103 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
 }
 
 .file-manager__breadcrumbs {
+  position: relative;
   display: flex;
   align-items: center;
   min-width: 0;
   height: 36px;
-  overflow-x: auto;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--panel-soft);
+}
+
+.file-manager__volume-picker {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 34px;
+  align-self: stretch;
+}
+
+.file-manager__volume-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  gap: 1px;
+  padding: 0;
+  border-radius: 5px;
+  color: var(--subtle);
+  background: transparent;
+  cursor: pointer;
+}
+
+.file-manager__volume-trigger:hover,
+.file-manager__volume-trigger:focus-visible,
+.file-manager__volume-trigger[aria-expanded="true"] {
+  color: var(--text);
+  background: color-mix(in srgb, var(--surface-raised) 72%, transparent);
+  outline: 0;
+}
+
+.file-manager__volume-trigger svg:last-child {
+  width: 9px;
+  opacity: 0.72;
+}
+
+.file-manager__volume-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 20;
+  width: max-content;
+  min-width: 68px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--panel-strong);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--shadow) 30%, transparent);
+}
+
+.file-manager__volume-menu button {
+  display: block;
+  width: 100%;
+  min-height: 30px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 0.72rem;
+  font-weight: 650;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.file-manager__volume-menu button:hover,
+.file-manager__volume-menu button:focus-visible,
+.file-manager__volume-menu button.is-active {
+  color: var(--text);
+  background: var(--panel-soft);
+  outline: 0;
+}
+
+.file-manager__breadcrumb-trail {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: 34px;
+  overflow-x: auto;
   scrollbar-width: none;
 }
 
-.file-manager__breadcrumbs::-webkit-scrollbar {
+.file-manager__breadcrumb-trail::-webkit-scrollbar {
   display: none;
 }
 
-.file-manager__breadcrumbs button {
+.file-manager__volume-name,
+.file-manager__breadcrumb-trail button {
   display: inline-flex;
   align-items: center;
   min-width: max-content;
@@ -1828,13 +1909,21 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
   cursor: pointer;
 }
 
-.file-manager__breadcrumbs button:hover,
-.file-manager__breadcrumbs button[aria-current="page"] {
+.file-manager__volume-name:hover,
+.file-manager__volume-name[aria-current="page"],
+.file-manager__breadcrumb-trail button:hover,
+.file-manager__breadcrumb-trail button[aria-current="page"] {
   color: var(--text);
   background: color-mix(in srgb, var(--surface-raised) 72%, transparent);
 }
 
+.file-manager__volume-name {
+  flex: 0 0 auto;
+  font-weight: 680;
+}
+
 .file-manager__breadcrumb-separator {
+  flex: 0 0 auto;
   color: var(--subtle);
   font-size: 0.7rem;
 }
@@ -2003,6 +2092,12 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
 
 .file-manager__entry-icon.is-folder {
   color: var(--warning);
+}
+
+.file-manager__entry-icon.is-music,
+.file-manager__details-hero > span.is-music,
+.file-manager__details-hero > span.is-volume {
+  color: var(--accent-2);
 }
 
 .file-manager__entry-copy {
@@ -2220,20 +2315,6 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
   color: var(--accent);
   background: color-mix(in srgb, var(--accent) 12%, var(--panel-soft));
   font-size: 0.62rem;
-}
-
-.file-manager__open {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 38px;
-  gap: 7px;
-  margin-top: 16px;
-  border-radius: 8px;
-  color: var(--accent-text);
-  background: var(--accent);
-  font-size: 0.73rem;
-  font-weight: 700;
 }
 
 .file-manager__statusbar {
