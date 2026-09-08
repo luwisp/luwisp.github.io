@@ -72,6 +72,7 @@ export interface FileManagerEntry {
   artist?: string;
   album?: string;
   durationMs?: number;
+  coverUrl?: string;
 }
 
 export interface FileManagerData {
@@ -167,7 +168,8 @@ export function getFileManagerData(posts: PostEntry[], music: MusicSnapshot): Fi
       itemCount: playlist.tracks.length,
       typeLabel: "文件夹",
       location: playlist.url,
-      tags: []
+      tags: [],
+      coverUrl: playlist.coverUrl.replace(/^http:/, "https:")
     });
 
     for (const track of playlist.tracks) {
@@ -192,7 +194,8 @@ export function getFileManagerData(posts: PostEntry[], music: MusicSnapshot): Fi
         tags: [],
         artist: track.artists.join(" / "),
         album: track.album,
-        durationMs: track.durationMs
+        durationMs: track.durationMs,
+        coverUrl: track.coverUrl.replace(/^http:/, "https:")
       });
     }
   }

@@ -132,6 +132,7 @@ const defaultEntries = entries
               data-entry-artist={entry.artist}
               data-entry-album={entry.album}
               data-entry-duration={entry.durationMs}
+              data-entry-cover={entry.coverUrl}
               data-entry-path={entry.path}
               data-entry-parent={entry.parentPath}
               data-entry-name={entry.name}
@@ -173,7 +174,10 @@ const defaultEntries = entries
 
       <aside class="file-manager__details" data-file-details aria-label="项目详情">
         <div class="file-manager__details-hero">
-          <span data-file-details-icon class="is-volume"><Icon name="drive" size={34} strokeWidth={1.5} /></span>
+          <span class="file-manager__details-visual">
+            <span data-file-details-icon class="is-volume"><Icon name="drive" size={34} strokeWidth={1.5} /></span>
+            <img data-file-details-cover alt="" decoding="async" referrerpolicy="no-referrer" hidden />
+          </span>
           <div>
             <h1 data-file-details-title>{defaultVolume.name}</h1>
             <p data-file-details-name>内容卷</p>

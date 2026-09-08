@@ -551,6 +551,29 @@ function initializeFileManager() {
     const target = details.querySelector<HTMLElement>(selector);
     if (target) target.textContent = value;
   };
+  const setDetailsVisual = (icon: Node | null | undefined, coverUrl?: string) => {
+    const detailsIcon = details.querySelector<HTMLElement>("[data-file-details-icon]");
+    const detailsCover = details.querySelector<HTMLImageElement>("[data-file-details-cover]");
+    if (detailsIcon && icon) detailsIcon.replaceChildren(icon);
+    if (!detailsCover || !detailsIcon) return;
+
+    detailsCover.onerror = null;
+    detailsCover.onload = null;
+    detailsCover.hidden = true;
+    detailsCover.removeAttribute("src");
+    detailsIcon.hidden = false;
+
+    if (!coverUrl) return;
+    detailsCover.onerror = () => {
+      if (detailsCover.src !== coverUrl) return;
+      detailsCover.hidden = true;
+      detailsCover.removeAttribute("src");
+      detailsIcon.hidden = false;
+    };
+    detailsCover.src = coverUrl;
+    detailsCover.hidden = false;
+    detailsIcon.hidden = true;
+  };
   const setVolumeMenu = (open: boolean) => {
     volumeMenu.hidden = !open;
     volumeTrigger.setAttribute("aria-expanded", String(open));
@@ -652,7 +675,7 @@ function initializeFileManager() {
       ).length;
 
       const icon = folder?.querySelector("svg")?.cloneNode(true) ?? volumeIconTemplate?.cloneNode(true);
-      if (detailsIcon && icon) detailsIcon.replaceChildren(icon);
+      setDetailsVisual(icon, folder?.dataset.entryCover);
       detailsIcon?.classList.toggle("is-volume", !folder);
       detailsIcon?.classList.remove("is-music");
 
@@ -680,7 +703,7 @@ function initializeFileManager() {
     const kind = entry.dataset.entryKind || "";
     const isTrack = kind === "track";
     const icon = entry.querySelector("svg")?.cloneNode(true);
-    if (detailsIcon && icon) detailsIcon.replaceChildren(icon);
+    setDetailsVisual(icon, entry.dataset.entryCover);
     detailsIcon?.classList.remove("is-volume");
     detailsIcon?.classList.toggle("is-music", isTrack);
 

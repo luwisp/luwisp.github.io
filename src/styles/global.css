@@ -2095,8 +2095,8 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
 }
 
 .file-manager__entry-icon.is-music,
-.file-manager__details-hero > span.is-music,
-.file-manager__details-hero > span.is-volume {
+.file-manager__details-visual [data-file-details-icon].is-music,
+.file-manager__details-visual [data-file-details-icon].is-volume {
   color: var(--accent-2);
 }
 
@@ -2238,17 +2238,33 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
 
 .file-manager__details-hero {
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
+  grid-template-columns: 64px minmax(0, 1fr);
   align-items: center;
   gap: 11px;
 }
 
-.file-manager__details-hero > span {
+.file-manager__details-visual {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+}
+
+.file-manager__details-visual [data-file-details-icon] {
   display: grid;
   place-items: center;
   width: 46px;
   height: 46px;
   color: var(--warning);
+}
+
+.file-manager__details-visual img {
+  width: 64px;
+  height: 64px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  object-fit: cover;
+  background: var(--panel-soft);
 }
 
 .file-manager__details-hero h1,
