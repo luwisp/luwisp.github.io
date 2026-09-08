@@ -1,0 +1,514 @@
+{
+  "generatedAt": "2026-09-05T12:44:25.845Z",
+  "status": "ready",
+  "playlists": [
+    {
+      "id": "17606027552",
+      "name": "一只落蓉的2025年度歌单",
+      "description": "",
+      "coverUrl": "https://p2.music.126.net/aYHiamEp6Vz5VBwoEKemuA==/109951167839473067.jpg",
+      "creator": "一只落蓉",
+      "trackCount": 10,
+      "updatedAt": "2025-12-29T01:56:41.906Z",
+      "url": "https://music.163.com/#/my/m/music/playlist?id=17606027552",
+      "tracks": [
+        {
+          "id": "2021943873",
+          "name": "旧电台",
+          "artists": [
+            "Akie秋绘"
+          ],
+          "album": "旧电台",
+          "coverUrl": "http://p2.music.126.net/aYHiamEp6Vz5VBwoEKemuA==/109951167839473067.jpg",
+          "durationMs": 259039,
+          "url": "https://music.163.com/#/song?id=2021943873"
+        },
+        {
+          "id": "2062383170",
+          "name": "毕业通知",
+          "artists": [
+            "WOVOP",
+            "洛天依"
+          ],
+          "album": "毕业通知",
+          "coverUrl": "http://p2.music.126.net/D9gwojlQb3_gDXObT4PpMQ==/109951168725977276.jpg",
+          "durationMs": 240374,
+          "url": "https://music.163.com/#/song?id=2062383170"
+        },
+        {
+          "id": "2031664863",
+          "name": "拝啓",
+          "artists": [
+            "ぺぽよ",
+            "初音ミク"
+          ],
+          "album": "拝啓",
+          "coverUrl": "http://p2.music.126.net/Q9PrB5euHujvPISecPnO3A==/109951168481601452.jpg",
+          "durationMs": 269407,
+          "url": "https://music.163.com/#/song?id=2031664863"
+        },
+        {
+          "id": "1398875394",
+          "name": "繁花尽",
+          "artists": [
+            "锦零"
+          ],
+          "album": "繁花尽",
+          "coverUrl": "http://p2.music.126.net/m_x6nREHAeL_zu2y523_rA==/109951164445774122.jpg",
+          "durationMs": 229889,
+          "url": "https://music.163.com/#/song?id=1398875394"
+        },
+        {
+          "id": "2736681111",
+          "name": "Pulse in Flora",
+          "artists": [
+            "Empty old City",
+            "HoYoFair"
+          ],
+          "album": "Pulse in Flora",
+          "coverUrl": "http://p2.music.126.net/uxcMET8PVdzD0dwXLLAawQ==/109951171874494611.jpg",
+          "durationMs": 237066,
+          "url": "https://music.163.com/#/song?id=2736681111"
+        },
+        {
+          "id": "2008531008",
+          "name": "所念皆星河",
+          "artists": [
+            "紫苏九月"
+          ],
+          "album": "一些翻唱",
+          "coverUrl": "http://p2.music.126.net/YQSFZxbyoYZh7jl5ddMsQA==/109951167701405084.jpg",
+          "durationMs": 244479,
+          "url": "https://music.163.com/#/song?id=2008531008"
+        },
+        {
+          "id": "1408570397",
+          "name": "マジカルドクター",
+          "artists": [
+            "MARETU",
+            "初音ミク"
+          ],
+          "album": "しう",
+          "coverUrl": "http://p2.music.126.net/bIcJpr5ZM8xIs3PajoxsQg==/109951170987775994.jpg",
+          "durationMs": 220220,
+          "url": "https://music.163.com/#/song?id=1408570397"
+        },
+        {
+          "id": "2163681992",
+          "name": "使一颗心免于哀伤（安可）If I Can Stop One Heart From Breaking (Encore)",
+          "artists": [
+            "知更鸟",
+            "HOYO-MiX",
+            "Chevy"
+          ],
+          "album": "崩坏星穹铁道-飞来波的圣状（上篇）The Flapper Sinthome Disc1",
+          "coverUrl": "http://p2.music.126.net/vrdxDZfZjd9gMkHBAcFOWA==/109951169657730057.jpg",
+          "durationMs": 45000,
+          "url": "https://music.163.com/#/song?id=2163681992"
+        },
+        {
+          "id": "1939751157",
+          "name": "Lullaby",
+          "artists": [
+            "Enzalla"
+          ],
+          "album": "Lullaby",
+          "coverUrl": "http://p2.music.126.net/tR8VUMlinkieEe3oRmYjug==/109951167317020395.jpg",
+          "durationMs": 163057,
+          "url": "https://music.163.com/#/song?id=1939751157"
+        },
+        {
+          "id": "2151868241",
+          "name": "花日巴林马 (治愈BGM)",
+          "artists": [
+            "凉山太子爷"
+          ],
+          "album": "温柔旋律 vol.9",
+          "coverUrl": "http://p2.music.126.net/MMp6ce0-gwI4KHoq3ee4AQ==/109951169553613986.jpg",
+          "durationMs": 195906,
+          "url": "https://music.163.com/#/song?id=2151868241"
+        }
+      ]
+    },
+    {
+      "id": "13069170068",
+      "name": "一只落蓉的2024年度歌单",
+      "description": "",
+      "coverUrl": "https://p2.music.126.net/BValSN6E3XOdMO4Zu7kPBA==/109951169676029249.jpg",
+      "creator": "一只落蓉",
+      "trackCount": 10,
+      "updatedAt": "2024-12-30T06:31:17.045Z",
+      "url": "https://music.163.com/#/my/m/music/playlist?id=13069170068",
+      "tracks": [
+        {
+          "id": "2165386067",
+          "name": "糖果色的梦",
+          "artists": [
+            "Kirara Magic"
+          ],
+          "album": "糖果色的梦",
+          "coverUrl": "http://p1.music.126.net/BValSN6E3XOdMO4Zu7kPBA==/109951169676029249.jpg",
+          "durationMs": 207239,
+          "url": "https://music.163.com/#/song?id=2165386067"
+        },
+        {
+          "id": "1956518984",
+          "name": "35°的汽水遇到0°的冰",
+          "artists": [
+            "一口甜"
+          ],
+          "album": "35°的汽水遇到0°的冰",
+          "coverUrl": "http://p1.music.126.net/94xgpjCWx_XQafsmjNmW9A==/109951167557783594.jpg",
+          "durationMs": 188962,
+          "url": "https://music.163.com/#/song?id=1956518984"
+        },
+        {
+          "id": "705331",
+          "name": "コネクト",
+          "artists": [
+            "ClariS"
+          ],
+          "album": "コネクト",
+          "coverUrl": "http://p1.music.126.net/w1-Rz3cBOA0_rSTAzne8xA==/109951168080908679.jpg",
+          "durationMs": 271789,
+          "url": "https://music.163.com/#/song?id=705331"
+        },
+        {
+          "id": "2004665859",
+          "name": "月亮星星眨眼睛",
+          "artists": [
+            "可能是雨雨"
+          ],
+          "album": "月亮星星眨眼睛",
+          "coverUrl": "http://p1.music.126.net/DhC-PKrqBNNtjPmHlQyXqw==/109951168122887964.jpg",
+          "durationMs": 156236,
+          "url": "https://music.163.com/#/song?id=2004665859"
+        },
+        {
+          "id": "426881500",
+          "name": "三葉のテーマ",
+          "artists": [
+            "RADWIMPS"
+          ],
+          "album": "君の名は。",
+          "coverUrl": "http://p1.music.126.net/UoHin_i29CVJr4gKPEY1kQ==/109951171836647530.jpg",
+          "durationMs": 243239,
+          "url": "https://music.163.com/#/song?id=426881500"
+        },
+        {
+          "id": "2601392535",
+          "name": "隙光海(人声本家)",
+          "artists": [
+            "Akie秋绘",
+            "摆寄魚"
+          ],
+          "album": "隙光海",
+          "coverUrl": "http://p1.music.126.net/yaJwaBar-On8g2gwEHWiXQ==/109951168980514662.jpg",
+          "durationMs": 258181,
+          "url": "https://music.163.com/#/song?id=2601392535"
+        },
+        {
+          "id": "1935023049",
+          "name": "流霰【人声本家】",
+          "artists": [
+            "醉安",
+            "旅行的蜗牛"
+          ],
+          "album": "流霰【人声本家】",
+          "coverUrl": "http://p1.music.126.net/64sIO1ROBGOlDy3gU6LDBA==/109951167243554103.jpg",
+          "durationMs": 240250,
+          "url": "https://music.163.com/#/song?id=1935023049"
+        },
+        {
+          "id": "2151900715",
+          "name": "千里饿殍行",
+          "artists": [
+            "Hanser"
+          ],
+          "album": "《饿殍：明末千里行》游戏主题曲",
+          "coverUrl": "http://p1.music.126.net/3KzZ1mxzXJO8UWq4zzlgDA==/109951169553717173.jpg",
+          "durationMs": 236904,
+          "url": "https://music.163.com/#/song?id=2151900715"
+        },
+        {
+          "id": "1996976277",
+          "name": "冬日来信",
+          "artists": [
+            "朵芊"
+          ],
+          "album": "【生日作】冬日来信",
+          "coverUrl": "http://p1.music.126.net/UYzwKAF-h174WMLvbK0kcQ==/109951168046040974.jpg",
+          "durationMs": 297156,
+          "url": "https://music.163.com/#/song?id=1996976277"
+        },
+        {
+          "id": "2100334024",
+          "name": "轻涟 La vaguelette",
+          "artists": [
+            "HOYO-MiX"
+          ],
+          "album": "原神-「轻涟 La vaguelette」游戏原声EP专辑",
+          "coverUrl": "http://p1.music.126.net/I-cw5yaq4Pz0EL2dZAmq1g==/109951169058808374.jpg",
+          "durationMs": 149520,
+          "url": "https://music.163.com/#/song?id=2100334024"
+        }
+      ]
+    },
+    {
+      "id": "9075441178",
+      "name": "一只落蓉的2023年度歌单",
+      "description": "想要记得四季\n想要记得情绪\n这份歌单载着你2023年的故事\n我们终将在音乐里相遇",
+      "coverUrl": "https://p1.music.126.net/YQSFZxbyoYZh7jl5ddMsQA==/109951167701405084.jpg",
+      "creator": "一只落蓉",
+      "trackCount": 10,
+      "updatedAt": "2024-02-06T15:15:54.783Z",
+      "url": "https://music.163.com/#/my/m/music/playlist?id=9075441178",
+      "tracks": [
+        {
+          "id": "2008531008",
+          "name": "所念皆星河",
+          "artists": [
+            "紫苏九月"
+          ],
+          "album": "一些翻唱",
+          "coverUrl": "http://p2.music.126.net/YQSFZxbyoYZh7jl5ddMsQA==/109951167701405084.jpg",
+          "durationMs": 244479,
+          "url": "https://music.163.com/#/song?id=2008531008"
+        },
+        {
+          "id": "2014336709",
+          "name": "我不曾忘记",
+          "artists": [
+            "花玲",
+            "张安琪",
+            "沐霏"
+          ],
+          "album": "我不曾忘记",
+          "coverUrl": "http://p2.music.126.net/dM_2lEqG7ZP7l0NjoApPFg==/109951168232666774.jpg",
+          "durationMs": 230514,
+          "url": "https://music.163.com/#/song?id=2014336709"
+        },
+        {
+          "id": "1483458348",
+          "name": "Hana",
+          "artists": [
+            "灰澈"
+          ],
+          "album": "星声",
+          "coverUrl": "http://p2.music.126.net/iHnD2rd138Z1BJ4TFsl2Yg==/109951165353759093.jpg",
+          "durationMs": 191400,
+          "url": "https://music.163.com/#/song?id=1483458348"
+        },
+        {
+          "id": "1983534049",
+          "name": "如果突然想起我",
+          "artists": [
+            "喵☆酱",
+            "花玲",
+            "爆裂菊是也"
+          ],
+          "album": "如果突然想起我",
+          "coverUrl": "http://p2.music.126.net/TlmxUEBp68EH4CMe4ROXqQ==/109951167898737755.jpg",
+          "durationMs": 231379,
+          "url": "https://music.163.com/#/song?id=1983534049"
+        },
+        {
+          "id": "1973314938",
+          "name": "致爱 A song for beloved",
+          "artists": [
+            "宴宁"
+          ],
+          "album": "致 爱「爱莉希雅」A song for beloved",
+          "coverUrl": "http://p2.music.126.net/Gs_boMKS37XULBBdIm_AkA==/109951167792703381.jpg",
+          "durationMs": 258066,
+          "url": "https://music.163.com/#/song?id=1973314938"
+        },
+        {
+          "id": "426881500",
+          "name": "三葉のテーマ",
+          "artists": [
+            "RADWIMPS"
+          ],
+          "album": "君の名は。",
+          "coverUrl": "http://p2.music.126.net/UoHin_i29CVJr4gKPEY1kQ==/109951171836647530.jpg",
+          "durationMs": 243239,
+          "url": "https://music.163.com/#/song?id=426881500"
+        },
+        {
+          "id": "1913873767",
+          "name": "一梦千宵",
+          "artists": [
+            "苏逸_Suyi",
+            "洛天依Official"
+          ],
+          "album": "一梦千宵",
+          "coverUrl": "http://p2.music.126.net/LjeSE86DNSr3Dy3N_pJ8ZQ==/109951166962567008.jpg",
+          "durationMs": 255348,
+          "url": "https://music.163.com/#/song?id=1913873767"
+        },
+        {
+          "id": "1477825439",
+          "name": "Journey",
+          "artists": [
+            "Kirara Magic",
+            "ugumugu"
+          ],
+          "album": "Journey",
+          "coverUrl": "http://p2.music.126.net/hxhGGYClg3q4yKOQ67OCHQ==/109951165305045924.jpg",
+          "durationMs": 264038,
+          "url": "https://music.163.com/#/song?id=1477825439"
+        },
+        {
+          "id": "2047787698",
+          "name": "致：黯淡星",
+          "artists": [
+            "江偌绮（傲七爷）",
+            "哦漏"
+          ],
+          "album": "致：黯淡星",
+          "coverUrl": "http://p2.music.126.net/LAXHjEEFTBTgg85eHWQ0LQ==/109951168616575456.jpg",
+          "durationMs": 239999,
+          "url": "https://music.163.com/#/song?id=2047787698"
+        },
+        {
+          "id": "1480769848",
+          "name": "Morning Coffee",
+          "artists": [
+            "Chevy",
+            "Nalba"
+          ],
+          "album": "Morning Coffee",
+          "coverUrl": "http://p2.music.126.net/IJv8FTkeMxAIzguJ_sP5dw==/109951165329879983.jpg",
+          "durationMs": 142659,
+          "url": "https://music.163.com/#/song?id=1480769848"
+        }
+      ]
+    },
+    {
+      "id": "7877584758",
+      "name": "星幻鲸落sea的2022年度歌单",
+      "description": "",
+      "coverUrl": "https://p1.music.126.net/OxJg0sAIZm93y7KessxA0Q==/109951166145402800.jpg",
+      "creator": "一只落蓉",
+      "trackCount": 10,
+      "updatedAt": "2022-12-30T07:23:42.373Z",
+      "url": "https://music.163.com/#/my/m/music/playlist?id=7877584758",
+      "tracks": [
+        {
+          "id": "1850441824",
+          "name": "Harmonious",
+          "artists": [
+            "Binary Haze Interactive",
+            "Mili"
+          ],
+          "album": "ENDER LILIES: Quietus of the Knights Original Soundtrack",
+          "coverUrl": "http://p1.music.126.net/cCXt0Rbny_HPiEKLNmA6Fw==/109951166057712738.jpg",
+          "durationMs": 188372,
+          "url": "https://music.163.com/#/song?id=1850441824"
+        },
+        {
+          "id": "29848622",
+          "name": "decide",
+          "artists": [
+            "鹿乃"
+          ],
+          "album": "グッドハロー",
+          "coverUrl": "http://p1.music.126.net/sTy2KaNEY1wPQjZu7XjZ2Q==/6642149744827768.jpg",
+          "durationMs": 354160,
+          "url": "https://music.163.com/#/song?id=29848622"
+        },
+        {
+          "id": "1949118948",
+          "name": "镜空",
+          "artists": [
+            "西不嘻",
+            "芷菡",
+            "冰棍儿鸭",
+            "虎子Icey"
+          ],
+          "album": "镜空",
+          "coverUrl": "http://p1.music.126.net/ZjiQ7SRoGdtRRWKhjOGykw==/109951167450136620.jpg",
+          "durationMs": 300067,
+          "url": "https://music.163.com/#/song?id=1949118948"
+        },
+        {
+          "id": "1858465188",
+          "name": "将遗憾写成歌",
+          "artists": [
+            "Akie秋绘"
+          ],
+          "album": "将遗憾写成歌（半木生）",
+          "coverUrl": "http://p1.music.126.net/OxJg0sAIZm93y7KessxA0Q==/109951166145402800.jpg",
+          "durationMs": 189648,
+          "url": "https://music.163.com/#/song?id=1858465188"
+        },
+        {
+          "id": "1343755784",
+          "name": "Grin",
+          "artists": [
+            "HyuN"
+          ],
+          "album": "In The Wind And In Time",
+          "coverUrl": "http://p1.music.126.net/J6b9guV6P3ABp54VinMTkg==/109951164524897252.jpg",
+          "durationMs": 317076,
+          "url": "https://music.163.com/#/song?id=1343755784"
+        },
+        {
+          "id": "1868711061",
+          "name": "她追逐着月光的尽头",
+          "artists": [
+            "warma"
+          ],
+          "album": "【翻唱】她追逐着月光的尽头",
+          "coverUrl": "http://p1.music.126.net/-5kwASaP2-LcTr9VrmnmTg==/109951166273496994.jpg",
+          "durationMs": 223764,
+          "url": "https://music.163.com/#/song?id=1868711061"
+        },
+        {
+          "id": "1423546962",
+          "name": "elm",
+          "artists": [
+            "Akie秋绘"
+          ],
+          "album": "elm",
+          "coverUrl": "http://p1.music.126.net/iNdcNhNxETtx8iIilr57bA==/109951164710435308.jpg",
+          "durationMs": 265011,
+          "url": "https://music.163.com/#/song?id=1423546962"
+        },
+        {
+          "id": "1834310426",
+          "name": "来自",
+          "artists": [
+            "叶琼琳"
+          ],
+          "album": "来自",
+          "coverUrl": "http://p1.music.126.net/BWSokLinPLx0KNkEp62m6Q==/109951172634858935.jpg",
+          "durationMs": 205349,
+          "url": "https://music.163.com/#/song?id=1834310426"
+        },
+        {
+          "id": "1919147134",
+          "name": "你从未离去",
+          "artists": [
+            "旺仔小乔"
+          ],
+          "album": "你从未离去",
+          "coverUrl": "http://p1.music.126.net/YkLkkUDR8RVHkbOmbrQntA==/109951167045698908.jpg",
+          "durationMs": 224096,
+          "url": "https://music.163.com/#/song?id=1919147134"
+        },
+        {
+          "id": "1843661121",
+          "name": "Diamond City Lights",
+          "artists": [
+            "LazuLight"
+          ],
+          "album": "Diamond City Lights",
+          "coverUrl": "http://p1.music.126.net/MKOcoyC4LMfayFBfFHPENQ==/109951165964991070.jpg",
+          "durationMs": 243602,
+          "url": "https://music.163.com/#/song?id=1843661121"
+        }
+      ]
+    }
+  ]
+}

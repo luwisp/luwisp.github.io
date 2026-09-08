@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
-    "sync-data": "node scripts/fetch-github-contributions.mjs",
+    "sync-github": "node scripts/fetch-github-contributions.mjs",
+    "sync-music": "node scripts/fetch-netease-playlists.mjs",
+    "sync-data": "npm run sync-github && npm run sync-music",
     "build": "npm run sync-data && ASTRO_TELEMETRY_DISABLED=1 astro build",
     "build:site": "ASTRO_TELEMETRY_DISABLED=1 astro build",
     "check": "ASTRO_TELEMETRY_DISABLED=1 astro check",
