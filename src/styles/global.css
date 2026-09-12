@@ -512,14 +512,55 @@ html[data-wallpaper-ready="true"] .wallpaper-loader,
 
 .desktop-widget {
   position: relative;
+  isolation: isolate;
   min-width: 0;
   min-height: 0;
   padding: 16px;
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 1px solid color-mix(in srgb, var(--border) 78%, #fff 8%);
   border-radius: 22px;
-  background: color-mix(in srgb, var(--surface-raised) 88%, transparent);
-  box-shadow: 0 10px 28px color-mix(in srgb, var(--shadow) 24%, transparent);
+  background: transparent;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 7%, transparent),
+    0 10px 28px color-mix(in srgb, var(--shadow) 22%, transparent);
+}
+
+.desktop-widget::before {
+  position: absolute;
+  inset: auto;
+  top: calc(-1 * var(--mica-offset-y, 0px));
+  left: calc(-1 * var(--mica-offset-x, 0px));
+  z-index: 0;
+  width: var(--mica-panel-width, 100%);
+  height: var(--mica-panel-height, 100%);
+  border-radius: 0;
+  background-color: var(--surface-muted);
+  background-image:
+    linear-gradient(var(--wallpaper-dim), var(--wallpaper-dim)),
+    var(--wallpaper-image);
+  background-position: center;
+  background-size: cover;
+  filter: blur(18px) saturate(108%);
+  transform: translateZ(0);
+  pointer-events: none;
+  content: "";
+}
+
+.desktop-widget::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, #fff 4%, transparent), transparent 30%),
+    color-mix(in srgb, var(--surface-raised) 82%, transparent);
+  pointer-events: none;
+  content: "";
+}
+
+.desktop-widget > * {
+  position: relative;
+  z-index: 2;
 }
 
 .desktop-app {

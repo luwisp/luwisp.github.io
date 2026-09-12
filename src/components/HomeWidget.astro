@@ -31,6 +31,11 @@ const desktopLink = id === "github"
   : id === "email"
     ? profile.links.find((link) => link.icon === "mail")
     : undefined;
+const desktopHref = desktopLink
+  ? desktopLink.icon === "mail" && !desktopLink.url.startsWith("mailto:")
+    ? `mailto:${desktopLink.url}`
+    : desktopLink.url
+  : undefined;
 const placementStyle = widgetPlacementStyle(id);
 ---
 
@@ -163,8 +168,8 @@ const placementStyle = widgetPlacementStyle(id);
 {desktopLink && (
   <a
     class:list={["desktop-app", `desktop-app--${id}`]}
-    href={desktopLink.url}
-    target={desktopLink.url.startsWith("http") ? "_blank" : undefined}
+    href={desktopHref}
+    target={desktopHref?.startsWith("http") ? "_blank" : undefined}
     rel="noreferrer"
     aria-label={desktopLink.label}
     style={placementStyle}

@@ -448,6 +448,7 @@ function initializeHomePager() {
       const width = Math.max(1, pager.clientWidth);
       const index = Math.max(0, Math.min(pages.length - 1, Math.round(pager.scrollLeft / width)));
       setActive(index);
+      refreshHomeMicaWidgets();
     });
   }, { passive: true });
 }
@@ -1040,6 +1041,29 @@ function preserveDocumentState(event: Event) {
   document.querySelector<HTMLDialogElement>("[data-theme-dialog]")?.close();
 }
 
+function refreshHomeMicaWidgets() {
+  const panel = document.querySelector<HTMLElement>("[data-main-panel]");
+  const widgets = [...document.querySelectorAll<HTMLElement>(".app-screen--home .desktop-widget")];
+  if (!panel || !widgets.length) return;
+
+  const panelRect = panel.getBoundingClientRect();
+  const panelWidth = `${panelRect.width}px`;
+  const panelHeight = `${panelRect.height}px`;
+  for (const widget of widgets) {
+    const rect = widget.getBoundingClientRect();
+    widget.style.setProperty("--mica-panel-width", panelWidth);
+    widget.style.setProperty("--mica-panel-height", panelHeight);
+    widget.style.setProperty("--mica-offset-x", `${rect.left - panelRect.left}px`);
+    widget.style.setProperty("--mica-offset-y", `${rect.top - panelRect.top}px`);
+  }
+}
+
+let homeMicaFrame = 0;
+function scheduleHomeMicaWidgets() {
+  window.cancelAnimationFrame(homeMicaFrame);
+  homeMicaFrame = window.requestAnimationFrame(refreshHomeMicaWidgets);
+}
+
 function initializePage() {
   initializeWallpaperLoader();
   if (document.body.dataset.uiInitialized === "true") return;
@@ -1051,6 +1075,7 @@ function initializePage() {
   initializeClocks();
   initializeArchivePagination();
   initializeHomePager();
+  refreshHomeMicaWidgets();
   initializeFileManager();
   initializeWebBrowser();
   if (
@@ -1092,6 +1117,8 @@ if (!runtimeWindow.__luorongSystemEvents) {
   document.addEventListener("click", preventRedundantInternalNavigation, { capture: true });
   document.addEventListener("astro:before-preparation", setTransitionDirection);
   document.addEventListener("astro:before-swap", preserveDocumentState);
+  document.addEventListener("astro:after-swap", refreshHomeMicaWidgets);
+  window.addEventListener("resize", scheduleHomeMicaWidgets, { passive: true });
   document.addEventListener("click", (event) => {
     if (!(event instanceof MouseEvent) || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const fileManagerClose = event.target instanceof Element
