@@ -537,11 +537,9 @@ html[data-wallpaper-ready="true"] .wallpaper-loader,
   background-color: var(--surface-muted);
   background-image:
     linear-gradient(var(--wallpaper-dim), var(--wallpaper-dim)),
-    var(--wallpaper-image);
+    var(--wallpaper-mica-image, var(--wallpaper-image));
   background-position: center;
   background-size: cover;
-  filter: blur(18px) saturate(108%);
-  transform: translateZ(0);
   pointer-events: none;
   content: "";
 }

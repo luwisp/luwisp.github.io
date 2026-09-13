@@ -1068,16 +1068,16 @@ function preserveDocumentState(event: Event) {
 
 function refreshHomeMicaWidgets() {
   const panel = document.querySelector<HTMLElement>("[data-main-panel]");
+  const homeScreen = document.querySelector<HTMLElement>(".app-screen--home");
   const widgets = [...document.querySelectorAll<HTMLElement>(".app-screen--home .desktop-widget")];
-  if (!panel || !widgets.length) return;
+  if (!panel || !homeScreen || !widgets.length) return;
 
   const panelRect = panel.getBoundingClientRect();
-  const panelWidth = `${panelRect.width}px`;
-  const panelHeight = `${panelRect.height}px`;
-  for (const widget of widgets) {
-    const rect = widget.getBoundingClientRect();
-    widget.style.setProperty("--mica-panel-width", panelWidth);
-    widget.style.setProperty("--mica-panel-height", panelHeight);
+  const measurements = widgets.map((widget) => ({ widget, rect: widget.getBoundingClientRect() }));
+
+  homeScreen.style.setProperty("--mica-panel-width", `${panelRect.width}px`);
+  homeScreen.style.setProperty("--mica-panel-height", `${panelRect.height}px`);
+  for (const { widget, rect } of measurements) {
     widget.style.setProperty("--mica-offset-x", `${rect.left - panelRect.left}px`);
     widget.style.setProperty("--mica-offset-y", `${rect.top - panelRect.top}px`);
   }
