@@ -696,12 +696,15 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
 }
 
 @media (min-width: 1280px) {
+  .page-frame--home {
+    padding: clamp(28px, 2.4vw, 42px);
+  }
+
   .home-pager {
-    --home-gap: 14px;
-    --home-double: calc(var(--home-cell) + var(--home-gap) + var(--home-cell));
-    --home-quad: calc(var(--home-double) + var(--home-gap) + var(--home-double));
-    grid-template-columns: repeat(4, minmax(0, var(--home-cell))) minmax(0, 1fr) repeat(4, minmax(0, var(--home-cell)));
-    grid-template-rows: var(--home-cell) minmax(0, 1fr) var(--home-cell);
+    --home-cell: clamp(118px, min(8.2vw, 14.5vh), 158px);
+    --home-gap: clamp(14px, 0.9vw, 18px);
+    grid-template-columns: repeat(4, var(--home-cell)) minmax(120px, 1fr) repeat(4, var(--home-cell));
+    grid-template-rows: repeat(3, var(--home-cell)) minmax(84px, 1fr) repeat(2, var(--home-cell));
     column-gap: var(--home-gap);
     row-gap: var(--home-gap);
     align-content: stretch;
@@ -716,26 +719,8 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
   .desktop-app {
     width: 100%;
     height: 100%;
-    max-width: var(--home-cell);
-    max-height: var(--home-cell);
-  }
-
-  [data-home-object="clock"],
-  [data-home-object="user"],
-  [data-home-object="stats"] {
-    max-width: var(--home-double);
-  }
-
-  [data-home-object="recent"] {
-    align-self: end;
-    max-width: var(--home-quad);
-    max-height: var(--home-double);
-  }
-
-  [data-home-object="contributions"] {
-    align-self: end;
-    justify-self: end;
-    max-width: var(--home-quad);
+    max-width: none;
+    max-height: none;
   }
 }
 
@@ -2123,12 +2108,37 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
   background: color-mix(in srgb, var(--accent) 15%, var(--panel-soft));
 }
 
+.file-manager__entry:focus-visible {
+  outline: 0;
+}
+
+.file-manager__entry-visual {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+}
+
+.file-manager__entry-visual > * {
+  grid-area: 1 / 1;
+}
+
 .file-manager__entry-icon {
   display: grid;
   place-items: center;
   width: 52px;
   height: 52px;
   color: var(--accent-2);
+}
+
+.file-manager__entry-cover {
+  display: none;
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  object-fit: cover;
+  background: var(--panel-soft);
 }
 
 .file-manager__entry-icon.is-folder {
@@ -2154,6 +2164,10 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.file-manager__entry-description {
+  display: none;
 }
 
 .file-manager__entry-copy strong {
@@ -2215,6 +2229,11 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
   text-align: left;
 }
 
+.file-manager.is-list-view .file-manager__entry-visual {
+  width: 34px;
+  height: 34px;
+}
+
 .file-manager.is-list-view .file-manager__entry-icon {
   width: 34px;
   height: 34px;
@@ -2239,6 +2258,88 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
   color: var(--subtle);
   font-size: 0.67rem;
   font-variant-numeric: tabular-nums;
+}
+
+.file-manager.is-card-view .file-manager__entries {
+  display: block;
+  min-height: 100%;
+  padding: 12px;
+}
+
+.file-manager.is-card-view .file-manager__entry {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  grid-template-rows: 1fr;
+  place-items: stretch;
+  align-items: center;
+  width: 100%;
+  min-height: 126px;
+  height: auto;
+  gap: 14px;
+  margin-bottom: 8px;
+  padding: 10px;
+  border-color: var(--border);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--surface-raised) 62%, var(--surface));
+  text-align: left;
+}
+
+.file-manager.is-card-view .file-manager__entry:last-child {
+  margin-bottom: 0;
+}
+
+.file-manager.is-card-view .file-manager__entry:hover {
+  background: color-mix(in srgb, var(--panel-soft) 82%, var(--surface-raised));
+}
+
+.file-manager.is-card-view .file-manager__entry.is-selected {
+  background: color-mix(in srgb, var(--accent) 13%, var(--surface-raised));
+}
+
+.file-manager.is-card-view .file-manager__entry-visual {
+  width: 104px;
+  height: 104px;
+}
+
+.file-manager.is-card-view .file-manager__entry-cover {
+  display: block;
+}
+
+.file-manager.is-card-view .file-manager__entry-icon {
+  width: 72px;
+  height: 72px;
+}
+
+.file-manager.is-card-view .file-manager__entry-icon svg {
+  width: 42px;
+  height: 42px;
+}
+
+.file-manager.is-card-view .file-manager__entry-copy {
+  align-self: center;
+}
+
+.file-manager.is-card-view .file-manager__entry-copy strong {
+  font-size: 0.9rem;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.file-manager.is-card-view .file-manager__entry-description {
+  display: -webkit-box;
+  margin-top: 7px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.file-manager.is-card-view .file-manager__entry-copy small {
+  margin-top: 8px;
+  color: var(--subtle);
+  font-size: 0.65rem;
 }
 
 .file-manager.is-searching .file-manager__entry-path {
@@ -2975,13 +3076,23 @@ html[data-app-direction="internal"]::view-transition-new(app-screen) {
   }
 
   .home-page {
+    --mobile-grid-gap: 9px;
+    --mobile-grid-edge-x: 10px;
+    --mobile-grid-edge-y: 8px;
+    --mobile-grid-cell: min(
+      108px,
+      calc((100vw - 2 * var(--mobile-grid-edge-x) - 3 * var(--mobile-grid-gap)) / 4),
+      calc((100svh - var(--mobile-dock-height) - 112px) / 5)
+    );
     flex: 0 0 100%;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    grid-template-rows: repeat(5, minmax(0, 1fr));
-    gap: 9px;
+    grid-template-columns: repeat(4, var(--mobile-grid-cell));
+    grid-template-rows: repeat(5, var(--mobile-grid-cell));
+    gap: var(--mobile-grid-gap);
+    align-content: center;
+    justify-content: center;
     min-width: 100%;
-    padding: 4px 10px 10px;
+    padding: var(--mobile-grid-edge-y) var(--mobile-grid-edge-x);
     scroll-snap-align: start;
     scroll-snap-stop: always;
   }
@@ -3215,6 +3326,11 @@ html[data-app-direction="internal"]::view-transition-new(app-screen) {
     padding: 6px;
   }
 
+  .file-manager__entry-visual {
+    width: 48px;
+    height: 48px;
+  }
+
   .file-manager__entry-icon {
     width: 46px;
     height: 46px;
@@ -3239,6 +3355,53 @@ html[data-app-direction="internal"]::view-transition-new(app-screen) {
     gap: 6px;
     padding-right: 6px;
     padding-left: 6px;
+  }
+
+  .file-manager.is-list-view .file-manager__entry-visual {
+    width: 34px;
+    height: 34px;
+  }
+
+  .file-manager.is-card-view .file-manager__entries {
+    padding: 8px;
+  }
+
+  .file-manager.is-card-view .file-manager__entry {
+    grid-template-columns: 82px minmax(0, 1fr);
+    min-height: 100px;
+    gap: 11px;
+    margin-bottom: 6px;
+    padding: 8px;
+  }
+
+  .file-manager.is-card-view .file-manager__entry-visual {
+    width: 82px;
+    height: 82px;
+  }
+
+  .file-manager.is-card-view .file-manager__entry-icon {
+    width: 58px;
+    height: 58px;
+  }
+
+  .file-manager.is-card-view .file-manager__entry-icon svg {
+    width: 34px;
+    height: 34px;
+  }
+
+  .file-manager.is-card-view .file-manager__entry-copy strong {
+    font-size: 0.8rem;
+  }
+
+  .file-manager.is-card-view .file-manager__entry-description {
+    margin-top: 5px;
+    font-size: 0.66rem;
+    line-height: 1.45;
+  }
+
+  .file-manager.is-card-view .file-manager__entry-copy small {
+    margin-top: 6px;
+    font-size: 0.61rem;
   }
 
   .file-manager__details {

@@ -36,6 +36,17 @@ export interface MusicSnapshot {
   playlists: MusicPlaylist[];
 }
 
+export interface MusicPlaylistSource {
+  id: string;
+  url?: string;
+  displayName?: string;
+  description?: string;
+}
+
+export interface MusicConfig {
+  playlists?: MusicPlaylistSource[];
+}
+
 export interface FileManagerVolume {
   id: FileManagerVolumeId;
   name: string;
@@ -84,7 +95,7 @@ function bodySize(body: string | undefined) {
   return new TextEncoder().encode(body ?? "").byteLength;
 }
 
-export function getFileManagerData(posts: PostEntry[], music: MusicSnapshot): FileManagerData {
+export function getFileManagerData(posts: PostEntry[], music: MusicSnapshot, musicConfig: MusicConfig = {}): FileManagerData {
   const articleFiles: FileManagerEntry[] = posts.map((post) => {
     const segments = post.id.split("/").filter(Boolean);
     const basename = segments.at(-1) ?? post.id;
@@ -149,9 +160,13 @@ export function getFileManagerData(posts: PostEntry[], music: MusicSnapshot): Fi
   });
 
   const playlists = music.status === "ready" ? music.playlists : [];
+  const playlistOverrides = new Map((musicConfig.playlists ?? []).map((source) => [String(source.id), source]));
   const musicEntries: FileManagerEntry[] = [];
   for (const playlist of playlists) {
     const playlistPath = playlist.id;
+    const override = playlistOverrides.get(String(playlist.id));
+    const displayName = override?.displayName?.trim() || playlist.name;
+    const description = override?.description?.trim() || playlist.description || `${playlist.creator ? `${playlist.creator} · ` : ""}${playlist.trackCount} 首歌曲`;
     musicEntries.push({
       volume: "music",
       type: "folder",
@@ -160,8 +175,8 @@ export function getFileManagerData(posts: PostEntry[], music: MusicSnapshot): Fi
       path: playlistPath,
       parentPath: "",
       name: playlist.name,
-      displayName: playlist.name,
-      description: playlist.description || `${playlist.creator ? `${playlist.creator} · ` : ""}${playlist.trackCount} 首歌曲`,
+      displayName,
+      description,
       modifiedAt: playlist.updatedAt,
       modifiedTime: playlist.updatedAt ? new Date(playlist.updatedAt).valueOf() : 0,
       sizeBytes: 0,

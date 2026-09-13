@@ -43,7 +43,6 @@ const placementStyle = widgetPlacementStyle(id);
   <section class="desktop-widget widget-clock" aria-label="当前时间" style={placementStyle} data-home-object={id}>
     <div class="widget-clock__header">
       <span class="clock-date" data-clock-date>正在读取日期</span>
-      <Icon name="clock" size={16} />
     </div>
     <time class="large-clock" data-clock data-clock-format="adaptive">--:--:--</time>
     <span class="clock-zone">上海</span>
@@ -154,7 +153,6 @@ const placementStyle = widgetPlacementStyle(id);
   <section class="desktop-widget widget-stats" aria-labelledby="stats-title" style={placementStyle} data-home-object={id}>
     <header class="widget-header widget-header--compact">
       <div><h2 id="stats-title">博客信息</h2></div>
-      <Icon name="info" size={17} />
     </header>
     <dl class="stats-grid">
       <div><dt>文章</dt><dd>{stats.postCount}</dd></div>

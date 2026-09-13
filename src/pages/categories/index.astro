@@ -2,11 +2,12 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Icon from "../../components/Icon.astro";
 import { getPosts } from "../../lib/content";
-import { getFileManagerData, type MusicSnapshot } from "../../lib/file-manager";
+import { getFileManagerData, type MusicConfig, type MusicSnapshot } from "../../lib/file-manager";
+import musicConfig from "../../../content/music.json";
 import musicData from "../../data/music.json";
 
 const posts = await getPosts();
-const { volumes, entries } = getFileManagerData(posts, musicData as MusicSnapshot);
+const { volumes, entries } = getFileManagerData(posts, musicData as MusicSnapshot, musicConfig as MusicConfig);
 const defaultVolume = volumes.find((volume) => volume.id === "files") ?? volumes[0];
 const defaultEntries = entries
   .filter((entry) => entry.volume === defaultVolume.id && entry.parentPath === "")
@@ -15,7 +16,7 @@ const defaultEntries = entries
 
 <BaseLayout activePage="categories" title="文件" description="按内容卷浏览文章与音乐">
   <section
-    class="file-manager"
+    class="file-manager is-card-view"
     data-file-manager
     data-default-volume={defaultVolume.id}
     aria-label="内容文件管理器"
@@ -97,8 +98,11 @@ const defaultEntries = entries
         <Icon name="down" size={17} />
       </button>
       <div class="file-manager__view-switch" role="group" aria-label="查看方式">
-        <button type="button" data-file-view="grid" class="is-active" aria-label="网格视图" title="网格视图" aria-pressed="true">
+        <button type="button" data-file-view="grid" aria-label="网格视图" title="网格视图" aria-pressed="false">
           <Icon name="grid" size={17} />
+        </button>
+        <button type="button" data-file-view="card" class="is-active" aria-label="卡片视图" title="卡片视图" aria-pressed="true">
+          <Icon name="cards" size={18} />
         </button>
         <button type="button" data-file-view="list" aria-label="列表视图" title="列表视图" aria-pressed="false">
           <Icon name="list" size={18} />
@@ -152,11 +156,17 @@ const defaultEntries = entries
               tabindex="-1"
               hidden={entry.volume !== defaultVolume.id || entry.parentPath !== ""}
             >
-              <span class:list={["file-manager__entry-icon", { "is-folder": entry.type === "folder", "is-music": entry.kind === "track" }]}>
-                <Icon name={entry.type === "folder" ? "folder" : entry.icon} size={entry.type === "folder" ? 34 : 31} strokeWidth={1.55} />
+              <span class="file-manager__entry-visual">
+                <span class:list={["file-manager__entry-icon", { "is-folder": entry.type === "folder", "is-music": entry.kind === "track" }]}>
+                  <Icon name={entry.type === "folder" ? "folder" : entry.icon} size={entry.type === "folder" ? 34 : 31} strokeWidth={1.55} />
+                </span>
+                {entry.coverUrl && (
+                  <img class="file-manager__entry-cover" src={entry.coverUrl} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+                )}
               </span>
               <span class="file-manager__entry-copy">
                 <strong>{entry.displayName}</strong>
+                <span class="file-manager__entry-description">{entry.description}</span>
                 <small>{entry.type === "folder" ? `${entry.itemCount} 个项目` : entry.kind === "track" ? entry.artist || "歌曲" : entry.name}</small>
               </span>
               <span class="file-manager__entry-type">{entry.typeLabel}</span>

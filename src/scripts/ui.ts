@@ -31,6 +31,7 @@ interface OpenReader {
 }
 
 type FileManagerVolumeId = "files" | "music";
+type FileManagerViewMode = "grid" | "card" | "list";
 
 interface FileManagerLocation {
   volume: FileManagerVolumeId;
@@ -45,6 +46,7 @@ interface FileManagerViewState {
   query?: string;
   sort?: string;
   descending?: boolean;
+  viewMode?: FileManagerViewMode;
   listView?: boolean;
   detailsVisible?: boolean;
   scrollTop?: number;
@@ -521,13 +523,25 @@ function initializeFileManager() {
   sortDirection?.setAttribute("aria-pressed", String(descending));
   sortDirection?.setAttribute("aria-label", descending ? "当前降序，切换为升序" : "当前升序，切换为降序");
 
-  const listView = Boolean(storedState.listView);
-  root.classList.toggle("is-list-view", listView);
-  root.querySelectorAll<HTMLButtonElement>("[data-file-view]").forEach((button) => {
-    const active = (button.dataset.fileView === "list") === listView;
-    button.classList.toggle("is-active", active);
-    button.setAttribute("aria-pressed", String(active));
-  });
+  let viewMode: FileManagerViewMode =
+    storedState.viewMode === "grid" || storedState.viewMode === "card" || storedState.viewMode === "list"
+      ? storedState.viewMode
+      : storedState.listView === true
+        ? "list"
+        : storedState.listView === false
+          ? "grid"
+          : "card";
+  const applyViewMode = (mode: FileManagerViewMode) => {
+    viewMode = mode;
+    root.classList.toggle("is-list-view", mode === "list");
+    root.classList.toggle("is-card-view", mode === "card");
+    root.querySelectorAll<HTMLButtonElement>("[data-file-view]").forEach((button) => {
+      const active = button.dataset.fileView === mode;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+  };
+  applyViewMode(viewMode);
 
   const detailsVisible = storedState.detailsVisible ?? !matchMedia("(max-width: 820px)").matches;
   root.classList.toggle("is-details-hidden", !detailsVisible);
@@ -588,7 +602,7 @@ function initializeFileManager() {
       query: searchInput.value,
       sort: sortSelect.value,
       descending,
-      listView: root.classList.contains("is-list-view"),
+      viewMode,
       detailsVisible: !root.classList.contains("is-details-hidden"),
       scrollTop: browserPane?.scrollTop ?? 0
     };
@@ -876,15 +890,30 @@ function initializeFileManager() {
     if (entry && !entry.hidden) activate(entry);
   });
   entryContainer.addEventListener("keydown", (event) => {
-    const visible = entries.filter((entry) => !entry.hidden);
+    const visible = [...entryContainer.querySelectorAll<HTMLButtonElement>("[data-file-entry]")]
+      .filter((entry) => !entry.hidden);
     const currentIndex = selected ? visible.indexOf(selected) : -1;
     if (event.key === "Enter" && selected) {
       event.preventDefault();
       activate(selected);
     } else if (["ArrowDown", "ArrowRight", "ArrowUp", "ArrowLeft"].includes(event.key) && visible.length) {
       event.preventDefault();
-      const backwards = event.key === "ArrowUp" || event.key === "ArrowLeft";
-      const nextIndex = currentIndex < 0 ? 0 : Math.max(0, Math.min(visible.length - 1, currentIndex + (backwards ? -1 : 1)));
+      let nextIndex = currentIndex < 0 ? 0 : currentIndex;
+
+      if (currentIndex >= 0 && viewMode === "grid") {
+        const firstTop = visible[0]?.offsetTop ?? 0;
+        const nextRowIndex = visible.findIndex((entry) => Math.abs(entry.offsetTop - firstTop) > 2);
+        const columns = nextRowIndex < 0 ? visible.length : Math.max(1, nextRowIndex);
+        const column = currentIndex % columns;
+        if (event.key === "ArrowLeft" && column > 0) nextIndex = currentIndex - 1;
+        else if (event.key === "ArrowRight" && column < columns - 1 && currentIndex + 1 < visible.length) nextIndex = currentIndex + 1;
+        else if (event.key === "ArrowUp" && currentIndex - columns >= 0) nextIndex = currentIndex - columns;
+        else if (event.key === "ArrowDown" && currentIndex + columns < visible.length) nextIndex = currentIndex + columns;
+      } else if (currentIndex >= 0) {
+        const delta = event.key === "ArrowUp" || event.key === "ArrowLeft" ? -1 : 1;
+        nextIndex = Math.max(0, Math.min(visible.length - 1, currentIndex + delta));
+      }
+
       selectEntry(visible[nextIndex], true);
     } else if (event.key === "Backspace" && currentPath) {
       event.preventDefault();
@@ -934,13 +963,9 @@ function initializeFileManager() {
   root.querySelector("[data-file-refresh]")?.addEventListener("click", render);
   root.querySelectorAll<HTMLButtonElement>("[data-file-view]").forEach((button) => {
     button.addEventListener("click", () => {
-      const listView = button.dataset.fileView === "list";
-      root.classList.toggle("is-list-view", listView);
-      root.querySelectorAll<HTMLButtonElement>("[data-file-view]").forEach((viewButton) => {
-        const active = viewButton === button;
-        viewButton.classList.toggle("is-active", active);
-        viewButton.setAttribute("aria-pressed", String(active));
-      });
+      const mode = button.dataset.fileView;
+      if (mode !== "grid" && mode !== "card" && mode !== "list") return;
+      applyViewMode(mode);
       saveState();
     });
   });
