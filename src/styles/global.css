@@ -749,6 +749,35 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
   grid-template-rows: auto minmax(0, 1fr);
 }
 
+.contribution-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.contribution-header h2 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.contribution-total {
+  flex: none;
+  color: var(--subtle);
+  font-size: 0.64rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.contribution-total strong {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+}
+
 .large-clock {
   align-self: center;
   display: block;
@@ -923,7 +952,18 @@ html[data-theme-mode="dark"] .desktop-app__theme-symbol svg:last-child {
   align-self: center;
   gap: 2px;
   width: 100%;
+  min-height: 0;
   overflow: hidden;
+}
+
+@media (max-width: 1279px) {
+  .contribution-grid {
+    grid-template-columns: repeat(var(--contribution-compact-week-count), minmax(0, 1fr));
+  }
+
+  .contribution-week--compact-hidden {
+    display: none;
+  }
 }
 
 .contribution-week {

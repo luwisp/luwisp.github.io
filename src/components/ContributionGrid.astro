@@ -35,6 +35,8 @@ const calendarWeeks = weeks.map((week) => ({
     (_, weekday) => week.contributionDays.find((day) => day.weekday === weekday) ?? null
   )
 }));
+const compactWeekCount = Math.min(20, calendarWeeks.length);
+const compactWeekStart = Math.max(0, calendarWeeks.length - compactWeekCount);
 const githubUser = siteData.profile.githubUser;
 const snapshotMatchesProfile = contributions.username.toLowerCase() === githubUser.toLowerCase();
 const hasContributionData = contributions.status === "ready" && days.length > 0 && snapshotMatchesProfile;
@@ -42,11 +44,16 @@ const { placementStyle } = Astro.props;
 ---
 
 <section class="desktop-widget widget-contributions" aria-labelledby="contribution-title" style={placementStyle} data-home-object="contributions">
-  <header class="widget-header">
-    <div>
-      <h2 id="contribution-title">最近提交</h2>
-      {hasContributionData && <p>过去一年 {contributions.totalContributions} 次公开贡献</p>}
-    </div>
+  <header class="contribution-header">
+    <h2 id="contribution-title">最近提交</h2>
+    {hasContributionData && (
+      <span
+        class="contribution-total"
+        title={`过去一年 ${contributions.totalContributions} 次公开贡献`}
+      >
+        一年 <strong>{contributions.totalContributions}</strong> 次
+      </span>
+    )}
   </header>
 
   {hasContributionData ? (
@@ -54,10 +61,13 @@ const { placementStyle } = Astro.props;
       <div
         class="contribution-grid"
         aria-label={`过去一年的 ${contributions.totalContributions} 次贡献`}
-        style={`--contribution-week-count:${calendarWeeks.length}`}
+        style={`--contribution-week-count:${calendarWeeks.length};--contribution-compact-week-count:${compactWeekCount}`}
       >
-        {calendarWeeks.map((week) => (
-          <span class="contribution-week" data-first-day={week.firstDay}>
+        {calendarWeeks.map((week, weekIndex) => (
+          <span
+            class:list={["contribution-week", { "contribution-week--compact-hidden": weekIndex < compactWeekStart }]}
+            data-first-day={week.firstDay}
+          >
             {week.days.map((day) => day ? (
               <span
                 class="contribution-day"
