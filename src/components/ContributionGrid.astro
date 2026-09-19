@@ -37,6 +37,10 @@ const calendarWeeks = weeks.map((week) => ({
 }));
 const compactWeekCount = Math.min(20, calendarWeeks.length);
 const compactWeekStart = Math.max(0, calendarWeeks.length - compactWeekCount);
+const contributionGap = 2;
+const weekGapTotal = Math.max(0, calendarWeeks.length - 1) * contributionGap;
+const compactWeekGapTotal = Math.max(0, compactWeekCount - 1) * contributionGap;
+const dayGapTotal = 6 * contributionGap;
 const githubUser = siteData.profile.githubUser;
 const snapshotMatchesProfile = contributions.username.toLowerCase() === githubUser.toLowerCase();
 const hasContributionData = contributions.status === "ready" && days.length > 0 && snapshotMatchesProfile;
@@ -61,24 +65,26 @@ const { placementStyle } = Astro.props;
       <div
         class="contribution-grid"
         aria-label={`过去一年的 ${contributions.totalContributions} 次贡献`}
-        style={`--contribution-week-count:${calendarWeeks.length};--contribution-compact-week-count:${compactWeekCount}`}
+        style={`--contribution-week-count:${calendarWeeks.length};--contribution-week-gap-total:${weekGapTotal}px;--contribution-compact-week-count:${compactWeekCount};--contribution-compact-week-gap-total:${compactWeekGapTotal}px;--contribution-day-gap-total:${dayGapTotal}px`}
       >
-        {calendarWeeks.map((week, weekIndex) => (
-          <span
-            class:list={["contribution-week", { "contribution-week--compact-hidden": weekIndex < compactWeekStart }]}
-            data-first-day={week.firstDay}
-          >
-            {week.days.map((day) => day ? (
-              <span
-                class="contribution-day"
-                data-level={levelMap[day.contributionLevel] ?? 0}
-                title={`${day.date}: ${day.contributionCount}`}
-              ></span>
-            ) : (
-              <span class="contribution-day contribution-day--placeholder" aria-hidden="true"></span>
-            ))}
-          </span>
-        ))}
+        <div class="contribution-grid__matrix">
+          {calendarWeeks.map((week, weekIndex) => (
+            <span
+              class:list={["contribution-week", { "contribution-week--compact-hidden": weekIndex < compactWeekStart }]}
+              data-first-day={week.firstDay}
+            >
+              {week.days.map((day) => day ? (
+                <span
+                  class="contribution-day"
+                  data-level={levelMap[day.contributionLevel] ?? 0}
+                  title={`${day.date}: ${day.contributionCount}`}
+                ></span>
+              ) : (
+                <span class="contribution-day contribution-day--placeholder" aria-hidden="true"></span>
+              ))}
+            </span>
+          ))}
+        </div>
       </div>
     </>
   ) : (
