@@ -1,6 +1,7 @@
 import { navigate } from "astro:transitions/client";
 import { getAppOrder, readerApp } from "../config/apps";
 import { uiConfig } from "../config/site";
+import type { ThemeDefinition } from "../lib/themes";
 import {
   clearWebState,
   initializeDynamicWeb,
@@ -170,6 +171,7 @@ function applyTheme(id: string, mode: "light" | "dark", persist = true) {
 
   const tokens = JSON.parse(button.dataset.themeTokens || "{}") as Record<string, string>;
   const swatches = JSON.parse(button.dataset.themeSwatches || "[]") as string[];
+  const appearance = JSON.parse(button.dataset.themeAppearance || "{}") as NonNullable<ThemeDefinition["appearance"]>;
   for (const [name, value] of Object.entries(tokens)) {
     if (name === "colorScheme") document.documentElement.style.colorScheme = value;
     else document.documentElement.style.setProperty(name, value);
@@ -177,9 +179,11 @@ function applyTheme(id: string, mode: "light" | "dark", persist = true) {
 
   document.documentElement.dataset.theme = id;
   document.documentElement.dataset.themeMode = mode;
+  document.documentElement.dataset.themeTexture = appearance.texture || "none";
+  document.documentElement.dataset.themeStroke = appearance.stroke || "regular";
   document.querySelector<HTMLMetaElement>("meta[name='theme-color']")?.setAttribute("content", tokens["--panel"] || "#272e33");
   document.querySelectorAll<HTMLElement>("[data-current-swatch]").forEach((swatch) => {
-    swatch.style.setProperty("background", swatches[1] || tokens["--accent"] || "currentColor");
+    swatch.style.setProperty("--current-swatch-color", swatches[1] || tokens["--accent"] || "currentColor");
   });
   document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]").forEach((toggle) => {
     const darkMode = mode === "dark";
@@ -1023,6 +1027,8 @@ function preserveDocumentState(event: Event) {
   nextRoot.style.cssText = currentRoot.style.cssText;
   nextRoot.dataset.theme = currentRoot.dataset.theme || "";
   nextRoot.dataset.themeMode = currentRoot.dataset.themeMode || "";
+  nextRoot.dataset.themeTexture = currentRoot.dataset.themeTexture || "none";
+  nextRoot.dataset.themeStroke = currentRoot.dataset.themeStroke || "regular";
   nextRoot.dataset.appDirection = currentRoot.dataset.appDirection || "same";
   const currentThemeColor = document.querySelector<HTMLMetaElement>("meta[name='theme-color']")?.content;
   const nextThemeColor = nextDocument.querySelector<HTMLMetaElement>("meta[name='theme-color']");

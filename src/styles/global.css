@@ -632,7 +632,7 @@ a.desktop-app {
 
 .desktop-app__icon--theme {
   color: var(--accent-text);
-  background: var(--accent);
+  background: var(--current-swatch-color, var(--accent));
 }
 
 .desktop-app__theme-symbol {
@@ -3636,6 +3636,111 @@ html[data-app-direction="internal"]::view-transition-new(app-screen) {
     min-height: 42px;
   }
 
+}
+
+/* Optional theme materials and stroke treatment. */
+
+html[data-theme-texture="colored-pencil"] .app-dock,
+html[data-theme-texture="colored-pencil"] .app-screen--window,
+html[data-theme-texture="colored-pencil"] .desktop-widget::after,
+html[data-theme-texture="colored-pencil"] .desktop-app__icon--theme,
+html[data-theme-texture="colored-pencil"] .desktop-app__icon--appearance,
+html[data-theme-texture="colored-pencil"] .desktop-app__icon--web,
+html[data-theme-texture="colored-pencil"] .theme-panel,
+html[data-theme-texture="colored-pencil"] .file-manager,
+html[data-theme-texture="colored-pencil"] .file-manager__toolbar,
+html[data-theme-texture="colored-pencil"] .file-manager__browser,
+html[data-theme-texture="colored-pencil"] .file-manager__statusbar,
+html[data-theme-texture="colored-pencil"] .web-browser,
+html[data-theme-texture="colored-pencil"] .web-browser__chrome {
+  --pencil-base: var(--surface-raised);
+  --pencil-wash: 74%;
+  background-color: var(--pencil-base);
+  background-image:
+    linear-gradient(
+      color-mix(in srgb, var(--pencil-base) var(--pencil-wash), transparent),
+      color-mix(in srgb, var(--pencil-base) var(--pencil-wash), transparent)
+    ),
+    url("/textures/colored-pencil.png");
+  background-size: auto, 1080px 1080px;
+}
+
+html[data-theme-texture="colored-pencil"] .app-dock,
+html[data-theme-texture="colored-pencil"] .desktop-widget::after {
+  --pencil-wash: 52%;
+  background-size: auto, 760px 760px;
+}
+
+html[data-theme-texture="colored-pencil"] .app-dock {
+  --pencil-base: var(--panel);
+  background-size: auto, 560px 560px;
+}
+
+html[data-theme-texture="colored-pencil"] .widget-clock::after,
+html[data-theme-texture="colored-pencil"] .widget-user::after {
+  --pencil-wash: 72%;
+}
+
+html[data-theme-texture="colored-pencil"] .file-manager,
+html[data-theme-texture="colored-pencil"] .file-manager__browser,
+html[data-theme-texture="colored-pencil"] .web-browser {
+  --pencil-base: var(--surface);
+}
+
+html[data-theme-texture="colored-pencil"] .desktop-app__icon--theme {
+  --pencil-base: var(--current-swatch-color, var(--accent));
+}
+
+html[data-theme-texture="colored-pencil"] .app-screen--post {
+  --pencil-wash: 85%;
+}
+
+.theme-option--pencil .theme-option__colors i {
+  background-image: url("/textures/colored-pencil.png");
+  background-size: 120px 120px;
+}
+
+html[data-theme-stroke="heavy"] .app-dock {
+  border-right: 3px solid var(--border);
+}
+
+html[data-theme-stroke="heavy"] .app-screen--window {
+  border: 3px solid var(--border);
+}
+
+html[data-theme-stroke="heavy"] .desktop-widget,
+html[data-theme-stroke="heavy"] .desktop-app__icon,
+html[data-theme-stroke="heavy"] .theme-panel {
+  border-width: 2px;
+  border-color: var(--border);
+}
+
+html[data-theme-stroke="heavy"] .app-dock__item.is-active {
+  border: 2px solid color-mix(in srgb, var(--accent) 75%, var(--text));
+}
+
+html[data-theme-stroke="heavy"] .file-manager__toolbar,
+html[data-theme-stroke="heavy"] .file-manager__statusbar,
+html[data-theme-stroke="heavy"] .web-browser__chrome,
+html[data-theme-stroke="heavy"] .theme-panel__header,
+html[data-theme-stroke="heavy"] .article-header {
+  border-bottom-width: 2px;
+}
+
+html[data-theme-stroke="heavy"] .file-manager__details,
+html[data-theme-stroke="heavy"] .toc-widget {
+  border-left-width: 2px;
+}
+
+@media (max-width: 820px) {
+  html[data-theme-stroke="heavy"] .app-dock {
+    border-right: 0;
+    border-top: 3px solid var(--border);
+  }
+
+  html[data-theme-stroke="heavy"] .app-screen--window {
+    border: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

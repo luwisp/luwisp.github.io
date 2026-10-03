@@ -1,0 +1,33 @@
+{
+  "id": "colored-pencil",
+  "name": "彩铅手记",
+  "family": "原创 · 彩铅",
+  "type": "light",
+  "source": "original",
+  "swatches": ["#f7f8f2", "#315f86", "#b6544d", "#5b8466"],
+  "appearance": {
+    "texture": "colored-pencil",
+    "stroke": "heavy"
+  },
+  "tokens": {
+    "colorScheme": "light",
+    "--wallpaper-dim": "rgba(228, 236, 232, 0.2)",
+    "--panel": "#dfe8e4",
+    "--panel-strong": "#f7f8f2",
+    "--panel-soft": "#d4e2dd",
+    "--surface": "#eef3f0",
+    "--surface-raised": "#f7f8f2",
+    "--surface-muted": "#e3ebe7",
+    "--text": "#26343b",
+    "--muted": "#455860",
+    "--subtle": "#53666a",
+    "--border": "#62757a",
+    "--accent": "#315f86",
+    "--accent-2": "#a34e49",
+    "--accent-text": "#ffffff",
+    "--good": "#487b61",
+    "--warning": "#a06732",
+    "--danger": "#b44c4d",
+    "--shadow": "rgba(38, 52, 59, 0.22)"
+  }
+}

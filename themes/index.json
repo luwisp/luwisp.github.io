@@ -10,6 +10,7 @@
     "./themes/tokyo-night.json",
     "./themes/kawaii-dark.json",
     "./themes/everforest-dark.json",
-    "./themes/solarized-light.json"
+    "./themes/solarized-light.json",
+    "./themes/colored-pencil.json"
   ]
 }

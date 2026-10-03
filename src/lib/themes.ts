@@ -8,6 +8,10 @@ export interface ThemeDefinition {
   source: string;
   swatches: string[];
   tokens: Record<string, string>;
+  appearance?: {
+    texture?: "colored-pencil";
+    stroke?: "heavy";
+  };
 }
 
 const themeModules = import.meta.glob("../../themes/*.json", {
