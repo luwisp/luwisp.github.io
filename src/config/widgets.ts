@@ -3,7 +3,7 @@ export type WidgetId =
   | "avatar"
   | "user"
   | "theme"
-  | "appearance"
+  | "settings"
   | "recent"
   | "contributions"
   | "stats"
@@ -31,7 +31,7 @@ export const homeWidgets: WidgetDefinition[] = [
   { id: "user", mobilePage: 0, desktop: { column: 3, row: 1, width: 2, height: 1 }, tablet: { column: 1, row: 2, width: 2, height: 1 }, mobile: { column: 1, row: 2, width: 2, height: 1 } },
   { id: "avatar", mobilePage: 0, desktop: { column: 8, row: 2, width: 1, height: 1 }, tablet: { column: 3, row: 1, width: 1, height: 1 }, mobile: { column: 4, row: 1, width: 1, height: 1 } },
   { id: "theme", mobilePage: 0, desktop: { column: 8, row: 6, width: 1, height: 1 }, tablet: { column: 4, row: 1, width: 1, height: 1 }, mobile: { column: 3, row: 2, width: 1, height: 1 } },
-  { id: "appearance", mobilePage: 0, desktop: { column: 9, row: 6, width: 1, height: 1 }, tablet: { column: 3, row: 2, width: 1, height: 1 }, mobile: { column: 4, row: 2, width: 1, height: 1 } },
+  { id: "settings", mobilePage: 0, desktop: { column: 9, row: 6, width: 1, height: 1 }, tablet: { column: 3, row: 2, width: 1, height: 1 }, mobile: { column: 4, row: 2, width: 1, height: 1 } },
   { id: "recent", mobilePage: 0, desktop: { column: 1, row: 5, width: 4, height: 2 }, tablet: { column: 1, row: 3, width: 2, height: 2 }, mobile: { column: 1, row: 3, width: 4, height: 3 } },
   { id: "contributions", mobilePage: 1, desktop: { column: 6, row: 5, width: 4, height: 1 }, tablet: { column: 3, row: 3, width: 2, height: 1 }, mobile: { column: 1, row: 1, width: 4, height: 2 } },
   { id: "stats", mobilePage: 1, desktop: { column: 6, row: 6, width: 2, height: 1 }, tablet: { column: 3, row: 4, width: 2, height: 1 }, mobile: { column: 1, row: 3, width: 4, height: 2 } },

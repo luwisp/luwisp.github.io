@@ -1,7 +1,7 @@
 import { navigate } from "astro:transitions/client";
 import { getAppOrder, readerApp } from "../config/apps";
 import { uiConfig } from "../config/site";
-import type { ThemeDefinition } from "../lib/themes";
+import { themeDefaults, themes } from "../lib/themes";
 import {
   clearWebState,
   initializeDynamicWeb,
@@ -12,6 +12,9 @@ import {
 } from "./web-app";
 
 const themeStorageKey = "luorong.notes.theme";
+const settingsStorageKey = "luorong.notes.settings";
+const settingsOpenKey = "luorong.notes.open-settings";
+const settingsTabKey = "luorong.notes.settings-tab";
 const readerStorageKey = "luorong.notes.open-reader";
 const readerClosingKey = "luorong.notes.reader-closing";
 const readerReturnKey = "luorong.notes.reader-return";
@@ -23,6 +26,10 @@ interface ThemePreference {
   mode?: "light" | "dark";
   light?: string;
   dark?: string;
+}
+
+interface DisplayPreference {
+  frostedDock?: boolean;
 }
 
 interface OpenReader {
@@ -143,19 +150,15 @@ function getThemePreference() {
 }
 
 function saveThemePreference(preference: ThemePreference) {
-  localStorage.setItem(themeStorageKey, JSON.stringify(preference));
-}
-
-function getThemeButton(id: string | undefined) {
-  if (!id) return null;
-  return document.querySelector<HTMLElement>(`[data-theme-option][data-theme-id="${CSS.escape(id)}"]`);
+  try {
+    localStorage.setItem(themeStorageKey, JSON.stringify(preference));
+  } catch {}
 }
 
 function syncThemeOptions(preference: ThemePreference) {
-  const dialog = document.querySelector<HTMLDialogElement>("[data-theme-dialog]");
   const selectedThemes = {
-    light: preference.light || dialog?.dataset.defaultLight,
-    dark: preference.dark || dialog?.dataset.defaultDark
+    light: preference.light || themeDefaults.light,
+    dark: preference.dark || themeDefaults.dark
   };
   document.querySelectorAll<HTMLElement>("[data-theme-option]").forEach((item) => {
     const itemMode = item.dataset.themeMode as "light" | "dark";
@@ -163,21 +166,24 @@ function syncThemeOptions(preference: ThemePreference) {
     item.classList.toggle("is-selected", selected);
     item.setAttribute("aria-pressed", String(selected));
   });
+  document.querySelectorAll<HTMLButtonElement>("[data-theme-mode-choice]").forEach((button) => {
+    const selected = button.dataset.themeModeChoice === document.documentElement.dataset.themeMode;
+    button.classList.toggle("is-active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
 }
 
 function applyTheme(id: string, mode: "light" | "dark", persist = true) {
-  const button = getThemeButton(id);
-  if (!button) return;
-
-  const tokens = JSON.parse(button.dataset.themeTokens || "{}") as Record<string, string>;
-  const swatches = JSON.parse(button.dataset.themeSwatches || "[]") as string[];
-  const appearance = JSON.parse(button.dataset.themeAppearance || "{}") as NonNullable<ThemeDefinition["appearance"]>;
+  const theme = themes.find((item) => item.id === id && item.type === mode)
+    || themes.find((item) => item.id === themeDefaults[mode]);
+  if (!theme) return;
+  const { tokens, swatches, appearance = {} } = theme;
   for (const [name, value] of Object.entries(tokens)) {
     if (name === "colorScheme") document.documentElement.style.colorScheme = value;
     else document.documentElement.style.setProperty(name, value);
   }
 
-  document.documentElement.dataset.theme = id;
+  document.documentElement.dataset.theme = theme.id;
   document.documentElement.dataset.themeMode = mode;
   document.documentElement.dataset.themeTexture = appearance.texture || "none";
   document.documentElement.dataset.themeStroke = appearance.stroke || "regular";
@@ -197,20 +203,16 @@ function applyTheme(id: string, mode: "light" | "dark", persist = true) {
   const preference = getThemePreference();
   if (persist) {
     preference.mode = mode;
-    preference[mode] = id;
+    preference[mode] = theme.id;
     saveThemePreference(preference);
   }
   syncThemeOptions(preference);
 }
 
 function initializeThemeControls() {
-  const dialog = document.querySelector<HTMLDialogElement>("[data-theme-dialog]");
-  if (!dialog) return;
-
   const preference = getThemePreference();
   const currentMode = document.documentElement.dataset.themeMode === "light" ? "light" : "dark";
-  const defaultId = currentMode === "dark" ? dialog.dataset.defaultDark : dialog.dataset.defaultLight;
-  applyTheme(preference[currentMode] || defaultId || "", currentMode, false);
+  applyTheme(preference[currentMode] || themeDefaults[currentMode], currentMode, false);
 
   document.querySelectorAll<HTMLElement>("[data-theme-option]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -219,23 +221,126 @@ function initializeThemeControls() {
     });
   });
 
+  const selectMode = (mode: "light" | "dark") => {
+    const latest = getThemePreference();
+    applyTheme(latest[mode] || themeDefaults[mode], mode);
+  };
+  document.querySelectorAll<HTMLButtonElement>("[data-theme-mode-choice]").forEach((button) => {
+    button.addEventListener("click", () => selectMode(button.dataset.themeModeChoice === "dark" ? "dark" : "light"));
+  });
   document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]").forEach((button) => {
     button.addEventListener("click", () => {
       const current = document.documentElement.dataset.themeMode === "dark" ? "dark" : "light";
       const next = current === "dark" ? "light" : "dark";
-      const latest = getThemePreference();
-      const nextId = latest[next] || (next === "dark" ? dialog.dataset.defaultDark : dialog.dataset.defaultLight);
-      if (nextId) applyTheme(nextId, next);
+      selectMode(next);
     });
   });
+}
 
-  document.querySelectorAll<HTMLButtonElement>("[data-theme-dialog-open]").forEach((button) => {
-    button.addEventListener("click", () => dialog.showModal());
+function applyDisplaySettings(preference: DisplayPreference) {
+  document.documentElement.dataset.dockMaterial = preference.frostedDock ? "frosted" : "solid";
+  document.querySelectorAll<HTMLInputElement>("[data-frosted-dock]").forEach((input) => {
+    input.checked = Boolean(preference.frostedDock);
   });
-  document.querySelector("[data-theme-dialog-close]")?.addEventListener("click", () => dialog.close());
-  dialog.addEventListener("click", (event) => {
-    if (event.target === dialog) dialog.close();
+  try {
+    localStorage.setItem(settingsStorageKey, JSON.stringify(preference));
+  } catch {}
+  scheduleHomeMicaWidgets();
+}
+
+function initializeDisplaySettings() {
+  const preference = readJson<DisplayPreference | null>(settingsStorageKey, {}) || {};
+  // Migrate the old glass theme once; subsequent theme changes leave this setting alone.
+  if (typeof preference.frostedDock !== "boolean") {
+    preference.frostedDock = document.documentElement.dataset.dockMaterial === "frosted";
+  }
+  applyDisplaySettings(preference);
+  document.querySelectorAll<HTMLInputElement>("[data-frosted-dock]").forEach((input) => {
+    input.addEventListener("change", () => {
+      applyDisplaySettings({ ...readJson<DisplayPreference>(settingsStorageKey, {}), frostedDock: input.checked });
+    });
   });
+}
+
+function isSettingsOpen() {
+  try {
+    return sessionStorage.getItem(settingsOpenKey) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function syncSettingsDock(open: boolean, root: ParentNode = document, active = document.body.dataset.activeApp === "settings") {
+  root.querySelectorAll<HTMLAnchorElement>("[data-settings-app]").forEach((anchor) => {
+    anchor.hidden = !open;
+    anchor.classList.toggle("is-active", open && active);
+    if (open && active) anchor.setAttribute("aria-current", "page");
+    else anchor.removeAttribute("aria-current");
+  });
+  syncDynamicTaskSeparator(root);
+}
+
+function initializeDynamicSettings() {
+  const active = document.body.dataset.activeApp === "settings";
+  if (active) {
+    try {
+      sessionStorage.setItem(settingsOpenKey, "1");
+    } catch {}
+  }
+  syncSettingsDock(active || isSettingsOpen());
+}
+
+function initializeSettingsNavigation() {
+  const root = document.querySelector<HTMLElement>("[data-settings]");
+  if (!root) return;
+  const tabs = [...root.querySelectorAll<HTMLButtonElement>("[data-settings-tab]")];
+  const tablist = root.querySelector<HTMLElement>("[role=tablist]");
+  const activate = (id: string) => {
+    tabs.forEach((tab) => {
+      const selected = tab.dataset.settingsTab === id;
+      tab.classList.toggle("is-active", selected);
+      tab.setAttribute("aria-selected", String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+    });
+    root.querySelectorAll<HTMLElement>("[data-settings-pane]").forEach((pane) => {
+      pane.hidden = pane.dataset.settingsPane !== id;
+    });
+    try {
+      sessionStorage.setItem(settingsTabKey, id);
+    } catch {}
+  };
+  tabs.forEach((tab, index) => {
+    tab.addEventListener("click", () => activate(tab.dataset.settingsTab || "theme"));
+    tab.addEventListener("keydown", (event) => {
+      const vertical = tablist?.getAttribute("aria-orientation") === "vertical";
+      const previous = vertical ? "ArrowUp" : "ArrowLeft";
+      const next = vertical ? "ArrowDown" : "ArrowRight";
+      if (![previous, next, "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      const targetIndex = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1
+        : (index + (event.key === next ? 1 : -1) + tabs.length) % tabs.length;
+      const target = tabs[targetIndex];
+      activate(target.dataset.settingsTab || "theme");
+      target.focus();
+    });
+  });
+  let savedTab = "theme";
+  try {
+    if (sessionStorage.getItem(settingsTabKey) === "interface") savedTab = "interface";
+  } catch {}
+  activate(savedTab);
+  refreshSettingsMaterial();
+}
+
+function refreshSettingsMaterial() {
+  const sidebar = document.querySelector<HTMLElement>("[data-settings-sidebar]");
+  if (!sidebar) return;
+  const rect = sidebar.getBoundingClientRect();
+  sidebar.style.setProperty("--settings-offset-x", `${rect.left}px`);
+  sidebar.style.setProperty("--settings-offset-y", `${rect.top}px`);
+  sidebar.style.setProperty("--settings-stage-width", `${window.innerWidth}px`);
+  sidebar.style.setProperty("--settings-stage-height", `${window.innerHeight}px`);
+  sidebar.querySelector("[role=tablist]")?.setAttribute("aria-orientation", window.innerWidth <= 820 ? "horizontal" : "vertical");
 }
 
 function isFileManagerOpen() {
@@ -1029,6 +1134,7 @@ function preserveDocumentState(event: Event) {
   nextRoot.dataset.themeMode = currentRoot.dataset.themeMode || "";
   nextRoot.dataset.themeTexture = currentRoot.dataset.themeTexture || "none";
   nextRoot.dataset.themeStroke = currentRoot.dataset.themeStroke || "regular";
+  nextRoot.dataset.dockMaterial = currentRoot.dataset.dockMaterial || "solid";
   nextRoot.dataset.appDirection = currentRoot.dataset.appDirection || "same";
   const currentThemeColor = document.querySelector<HTMLMetaElement>("meta[name='theme-color']")?.content;
   const nextThemeColor = nextDocument.querySelector<HTMLMetaElement>("meta[name='theme-color']");
@@ -1069,7 +1175,7 @@ function preserveDocumentState(event: Event) {
   if (dock) syncFileManagerDock(nextActiveApp === "categories" || isFileManagerOpen(), dock, nextActiveApp === "categories");
   if (dock) syncWebDock(nextActiveApp === "web" || isWebOpen(), dock, nextActiveApp === "web");
   if (dock) syncReaderDock(nextReader, dock, nextActiveApp === "reader");
-  document.querySelector<HTMLDialogElement>("[data-theme-dialog]")?.close();
+  if (dock) syncSettingsDock(nextActiveApp === "settings" || isSettingsOpen(), dock, nextActiveApp === "settings");
 }
 
 function refreshHomeMicaWidgets() {
@@ -1078,7 +1184,9 @@ function refreshHomeMicaWidgets() {
   const widgets = [...document.querySelectorAll<HTMLElement>(".app-screen--home .desktop-widget")];
   if (!panel || !homeScreen || !widgets.length) return;
 
-  const panelRect = panel.getBoundingClientRect();
+  const panelRect = document.documentElement.dataset.dockMaterial === "frosted"
+    ? { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight }
+    : panel.getBoundingClientRect();
   const measurements = widgets.map((widget) => ({ widget, rect: widget.getBoundingClientRect() }));
 
   homeScreen.style.setProperty("--mica-panel-width", `${panelRect.width}px`);
@@ -1093,13 +1201,17 @@ let homeMicaFrame = 0;
 function scheduleHomeMicaWidgets() {
   window.cancelAnimationFrame(homeMicaFrame);
   homeMicaFrame = window.requestAnimationFrame(refreshHomeMicaWidgets);
+  refreshSettingsMaterial();
 }
 
 function initializePage() {
   initializeWallpaperLoader();
   if (document.body.dataset.uiInitialized === "true") return;
   document.body.dataset.uiInitialized = "true";
+  initializeDisplaySettings();
   initializeThemeControls();
+  initializeDynamicSettings();
+  initializeSettingsNavigation();
   initializeDynamicFileManager();
   initializeDynamicWeb();
   initializeDynamicReader();
@@ -1149,9 +1261,26 @@ if (!runtimeWindow.__luorongSystemEvents) {
   document.addEventListener("astro:before-preparation", setTransitionDirection);
   document.addEventListener("astro:before-swap", preserveDocumentState);
   document.addEventListener("astro:after-swap", refreshHomeMicaWidgets);
+  document.addEventListener("astro:after-swap", refreshSettingsMaterial);
   window.addEventListener("resize", scheduleHomeMicaWidgets, { passive: true });
   document.addEventListener("click", (event) => {
     if (!(event instanceof MouseEvent) || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const settingsClose = event.target instanceof Element
+      ? event.target.closest<HTMLAnchorElement>("a[data-settings-close]")
+      : null;
+    if (settingsClose) {
+      event.preventDefault();
+      try {
+        sessionStorage.removeItem(settingsOpenKey);
+      } catch {}
+      syncSettingsDock(false, document, false);
+      if (uiConfig.pageTransition.enabled) {
+        void navigate(settingsClose.href, { history: "replace", sourceElement: settingsClose }).catch(initializeDynamicSettings);
+      } else {
+        location.replace(settingsClose.href);
+      }
+      return;
+    }
     const fileManagerClose = event.target instanceof Element
       ? event.target.closest<HTMLAnchorElement>("a[data-file-manager-close]")
       : null;

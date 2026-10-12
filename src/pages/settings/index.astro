@@ -1,0 +1,58 @@
+---
+import Icon from "../../components/Icon.astro";
+import ThemePanel from "../../components/ThemePanel.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { themes, themeDefaults } from "../../lib/themes";
+---
+
+<BaseLayout activePage="settings" title="设置" description="主题、配色与界面设置">
+  <div class="settings-app" data-settings>
+    <aside class="settings-sidebar" aria-label="设置分类" data-settings-sidebar>
+      <div class="settings-sidebar__heading">
+        <a class="settings-mobile-back icon-control" href="/" aria-label="返回桌面" data-internal-link data-settings-close>
+          <Icon name="back" size={20} />
+        </a>
+        <h1>设置</h1>
+      </div>
+      <nav class="settings-nav" role="tablist" aria-label="设置分类" aria-orientation="vertical">
+        <button class="settings-nav__item is-active" id="settings-tab-theme" type="button" role="tab"
+          aria-controls="settings-theme" aria-selected="true" data-settings-tab="theme">
+          <Icon name="palette" size={19} /><span>主题</span>
+        </button>
+        <button class="settings-nav__item" id="settings-tab-interface" type="button" role="tab"
+          aria-controls="settings-interface" aria-selected="false" tabindex="-1" data-settings-tab="interface">
+          <Icon name="panel" size={19} /><span>界面</span>
+        </button>
+      </nav>
+    </aside>
+
+    <div class="settings-content">
+      <section class="settings-pane" id="settings-theme" role="tabpanel" aria-labelledby="settings-tab-theme" data-settings-pane="theme" tabindex="0">
+        <header class="settings-pane__heading"><h2>主题</h2></header>
+        <div class="settings-mode-row">
+          <h3>显示模式</h3>
+          <div class="settings-segmented" aria-label="显示模式">
+            <button type="button" data-theme-mode-choice="light" aria-pressed="false"><Icon name="sun" size={17} /><span>亮色</span></button>
+            <button type="button" data-theme-mode-choice="dark" aria-pressed="false"><Icon name="moon" size={17} /><span>暗色</span></button>
+          </div>
+        </div>
+        <ThemePanel themes={themes} defaultLight={themeDefaults.light} defaultDark={themeDefaults.dark} />
+      </section>
+
+      <section class="settings-pane" id="settings-interface" role="tabpanel" aria-labelledby="settings-tab-interface" data-settings-pane="interface" tabindex="0" hidden>
+        <header class="settings-pane__heading"><h2>界面</h2></header>
+        <div class="settings-material-preview" aria-hidden="true">
+          <div class="settings-material-preview__dock"><i></i><i></i><i></i></div>
+          <div class="settings-material-preview__window"><i></i><span></span><span></span><span></span></div>
+        </div>
+        <label class="settings-toggle-row" for="settings-frosted-dock">
+          <span><strong>磨砂应用栏</strong><small>桌面侧栏与手机底栏</small></span>
+          <span class="settings-switch">
+            <input id="settings-frosted-dock" type="checkbox" role="switch" data-frosted-dock />
+            <span class="settings-switch__track" aria-hidden="true"></span>
+          </span>
+        </label>
+      </section>
+    </div>
+  </div>
+</BaseLayout>

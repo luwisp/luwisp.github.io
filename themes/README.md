@@ -13,7 +13,9 @@
 
 新增主题时，把 JSON 文件放到此目录，并把路径加入 `index.json` 的 `files` 数组。
 
-目前 `appearance.texture` 支持 `colored-pencil`（纸纹文件在 `public/textures/`）和 `frosted-glass`（壁纸上叠加磨砂透明侧栏），`appearance.stroke` 支持 `heavy`。新材质或线条风格可在 `global.css` 中按对应的 `data-theme-texture` / `data-theme-stroke` 扩展，不需要改动颜色 token 的契约。
+目前 `appearance.texture` 支持 `colored-pencil`（纸纹文件在 `public/textures/`），`appearance.stroke` 支持 `heavy`。新材质或线条风格可在 `global.css` 中按对应的 `data-theme-texture` / `data-theme-stroke` 扩展，不需要改动颜色 token 的契约。
+
+磨砂应用栏是独立的界面选项，在 `/settings/` 的“界面”中切换，适用于所有主题。设置保存在 `luorong.notes.settings` 的 `frostedDock` 字段，通过根元素的 `data-dock-material` 控制。材质复用 `content/site.json` 中的 `wallpaperMica`，不依赖切页时容易重新合成的实时 `backdrop-filter`。原 `frosted-glass` 主题保留标识以兼容已有偏好，展示名称改为“雾青”，仅提供配色；旧用户首次加载时会迁移为开启磨砂应用栏。
 
 ## 来源约束
 

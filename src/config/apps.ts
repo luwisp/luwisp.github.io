@@ -1,4 +1,4 @@
-export type AppId = "home" | "archive" | "categories" | "web" | "reader";
+export type AppId = "home" | "archive" | "categories" | "web" | "reader" | "settings";
 
 export interface AppDefinition {
   id: AppId;
@@ -36,8 +36,19 @@ export const readerApp: AppDefinition = {
   dynamic: true
 };
 
+export const settingsApp: AppDefinition = {
+  id: "settings",
+  label: "设置",
+  shortLabel: "设置",
+  href: "/settings/",
+  icon: "settings",
+  order: 5,
+  dynamic: true
+};
+
 export function getAppOrder(pathname: string) {
+  if (pathname.startsWith("/settings/")) return settingsApp.order;
   if (pathname.startsWith("/web/")) return webApp.order;
   if (pathname.startsWith("/posts/")) return readerApp.order;
-  return fixedApps.find((app) => app.href === pathname)?.order ?? readerApp.order + 1;
+  return fixedApps.find((app) => app.href === pathname)?.order ?? settingsApp.order + 1;
 }

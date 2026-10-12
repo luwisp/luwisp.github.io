@@ -5,7 +5,6 @@ import { ClientRouter } from "astro:transitions";
 import siteData from "../../content/site.json";
 import AppDock from "../components/AppDock.astro";
 import Icon from "../components/Icon.astro";
-import ThemePanel from "../components/ThemePanel.astro";
 import { getAppOrder, type AppId } from "../config/apps";
 import { uiConfig } from "../config/site";
 import { getCategories, getPosts } from "../lib/content";
@@ -15,7 +14,7 @@ import { themeDefaults, themes } from "../lib/themes";
 interface Props {
   title?: string;
   description?: string;
-  activePage: "home" | "archive" | "categories" | "web" | "post";
+  activePage: "home" | "archive" | "categories" | "web" | "post" | "settings";
 }
 
 const { title, description = siteData.site.subtitle, activePage } = Astro.props;
@@ -35,7 +34,9 @@ const appCloseLabel = activePage === "post"
     ? "关闭归档"
     : activePage === "categories"
       ? "关闭文件"
-      : "关闭网页";
+      : activePage === "settings"
+        ? "关闭设置"
+        : "关闭网页";
 ---
 
 <!doctype html>
@@ -60,12 +61,16 @@ const appCloseLabel = activePage === "post"
           const saved = JSON.parse(localStorage.getItem("luorong.notes.theme") || "{}");
           const mode = saved.mode || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
           const selectedId = saved[mode] || payload.defaults[mode];
-          const theme = payload.themes.find((item) => item.id === selectedId) || payload.themes.find((item) => item.type === mode);
+          const theme = payload.themes.find((item) => item.id === selectedId && item.type === mode) || payload.themes.find((item) => item.id === payload.defaults[mode]);
           if (!theme) return;
           document.documentElement.dataset.themeMode = mode;
           document.documentElement.dataset.theme = theme.id;
           document.documentElement.dataset.themeTexture = theme.appearance?.texture || "none";
           document.documentElement.dataset.themeStroke = theme.appearance?.stroke || "regular";
+          let settings = {};
+          try { settings = JSON.parse(localStorage.getItem("luorong.notes.settings") || "{}"); } catch {}
+          const frostedDock = typeof settings?.frostedDock === "boolean" ? settings.frostedDock : theme.id === "frosted-glass";
+          document.documentElement.dataset.dockMaterial = frostedDock ? "frosted" : "solid";
           Object.entries(theme.tokens).forEach(([key, value]) => {
             if (key === "colorScheme") document.documentElement.style.colorScheme = value;
             else document.documentElement.style.setProperty(key, value);
@@ -133,20 +138,20 @@ const appCloseLabel = activePage === "post"
               data-reader-close={activePage === "post" ? "true" : undefined}
               data-file-manager-close={activePage === "categories" ? "true" : undefined}
               data-web-close={activePage === "web" ? "true" : undefined}
+              data-settings-close={activePage === "settings" ? "true" : undefined}
             >
               <Icon name="x" size={13} strokeWidth={2.2} />
             </a>
             <time class="app-window__clock" data-clock data-clock-format="short">--:--</time>
           </header>
         )}
-        <div class:list={["app-content", { "app-content--home": activePage === "home", "app-content--categories": activePage === "categories", "app-content--web": activePage === "web" }]} data-app-content>
-          <div class:list={["page-frame", { "page-frame--home": activePage === "home", "page-frame--categories": activePage === "categories", "page-frame--web": activePage === "web" }]}>
+        <div class:list={["app-content", { "app-content--home": activePage === "home", "app-content--categories": activePage === "categories", "app-content--web": activePage === "web", "app-content--settings": activePage === "settings" }]} data-app-content>
+          <div class:list={["page-frame", { "page-frame--home": activePage === "home", "page-frame--categories": activePage === "categories", "page-frame--web": activePage === "web", "page-frame--settings": activePage === "settings" }]}>
             <slot />
           </div>
         </div>
       </section>
     </main>
-    <ThemePanel themes={themes} defaultLight={themeDefaults.light} defaultDark={themeDefaults.dark} />
     <script>
       import "../scripts/ui";
     </script>

@@ -9,7 +9,7 @@ export interface ThemeDefinition {
   swatches: string[];
   tokens: Record<string, string>;
   appearance?: {
-    texture?: "colored-pencil" | "frosted-glass";
+    texture?: "colored-pencil";
     stroke?: "heavy";
   };
 }

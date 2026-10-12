@@ -1,6 +1,5 @@
 ---
 import type { ThemeDefinition } from "../lib/themes";
-import Icon from "./Icon.astro";
 
 interface Props {
   themes: ThemeDefinition[];
@@ -15,24 +14,7 @@ const groupedThemes = {
 };
 ---
 
-<dialog
-  class="theme-panel"
-  aria-labelledby="theme-panel-title"
-  data-theme-dialog
-  data-default-light={defaultLight}
-  data-default-dark={defaultDark}
->
-  <header class="theme-panel__header">
-    <div>
-      <p>Appearance</p>
-      <h2 id="theme-panel-title">主题与配色</h2>
-    </div>
-    <button class="icon-control" type="button" aria-label="关闭主题面板" data-theme-dialog-close>
-      <Icon name="x" size={18} />
-    </button>
-  </header>
-
-  <div class="theme-panel__groups">
+  <div class="theme-groups">
     {(["light", "dark"] as const).map((mode) => (
       <section class="theme-group" aria-labelledby={`theme-${mode}`}>
         <h3 id={`theme-${mode}`}>{mode === "light" ? "亮色主题" : "暗色主题"}</h3>
@@ -43,8 +25,7 @@ const groupedThemes = {
                 "theme-option",
                 {
                   "is-selected": theme.id === (mode === "light" ? defaultLight : defaultDark),
-                  "theme-option--pencil": theme.appearance?.texture === "colored-pencil",
-                  "theme-option--glass": theme.appearance?.texture === "frosted-glass"
+                  "theme-option--pencil": theme.appearance?.texture === "colored-pencil"
                 }
               ]}
               type="button"
@@ -52,9 +33,6 @@ const groupedThemes = {
               data-theme-option
               data-theme-id={theme.id}
               data-theme-mode={theme.type}
-              data-theme-tokens={JSON.stringify(theme.tokens)}
-              data-theme-swatches={JSON.stringify(theme.swatches)}
-              data-theme-appearance={JSON.stringify(theme.appearance ?? {})}
             >
               <span class="theme-option__colors" aria-hidden="true">
                 {theme.swatches.slice(0, 3).map((color) => <i style={`--swatch:${color}`}></i>)}
@@ -69,4 +47,3 @@ const groupedThemes = {
       </section>
     ))}
   </div>
-</dialog>

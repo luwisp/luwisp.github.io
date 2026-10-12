@@ -1,6 +1,6 @@
 ---
 import siteData from "../../content/site.json";
-import { webApp } from "../config/apps";
+import { settingsApp, webApp } from "../config/apps";
 import type { WidgetId } from "../config/widgets";
 import { widgetPlacementStyle } from "../config/widgets";
 import { getPostCategory, getPostHref, type PostEntry } from "../lib/content";
@@ -87,21 +87,21 @@ const placementStyle = widgetPlacementStyle(id);
   </button>
 )}
 
-{id === "appearance" && (
-  <button
+{id === "settings" && (
+  <a
     class="desktop-app"
-    type="button"
-    aria-label="打开主题与外观设置"
+    href={settingsApp.href}
+    aria-label="打开设置"
     style={placementStyle}
-    data-theme-dialog-open
+    data-internal-link
+    data-app-order={settingsApp.order}
     data-home-object={id}
   >
-    <span class="desktop-app__icon desktop-app__icon--appearance">
-      <Icon name="palette" size={28} />
-      <span class="appearance-swatches" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="desktop-app__icon desktop-app__icon--settings">
+      <Icon name="settings" size={30} />
     </span>
-    <span class="desktop-app__label">外观</span>
-  </button>
+    <span class="desktop-app__label">设置</span>
+  </a>
 )}
 
 {id === "web" && (

@@ -1,5 +1,5 @@
 ---
-import { fixedApps, readerApp, webApp, type AppId } from "../config/apps";
+import { fixedApps, readerApp, settingsApp, webApp, type AppId } from "../config/apps";
 import Icon from "./Icon.astro";
 
 interface Props {
@@ -17,6 +17,7 @@ const counts: Partial<Record<AppId, number>> = {
 };
 const readerOpen = Boolean(readerTitle && readerHref);
 const webOpen = activeApp === "web";
+const settingsOpen = activeApp === "settings";
 ---
 
 <aside class="app-dock" aria-label="应用栏" data-app-dock transition:persist="app-dock">
@@ -52,7 +53,7 @@ const webOpen = activeApp === "web";
 
     <span
       class="app-dock__separator"
-      hidden={!readerOpen && !webOpen}
+      hidden={!readerOpen && !webOpen && !settingsOpen}
       data-dynamic-separator
       data-reader-separator
       aria-hidden="true"
@@ -94,6 +95,24 @@ const webOpen = activeApp === "web";
       <span class="app-dock__icon"><Icon name={readerApp.icon} size={21} /></span>
       <span class="app-dock__running" aria-hidden="true"></span>
       <span class="app-dock__tooltip" aria-hidden="true">{readerApp.shortLabel}</span>
+    </a>
+
+    <a
+      class:list={["app-dock__item", "app-dock__item--dynamic", { "is-active": settingsOpen }]}
+      href={settingsApp.href}
+      aria-label={settingsApp.label}
+      aria-current={settingsOpen ? "page" : undefined}
+      hidden={!settingsOpen}
+      data-app-link
+      data-internal-link
+      data-app-id="settings"
+      data-app-order={settingsApp.order}
+      data-dynamic-task-app
+      data-settings-app
+    >
+      <span class="app-dock__icon"><Icon name={settingsApp.icon} size={21} /></span>
+      <span class="app-dock__running" aria-hidden="true"></span>
+      <span class="app-dock__tooltip" aria-hidden="true">{settingsApp.shortLabel}</span>
     </a>
   </nav>
 

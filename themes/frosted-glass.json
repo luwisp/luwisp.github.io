@@ -1,13 +1,10 @@
 {
   "id": "frosted-glass",
-  "name": "雾面玻璃",
-  "family": "原创 · 透明",
+  "name": "雾青",
+  "family": "原创",
   "type": "light",
   "source": "original",
   "swatches": ["#eef5f1", "#276f68", "#b95f54", "#a9c7bc"],
-  "appearance": {
-    "texture": "frosted-glass"
-  },
   "tokens": {
     "colorScheme": "light",
     "--wallpaper-dim": "rgba(225, 237, 232, 0.14)",
