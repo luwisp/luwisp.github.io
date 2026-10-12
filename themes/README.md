@@ -13,7 +13,7 @@
 
 新增主题时，把 JSON 文件放到此目录，并把路径加入 `index.json` 的 `files` 数组。
 
-目前 `appearance.texture` 支持 `colored-pencil`（纹理文件在 `public/textures/`），`appearance.stroke` 支持 `heavy`。新材质或线条风格可在 `global.css` 中按对应的 `data-theme-texture` / `data-theme-stroke` 扩展，不需要改动颜色 token 的契约。
+目前 `appearance.texture` 支持 `colored-pencil`（纸纹文件在 `public/textures/`）和 `frosted-glass`（壁纸上叠加磨砂透明侧栏），`appearance.stroke` 支持 `heavy`。新材质或线条风格可在 `global.css` 中按对应的 `data-theme-texture` / `data-theme-stroke` 扩展，不需要改动颜色 token 的契约。
 
 ## 来源约束
 

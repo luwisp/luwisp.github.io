@@ -11,6 +11,7 @@
     "./themes/kawaii-dark.json",
     "./themes/everforest-dark.json",
     "./themes/solarized-light.json",
-    "./themes/colored-pencil.json"
+    "./themes/colored-pencil.json",
+    "./themes/frosted-glass.json"
   ]
 }
