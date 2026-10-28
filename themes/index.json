@@ -1,6 +1,4 @@
 {
-  "defaultLight": "catppuccin-latte",
-  "defaultDark": "everforest-dark",
   "files": [
     "./themes/catppuccin-latte.json",
     "./themes/catppuccin-frappe.json",

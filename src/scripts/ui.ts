@@ -1,5 +1,6 @@
 import { navigate } from "astro:transitions/client";
 import { getAppOrder, readerApp } from "../config/apps";
+import { resolveDefaultFrostedDock } from "../config/settings";
 import { uiConfig } from "../config/site";
 import { themeDefaults, themes } from "../lib/themes";
 import {
@@ -250,9 +251,9 @@ function applyDisplaySettings(preference: DisplayPreference) {
 
 function initializeDisplaySettings() {
   const preference = readJson<DisplayPreference | null>(settingsStorageKey, {}) || {};
-  // Migrate the old glass theme once; subsequent theme changes leave this setting alone.
+  // Resolve the configured default once; subsequent changes are persisted independently of the theme.
   if (typeof preference.frostedDock !== "boolean") {
-    preference.frostedDock = document.documentElement.dataset.dockMaterial === "frosted";
+    preference.frostedDock = resolveDefaultFrostedDock(document.documentElement.dataset.theme || "");
   }
   applyDisplaySettings(preference);
   document.querySelectorAll<HTMLInputElement>("[data-frosted-dock]").forEach((input) => {

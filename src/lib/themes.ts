@@ -1,4 +1,5 @@
 import themeIndex from "../../themes/index.json";
+import { settingsDefaults } from "../config/settings";
 
 export interface ThemeDefinition {
   id: string;
@@ -23,7 +24,4 @@ export const themes = Object.values(themeModules).filter(
   (theme): theme is ThemeDefinition => "id" in theme && "tokens" in theme
 );
 
-export const themeDefaults = {
-  light: themeIndex.defaultLight,
-  dark: themeIndex.defaultDark
-};
+export const themeDefaults = settingsDefaults.themes;

@@ -6,6 +6,7 @@ import siteData from "../../content/site.json";
 import AppDock from "../components/AppDock.astro";
 import Icon from "../components/Icon.astro";
 import { getAppOrder, type AppId } from "../config/apps";
+import { settingsDefaults } from "../config/settings";
 import { uiConfig } from "../config/site";
 import { getCategories, getPosts } from "../lib/content";
 import { publicAsset } from "../lib/paths";
@@ -23,7 +24,7 @@ const categories = getCategories(posts);
 const pageTitle = title ? `${title} · ${siteData.site.title}` : siteData.site.title;
 const wallpaper = publicAsset(siteData.site.wallpaper);
 const wallpaperMica = publicAsset(siteData.site.wallpaperMica);
-const initialThemePayload = JSON.stringify({ themes, defaults: themeDefaults });
+const initialThemePayload = JSON.stringify({ themes, defaults: themeDefaults, settings: settingsDefaults });
 const activeApp = (activePage === "post" ? "reader" : activePage) as AppId;
 const appOrder = getAppOrder(Astro.url.pathname);
 const readerTitle = activePage === "post" ? title : undefined;
@@ -59,7 +60,11 @@ const appCloseLabel = activePage === "post"
         try {
           const payload = JSON.parse(initialThemePayload);
           const saved = JSON.parse(localStorage.getItem("luorong.notes.theme") || "{}");
-          const mode = saved.mode || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+          const configuredMode = payload.settings.themeMode;
+          const defaultMode = configuredMode === "system"
+            ? matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+            : configuredMode;
+          const mode = saved.mode || defaultMode;
           const selectedId = saved[mode] || payload.defaults[mode];
           const theme = payload.themes.find((item) => item.id === selectedId && item.type === mode) || payload.themes.find((item) => item.id === payload.defaults[mode]);
           if (!theme) return;
@@ -69,7 +74,11 @@ const appCloseLabel = activePage === "post"
           document.documentElement.dataset.themeStroke = theme.appearance?.stroke || "regular";
           let settings = {};
           try { settings = JSON.parse(localStorage.getItem("luorong.notes.settings") || "{}"); } catch {}
-          const frostedDock = typeof settings?.frostedDock === "boolean" ? settings.frostedDock : theme.id === "frosted-glass";
+          const frostedDefault = payload.settings.interface.frostedDock;
+          const defaultFrostedDock = frostedDefault === "theme"
+            ? payload.settings.interface.frostedDockThemes.includes(theme.id)
+            : frostedDefault;
+          const frostedDock = typeof settings?.frostedDock === "boolean" ? settings.frostedDock : defaultFrostedDock;
           document.documentElement.dataset.dockMaterial = frostedDock ? "frosted" : "solid";
           Object.entries(theme.tokens).forEach(([key, value]) => {
             if (key === "colorScheme") document.documentElement.style.colorScheme = value;
