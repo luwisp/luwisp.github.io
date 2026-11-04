@@ -174,9 +174,14 @@ export function initializeWebBrowser() {
       if (location.pathname !== "/web/" || currentView === "home") return;
       event.preventDefault();
       setView("home");
-      history.replaceState(history.state, "", "/web/");
+      const homeUrl = new URL("/web/", location.href);
+      if (new URL(location.href).searchParams.get("fullscreen") === "1") {
+        homeUrl.searchParams.set("fullscreen", "1");
+      }
+      const homeHref = `${homeUrl.pathname}${homeUrl.search}`;
+      history.replaceState(history.state, "", homeHref);
       try {
-        sessionStorage.setItem(webHrefKey, "/web/");
+        sessionStorage.setItem(webHrefKey, homeHref);
       } catch {}
     });
   });

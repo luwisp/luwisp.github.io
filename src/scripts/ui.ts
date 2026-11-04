@@ -1276,6 +1276,30 @@ function initializePage() {
   sessionStorage.removeItem(readerClosingKey);
 }
 
+function preserveFullscreenInAppNavigation(event: MouseEvent) {
+  if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const link = event.target instanceof Element
+    ? event.target.closest<HTMLAnchorElement>("a[data-internal-link]")
+    : null;
+  if (!link || link.hasAttribute("download") || (link.target && link.target !== "_self")) return;
+
+  const destination = new URL(link.href, location.href);
+  if (destination.origin !== location.origin) return;
+  const activeApp = document.body.dataset.activeApp;
+  const sameApp = (activeApp === "web" && destination.pathname.startsWith("/web/"))
+    || (activeApp === "reader" && destination.pathname.startsWith("/posts/"));
+  if (!sameApp) return;
+
+  // The URL is the source of truth: both fullscreen and windowed mode carry
+  // through in-app links, without leaking the parameter into other apps.
+  if (new URL(location.href).searchParams.get("fullscreen") === "1") {
+    destination.searchParams.set("fullscreen", "1");
+  } else {
+    destination.searchParams.delete("fullscreen");
+  }
+  if (link.href !== destination.href) link.href = destination.href;
+}
+
 function preventRedundantInternalNavigation(event: MouseEvent) {
   if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
   const target = event.target instanceof Element
@@ -1296,6 +1320,7 @@ function preventRedundantInternalNavigation(event: MouseEvent) {
 const runtimeWindow = window as Window & { __luorongSystemEvents?: boolean };
 if (!runtimeWindow.__luorongSystemEvents) {
   runtimeWindow.__luorongSystemEvents = true;
+  document.addEventListener("click", preserveFullscreenInAppNavigation, { capture: true });
   document.addEventListener("click", preventRedundantInternalNavigation, { capture: true });
   document.addEventListener("astro:before-preparation", setTransitionDirection);
   document.addEventListener("astro:before-swap", preserveDocumentState);
