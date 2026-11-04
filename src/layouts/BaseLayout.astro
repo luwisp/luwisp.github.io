@@ -44,11 +44,18 @@ const appCloseLabel = activePage === "post"
 <html
   lang="zh-CN"
   data-theme-mode="dark"
+  data-window-fullscreen="false"
   style={`--page-transition-duration:${uiConfig.pageTransition.durationMs}ms`}
 >
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      // Query parameters must be read in the browser: this site is statically generated.
+      if (location.pathname !== "/" && new URLSearchParams(location.search).get("fullscreen") === "1") {
+        document.documentElement.dataset.windowFullscreen = "true";
+      }
+    </script>
     <meta name="description" content={description} />
     <meta name="theme-color" content="#1e2326" />
     <title>{pageTitle}</title>
@@ -103,6 +110,7 @@ const appCloseLabel = activePage === "post"
     style={`--wallpaper-image:url("${wallpaper}");--wallpaper-mica-image:url("${wallpaperMica}")`}
     data-active-page={activePage}
     data-active-app={activeApp}
+    data-window-fullscreen="false"
     data-app-order={appOrder}
     data-reader-title={readerTitle}
     data-reader-href={readerHref}
@@ -151,6 +159,17 @@ const appCloseLabel = activePage === "post"
             >
               <Icon name="x" size={13} strokeWidth={2.2} />
             </a>
+            <button
+              class="app-window__fullscreen"
+              type="button"
+              data-window-fullscreen-toggle
+              aria-label="进入全屏"
+              aria-pressed="false"
+              title="进入全屏"
+            >
+              <span class="app-window__fullscreen-expand"><Icon name="maximize" size={12} /></span>
+              <span class="app-window__fullscreen-restore"><Icon name="minimize" size={12} /></span>
+            </button>
             <time class="app-window__clock" data-clock data-clock-format="short">--:--</time>
           </header>
         )}

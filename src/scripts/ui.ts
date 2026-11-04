@@ -69,6 +69,7 @@ interface AstroBeforePreparationEvent extends Event {
 
 interface AstroBeforeSwapEvent extends Event {
   newDocument: Document;
+  to?: URL;
 }
 
 function initializeWallpaperLoader() {
@@ -263,6 +264,28 @@ function initializeDisplaySettings() {
   });
 }
 
+function syncWindowFullscreen() {
+  const fullscreen = document.body.dataset.activePage !== "home"
+    && new URL(location.href).searchParams.get("fullscreen") === "1";
+  document.documentElement.dataset.windowFullscreen = String(fullscreen);
+  document.body.dataset.windowFullscreen = String(fullscreen);
+  document.querySelectorAll<HTMLButtonElement>("[data-window-fullscreen-toggle]").forEach((button) => {
+    const label = fullscreen ? "退出全屏" : "进入全屏";
+    button.setAttribute("aria-label", label);
+    button.setAttribute("aria-pressed", String(fullscreen));
+    button.title = label;
+  });
+}
+
+function toggleWindowFullscreen() {
+  if (document.body.dataset.activePage === "home") return;
+  const url = new URL(location.href);
+  if (url.searchParams.get("fullscreen") === "1") url.searchParams.delete("fullscreen");
+  else url.searchParams.set("fullscreen", "1");
+  history.replaceState(history.state, "", url.href);
+  syncWindowFullscreen();
+}
+
 function isSettingsOpen() {
   try {
     return sessionStorage.getItem(settingsOpenKey) === "1";
@@ -291,9 +314,19 @@ function initializeDynamicSettings() {
   syncSettingsDock(active || isSettingsOpen());
 }
 
+let settingsMaterialObserver: ResizeObserver | null = null;
+
 function initializeSettingsNavigation() {
+  settingsMaterialObserver?.disconnect();
+  settingsMaterialObserver = null;
   const root = document.querySelector<HTMLElement>("[data-settings]");
   if (!root) return;
+  const sidebar = root.querySelector<HTMLElement>("[data-settings-sidebar]");
+  if (sidebar && typeof ResizeObserver !== "undefined") {
+    // Window fullscreen animates inset, not viewport size. Track each intermediate sidebar size.
+    settingsMaterialObserver = new ResizeObserver(refreshSettingsMaterial);
+    settingsMaterialObserver.observe(sidebar);
+  }
   const tabs = [...root.querySelectorAll<HTMLButtonElement>("[data-settings-tab]")];
   const tablist = root.querySelector<HTMLElement>("[role=tablist]");
   const activate = (id: string) => {
@@ -1136,6 +1169,10 @@ function preserveDocumentState(event: Event) {
   nextRoot.dataset.themeTexture = currentRoot.dataset.themeTexture || "none";
   nextRoot.dataset.themeStroke = currentRoot.dataset.themeStroke || "regular";
   nextRoot.dataset.dockMaterial = currentRoot.dataset.dockMaterial || "solid";
+  const nextUrl = (event as AstroBeforeSwapEvent).to ?? new URL(nextDocument.URL);
+  nextRoot.dataset.windowFullscreen = String(
+    nextDocument.body.dataset.activePage !== "home" && nextUrl.searchParams.get("fullscreen") === "1"
+  );
   nextRoot.dataset.appDirection = currentRoot.dataset.appDirection || "same";
   const currentThemeColor = document.querySelector<HTMLMetaElement>("meta[name='theme-color']")?.content;
   const nextThemeColor = nextDocument.querySelector<HTMLMetaElement>("meta[name='theme-color']");
@@ -1207,6 +1244,7 @@ function scheduleHomeMicaWidgets() {
 
 function initializePage() {
   initializeWallpaperLoader();
+  syncWindowFullscreen();
   if (document.body.dataset.uiInitialized === "true") return;
   document.body.dataset.uiInitialized = "true";
   initializeDisplaySettings();
@@ -1263,9 +1301,15 @@ if (!runtimeWindow.__luorongSystemEvents) {
   document.addEventListener("astro:before-swap", preserveDocumentState);
   document.addEventListener("astro:after-swap", refreshHomeMicaWidgets);
   document.addEventListener("astro:after-swap", refreshSettingsMaterial);
+  document.addEventListener("astro:after-swap", syncWindowFullscreen);
   window.addEventListener("resize", scheduleHomeMicaWidgets, { passive: true });
   document.addEventListener("click", (event) => {
     if (!(event instanceof MouseEvent) || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (event.target instanceof Element && event.target.closest("[data-window-fullscreen-toggle]")) {
+      event.preventDefault();
+      toggleWindowFullscreen();
+      return;
+    }
     const settingsClose = event.target instanceof Element
       ? event.target.closest<HTMLAnchorElement>("a[data-settings-close]")
       : null;
