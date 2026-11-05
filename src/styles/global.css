@@ -4577,6 +4577,20 @@ html[data-app-direction="internal"]::view-transition-new(app-screen) {
   font-size: 0.8rem;
 }
 
+.about-contact__orcid-icon {
+  display: inline-grid;
+  flex: 0 0 16px;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  color: #fff;
+  background: #a6ce39;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: -0.04em;
+}
+
 .about-contact dd {
   min-width: 0;
   margin: 0;

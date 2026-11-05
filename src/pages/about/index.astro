@@ -10,6 +10,7 @@ const avatar = publicAsset(profile.avatar);
 const email = profile.links.find((link) => link.icon === "mail")?.url;
 const github = profile.links.find((link) => link.icon === "github")?.url;
 const emailHref = email ? (email.startsWith("mailto:") ? email : `mailto:${email}`) : undefined;
+const orcidId = about.orcid.split("/").at(-1);
 ---
 
 <BaseLayout activePage="about" title="About Xufeng Chen" description="Xufeng Chen (luwisp) — undergraduate at Nanjing University, focusing on machine learning and software systems.">
@@ -39,6 +40,10 @@ const emailHref = email ? (email.startsWith("mailto:") ? email : `mailto:${email
             <dd><a href={emailHref}>{email.replace(/^mailto:/, "")}</a></dd>
           </div>
         )}
+        <div>
+          <dt><span class="about-contact__orcid-icon" aria-hidden="true">iD</span> ORCID</dt>
+          <dd><a href={about.orcid} target="_blank" rel="noopener noreferrer" aria-label={`ORCID iD ${orcidId}`}>{orcidId}</a></dd>
+        </div>
         {github && (
           <div>
             <dt><Icon name="github" size={16} /> GitHub</dt>
