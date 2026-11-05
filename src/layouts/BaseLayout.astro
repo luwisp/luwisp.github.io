@@ -15,7 +15,7 @@ import { themeDefaults, themes } from "../lib/themes";
 interface Props {
   title?: string;
   description?: string;
-  activePage: "home" | "archive" | "categories" | "web" | "post" | "settings";
+  activePage: "home" | "archive" | "categories" | "web" | "post" | "settings" | "about";
 }
 
 const { title, description = siteData.site.subtitle, activePage } = Astro.props;
@@ -37,12 +37,14 @@ const appCloseLabel = activePage === "post"
       ? "关闭文件"
       : activePage === "settings"
         ? "关闭设置"
-        : "关闭网页";
+        : activePage === "about"
+          ? "Close About"
+          : "关闭网页";
 ---
 
 <!doctype html>
 <html
-  lang="zh-CN"
+  lang={activePage === "about" ? "en" : "zh-CN"}
   data-theme-mode="dark"
   data-window-fullscreen="false"
   style={`--page-transition-duration:${uiConfig.pageTransition.durationMs}ms`}

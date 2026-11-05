@@ -536,6 +536,19 @@ function initializeClocks() {
         weekday: "long"
       }).format(now);
     });
+
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone,
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hourCycle: "h23"
+    }).formatToParts(now);
+    const numericPart = (type: string) => Number(parts.find((part) => part.type === type)?.value ?? 0);
+    const secondsToday = numericPart("hour") * 3600 + numericPart("minute") * 60 + numericPart("second");
+    document.querySelectorAll<HTMLElement>(".widget-clock").forEach((widget) => {
+      widget.style.setProperty("--day-progress", String(secondsToday / 86400));
+    });
   };
   update();
   clockTimer = window.setInterval(update, 1000);

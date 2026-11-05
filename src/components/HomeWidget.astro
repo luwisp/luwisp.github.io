@@ -1,6 +1,6 @@
 ---
 import siteData from "../../content/site.json";
-import { settingsApp, webApp } from "../config/apps";
+import { aboutApp, settingsApp, webApp } from "../config/apps";
 import type { WidgetId } from "../config/widgets";
 import { widgetPlacementStyle } from "../config/widgets";
 import { getPostCategory, getPostHref, type PostEntry } from "../lib/content";
@@ -26,6 +26,9 @@ const formattedWords = new Intl.NumberFormat("zh-CN", {
   notation: "compact",
   maximumFractionDigits: 1
 }).format(stats.totalWords);
+const shortUpdated = stats.latestDate
+  ? `${stats.latestDate.getFullYear()}.${String(stats.latestDate.getMonth() + 1).padStart(2, "0")}`
+  : "暂无";
 const desktopLink = id === "github"
   ? profile.links.find((link) => link.icon === "github")
   : id === "email"
@@ -45,27 +48,33 @@ const placementStyle = widgetPlacementStyle(id);
       <span class="clock-date" data-clock-date>正在读取日期</span>
     </div>
     <time class="large-clock" data-clock data-clock-format="adaptive">--:--:--</time>
-    <span class="clock-zone">上海</span>
-  </section>
-)}
-
-{id === "user" && (
-  <section class="desktop-widget widget-user" aria-labelledby="profile-title" style={placementStyle} data-home-object={id}>
-    <div class="widget-user__copy">
-      <p>欢迎回来</p>
-      <h1 id="profile-title">{profile.name}</h1>
-      <span>{profile.bio}</span>
+    <div class="clock-progress" aria-hidden="true">
+      <span class="clock-progress__fill"></span>
     </div>
   </section>
 )}
 
-{id === "avatar" && (
-  <section class="desktop-app desktop-app--avatar" aria-label={profile.displayName} style={placementStyle} data-home-object={id}>
-    <span class="desktop-app__icon desktop-app__icon--avatar">
+{id === "user" && (
+  <a
+    class="desktop-widget widget-user"
+    href={aboutApp.href}
+    aria-label="About Xufeng Chen"
+    title="About"
+    style={placementStyle}
+    data-internal-link
+    data-app-order={aboutApp.order}
+    data-home-object={id}
+  >
+    <span class="widget-user__aside" aria-hidden="true"></span>
+    <div class="widget-user__copy">
+      <p>欢迎回来</p>
+      <h1 id="profile-title">{profile.name}</h1>
+      <span class="widget-user__bio">{profile.bio}</span>
+    </div>
+    <span class="widget-user__portrait">
       <img src={avatar} alt="" width="420" height="420" />
     </span>
-    <span class="desktop-app__label">{profile.name}</span>
-  </section>
+  </a>
 )}
 
 {id === "theme" && (
@@ -151,15 +160,20 @@ const placementStyle = widgetPlacementStyle(id);
 
 {id === "stats" && (
   <section class="desktop-widget widget-stats" aria-labelledby="stats-title" style={placementStyle} data-home-object={id}>
-    <header class="widget-header widget-header--compact">
-      <div><h2 id="stats-title">博客信息</h2></div>
+    <header class="widget-stats__header">
+      <h2 id="stats-title">博客信息</h2>
+      <span class="widget-stats__updated" title={latestDate}>更新 · {shortUpdated}</span>
     </header>
-    <dl class="stats-grid">
-      <div><dt>文章</dt><dd>{stats.postCount}</dd></div>
-      <div><dt>分类</dt><dd>{stats.categoryCount}</dd></div>
-      <div><dt>字数</dt><dd>{formattedWords}</dd></div>
-      <div><dt>更新</dt><dd>{latestDate}</dd></div>
-    </dl>
+    <div class="widget-stats__body">
+      <div class="stats-feature" aria-label={`${stats.postCount} 篇文章`}>
+        <span class="stats-feature__number">{stats.postCount}</span>
+        <span class="stats-feature__label">篇文章</span>
+      </div>
+      <dl class="stats-secondary">
+        <div><dt>分类</dt><dd>{stats.categoryCount}</dd></div>
+        <div><dt>字数</dt><dd>{formattedWords}</dd></div>
+      </dl>
+    </div>
   </section>
 )}
 
