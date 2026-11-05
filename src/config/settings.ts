@@ -5,7 +5,7 @@ export const settingsDefaults = {
   // "system" follows the OS; you can also force "light" or "dark".
   themeMode: "system" as ThemeModeDefault,
   themes: {
-    light: "catppuccin-latte",
+    light: "frosted-glass",
     dark: "everforest-dark"
   },
   interface: {
